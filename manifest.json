@@ -1,0 +1,7 @@
+{
+  "name": "SellFromTerminal",
+  "version_number": "1.1.0",
+  "website_url": "https://github.com/stormytuna/SellFromTerminal",
+  "description": "Sell From Terminal adds a few commands that let you sell scrap right from your ship!",
+  "dependencies": []
+}
