@@ -25,3 +25,11 @@ These are just some additional ones I added whilst playing around with the termi
 
 - An ignore list for items to ignore, syncs from host to clients. defaults to "shotgun,gunammo,airhorn,gift"
 - [to remove] How much allowance to grant the algorithm when calculating a perfect match. Ex: Setting it to 5 will make `sell 50` also accept 51, 52, 53, 54 and 55
+
+## TODO
+
+- Animate sell command
+- sell <item> command
+- some kind of loot hud
+- scan <item> in ship
+- shotty ammo counter hud

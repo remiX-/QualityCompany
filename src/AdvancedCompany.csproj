@@ -13,11 +13,6 @@
 		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.Core" Version="5.*" />
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-		<PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.*" PrivateAssets="all" />
-		<!-- <PackageReference Include="Evaisa.NetcodePatcher.MSBuild" Version="3.3.4"> -->
-		<!--   <PrivateAssets>all</PrivateAssets> -->
-		<!--   <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets> -->
-		<!-- </PackageReference> -->
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
 	</ItemGroup>
 
@@ -30,10 +25,13 @@
 			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="BepInEx">
-			<HintPath>..\..\..\..\..\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo\BepInEx\core\BepInEx.dll</HintPath>
+			<HintPath>..\..\..\..\..\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\core\BepInEx.dll</HintPath>
 		</Reference>
 		<Reference Include="0Harmony">
-			<HintPath>..\..\..\..\..\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo\BepInEx\core\0Harmony.dll</HintPath>
+			<HintPath>..\..\..\..\..\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\core\0Harmony.dll</HintPath>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Newtonsoft.Json.dll</HintPath>
 		</Reference>
 		<Reference Include="Unity.Netcode.Runtime">
 			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
@@ -63,18 +61,10 @@
 
 	<!-- Networking Patching -->
 	<ItemGroup>
-		<None Update="modnetworkhandlerbundle">
+		<None Update="Assets\modnetworkhandlerbundle">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
-	<!-- <ItemGroup> -->
-	<!-- 	<NetcodePatch Include="$(TargetDir)$(ProjectName).dll" /> -->
-	<!-- </ItemGroup> -->
-	<!-- 	<PropertyGroup> -->
-	<!-- 		<PostBuildEvent>cd "C:\dev\repos\remiX\LethalCompany\Umno\NetcodePatcher" -->
-	<!-- NetcodePatcher.Cli.exe $(TargetDir) deps\ -->
-	<!-- 		</PostBuildEvent> -->
-	<!-- 	</PropertyGroup> -->
 
 	<Target Name="CopyDLLs" AfterTargets="Build">
 		<Message Text="NetcodePatch task" Importance="High" />
@@ -83,11 +73,10 @@
 
 		<Message Text="Executing CopyDLLs task" Importance="High" />
 
-		<!-- <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" /> -->
-		<!-- <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
-		<!-- -->
-		<!-- <Copy SourceFiles="$(TargetDir)modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" /> -->
-		<!-- <Copy SourceFiles="$(TargetDir)modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
+		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" />
+		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" />
+		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" />
+		<!-- <Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
 
 		<Message Text="Copied build files" Importance="High" />
 	</Target>

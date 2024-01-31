@@ -1,16 +1,15 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using AdvancedCompany.Manager.ShipTerminal;
+using AdvancedCompany.Modules;
+using AdvancedCompany.Network;
+using AdvancedCompany.Patch;
+using AdvancedCompany.TerminalCommands;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using AdvancedCompany.Manager;
-// using TerminalApi.Classes;
-using AdvancedCompany.Patch;
-using AdvancedCompany.TerminalCommands;
+using System.IO;
+using System.Reflection;
 using UnityEngine;
-// using static TerminalApi.Events.Events;
-// using static TerminalApi.TerminalApi;
 
 namespace AdvancedCompany;
 
@@ -22,45 +21,65 @@ public class Plugin : BaseUnityPlugin
     internal static Plugin Instance;
     internal static AssetBundle CustomAssets;
 
-    internal ManualLogSource Logger;
+    internal ManualLogSource ACLogger;
+
+    internal PluginConfig PluginConfig;
 
     private void Awake()
     {
         Instance = this;
-        Logger = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
+        ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
 
         // GameUtils.Init();
 
         // Plugin patch logic
+        NetcodePatcher();
         Patch();
 
         var dllFolderPath = Path.GetDirectoryName(Info.Location);
-        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(dllFolderPath, "sellfromterminalbundle"));
+        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(dllFolderPath, "modnetworkhandlerbundle"));
         if (CustomAssets is null)
         {
-            Logger.LogError("Failed to load custom assets!");
-        }
-        else
-        {
-            Logger.LogDebug("Loaded asset: modnetworkhandlerbundle");
+            ACLogger.LogError("Failed to load custom assets!");
         }
 
-        LoadConfigs();
+        // LoadConfigs();
+        PluginConfig = new PluginConfig(Config);
+        PluginConfig.Bind();
 
         // Loaded
-        Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        ACLogger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
     }
 
     private void Patch()
     {
-        TerminalManager.Sub(new SellCommands());
-        TerminalManager.Sub(new MiscCommands());
-        TerminalManager.Sub(new TargetCommands());
+        AdvancedTerminal.Sub(new SellCommands());
+        AdvancedTerminal.Sub(new MiscCommands());
+        AdvancedTerminal.Sub(new TargetCommands());
 
         harmony.PatchAll(typeof(MonitorPatch));
         harmony.PatchAll(typeof(WeatherPatch));
+        harmony.PatchAll(typeof(ScanFixModule));
         harmony.PatchAll(typeof(TerminalPatch));
+        harmony.PatchAll(typeof(GameNetworkManagerPatch));
         harmony.PatchAll(typeof(NetworkObjectManager));
+    }
+
+    private static void NetcodePatcher()
+    {
+        var types = Assembly.GetExecutingAssembly().GetTypes();
+        foreach (var type in types)
+        {
+            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            foreach (var method in methods)
+            {
+                var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    method.Invoke(null, null);
+                }
+            }
+        }
     }
 
     #region Config

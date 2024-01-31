@@ -1,0 +1,41 @@
+{
+  "playerSaves": {
+    "76561198017097561": {
+      "DestroyTraps": false,
+      "scannerUpgrade": false,
+      "nightVision": false,
+      "exoskeleton": false,
+      "TPButtonPressed": false,
+      "beekeeper": false,
+      "terminalFlash": false,
+      "strongLegs": false,
+      "proteinPowder": false,
+      "runningShoes": false,
+      "biggerLungs": false,
+      "lockSmith": false,
+      "walkies": false,
+      "lightningRod": false,
+      "pager": false,
+      "hunter": false,
+      "playerHealth": false,
+      "wearingHelmet": false,
+      "sickBeats": false,
+      "doorsHydraulicsBattery": false,
+      "beeLevel": 0,
+      "huntLevel": 0,
+      "proteinLevel": 0,
+      "lungLevel": 0,
+      "backLevel": 0,
+      "runningLevel": 0,
+      "scanLevel": 0,
+      "discoLevel": 0,
+      "legLevel": 0,
+      "nightVisionLevel": 0,
+      "playerHealthLevel": 0,
+      "doorsHydraulicsBatteryLevel": 0,
+      "contractType": "None",
+      "contractLevel": "None",
+      "SaleData": {}
+    }
+  }
+}

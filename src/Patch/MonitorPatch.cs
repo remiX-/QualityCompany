@@ -1,6 +1,9 @@
-﻿using GameNetcodeStuff;
+﻿using AdvancedCompany.Components;
+using AdvancedCompany.Network;
+using AdvancedCompany.Service;
+using AdvancedCompany.Utils;
+using GameNetcodeStuff;
 using HarmonyLib;
-using AdvancedCompany.Components;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -13,12 +16,17 @@ internal class MonitorPatch
 
     private static bool hasInitialized = false;
 
+    private static readonly ACLogger _logger = new ACLogger(nameof(MonitorPatch));
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StartOfRound), "Start")]
     private static void Initialize()
     {
+        _logger.LogDebug("StartOfRound.Start");
         InitializeMonitorCluster();
         hasInitialized = true;
+
+        GameUtils.Init();
     }
 
     private static void InitializeMonitorCluster()
@@ -121,7 +129,10 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(DepositItemsDesk), "PlaceItemOnCounter")]
     private static void PlaceItemOnCounterPatch(ref PlayerControllerB playerWhoTriggered)
     {
-        OvertimeMonitor.UpdateMonitor();
+        _logger.LogDebug("PlaceItemOnCounter");
+
+        // OvertimeMonitor.UpdateMonitor();
+        CompanyNetworkHandler.Instance.SyncDepositDeskTotalValueServerRpc();
         // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.IsHost}");
         // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.name}");
         // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.playerSteamId}");
@@ -132,6 +143,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(DepositItemsDesk), "AddObjectToDeskClientRpc")]
     private static void CalculateTotalOnDesk()
     {
+        _logger.LogDebug("AddObjectToDeskClientRpc");
+
         OvertimeMonitor.UpdateMonitor();
     }
 
@@ -145,9 +158,20 @@ internal class MonitorPatch
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TimeOfDay), "SyncNewProfitQuotaClientRpc")]
-    private static void OvertimeBonus()
+    private static void OvertimeBonus(TimeOfDay __instance)
     {
-        Logger.LogMessage("SyncNewProfitQuotaClientRpc");
+        _logger.LogMessage("SyncNewProfitQuotaClientRpc");
+
+        CompanyNetworkHandler.Instance.SaveData.TotalLootValue = ScrapUtils.GetShipTotalRawScrapValue();
+        CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota = 0;
+
+        // if (GameNetworkManager.Instance.localPlayerController.IsHost)
+        if (__instance.IsHost)
+        {
+            // update save file
+            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+        }
+
         CreditMonitor.UpdateMonitor();
     }
 
@@ -155,7 +179,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(StartOfRound), "SyncShipUnlockablesClientRpc")]
     private static void RefreshLootForClientOnStart()
     {
-        Logger.LogMessage("SyncShipUnlockablesClientRpc");
+        _logger.LogMessage("SyncShipUnlockablesClientRpc");
+
         LootMonitor.UpdateMonitor();
     }
 
@@ -163,7 +188,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
     private static void OnPlayerConnect()
     {
-        Logger.LogMessage("ConnectClientToPlayerObject");
+        _logger.LogMessage("ConnectClientToPlayerObject");
+
         CreditMonitor.UpdateMonitor();
     }
 
@@ -178,10 +204,18 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(PlayerControllerB), "GrabObjectClientRpc")]
     private static void RefreshLootOnPickupClient(bool grabValidated, ref NetworkObjectReference grabbedObject)
     {
+        _logger.LogDebug("GrabObjectClientRpc");
+
         if (!grabbedObject.TryGet(out var networkObject)) return;
 
+        var shotgunItem = networkObject.gameObject.GetComponent<ShotgunItem>();
+        if (shotgunItem is not null)
+        {
+            _logger.LogDebug($"YOU GOT {shotgunItem.shellsLoaded} bullets ma boi");
+        }
+
         var componentInChildren = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-        if (componentInChildren.isInShipRoom | componentInChildren.isInElevator)
+        if (componentInChildren.isInShipRoom || componentInChildren.isInElevator)
         {
             LootMonitor.UpdateMonitor();
         }
@@ -191,6 +225,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(PlayerControllerB), "ThrowObjectClientRpc")]
     private static void RefreshLootOnThrowClient(bool droppedInElevator, bool droppedInShipRoom, Vector3 targetFloorPosition, NetworkObjectReference grabbedObject)
     {
+        _logger.LogDebug("ThrowObjectClientRpc");
+
         if (droppedInShipRoom || droppedInElevator)
         {
             LootMonitor.UpdateMonitor();
@@ -201,7 +237,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(StartOfRound), "ChangeLevelClientRpc")]
     private static void SwitchPlanets()
     {
-        Logger.LogMessage("ChangeLevelClientRpc");
+        _logger.LogMessage("ChangeLevelClientRpc");
+
         CreditMonitor.UpdateMonitor();
     }
 
@@ -209,7 +246,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(Terminal), "SyncGroupCreditsClientRpc")]
     private static void RefreshMoney()
     {
-        Logger.LogMessage("SyncGroupCreditsClientRpc");
+        _logger.LogMessage("SyncGroupCreditsClientRpc");
+
         CreditMonitor.UpdateMonitor();
     }
 
@@ -217,7 +255,7 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(StartOfRound), "StartGame")]
     private static void StartGame()
     {
-        Logger.LogMessage("StartGame");
+        _logger.LogMessage("StartGame");
 
         OvertimeMonitor.UpdateMonitor();
     }
@@ -226,16 +264,26 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(StartOfRound), "ArriveAtLevel")]
     private static void ArriveAtLevel()
     {
-        Logger.LogMessage("ArriveAtLevel");
+        _logger.LogDebug("ArriveAtLevel");
         OvertimeMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TimeOfDay), "UpdateProfitQuotaCurrentTime")]
-    private static void UpdateProfitQuotaCurrentTime()
+    private static void UpdateProfitQuotaCurrentTime(TimeOfDay __instance)
     {
-        Logger.LogMessage("UpdateProfitQuotaCurrentTime");
+        _logger.LogDebug($"UpdateProfitQuotaCurrentTime: {hasInitialized}");
         if (!hasInitialized) return;
+
+        CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota++;
+
+        // if (GameNetworkManager.Instance.localPlayerController.IsHost)
+        if (__instance.IsHost)
+        {
+            // update save file
+            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+        }
+
         OvertimeMonitor.UpdateMonitor();
     }
 }

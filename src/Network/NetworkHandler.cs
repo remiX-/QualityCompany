@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using AdvancedCompany.Components;
+using AdvancedCompany.Service;
+using AdvancedCompany.Utils;
+using System.Collections.Generic;
 using System.Linq;
-using AdvancedCompany.Game;
-using AdvancedCompany.Scrap;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,62 +12,72 @@ public class NetworkHandler : NetworkBehaviour
 {
     public static NetworkHandler Instance { get; private set; }
 
+    private readonly ACLogger _logger = new(nameof(NetworkHandler));
+
     private int totalItems = 0;
     private int totalValueForSale = 0;
 
-    // public static void SellAllScrap()
-    // {
-    //     Logger.LogDebug("NetworkManager.SellAllScrap");
-    //     PerformSell(ScrapHelpers.GetAllScrapInShip());
-    // }
-    //
-    // public static void SellAmount(List<GrabbableObject> itemsToSell)
-    // {
-    //     Logger.LogDebug("NetworkManager.SellAmount");
-    //     PerformSell(itemsToSell);
-    // }
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateSellTargetServerRpc(int newTarget, string playerName)
+    {
+        _logger.LogDebug($"NetworkManager.UpdateSellTargetServerRpc -> {newTarget}, {playerName}");
+        UpdateSellTargetClientRpc(newTarget, playerName);
+    }
+
+    [ClientRpc]
+    public void UpdateSellTargetClientRpc(int newTarget, string playerName)
+    {
+        _logger.LogDebug($"NetworkManager.UpdateSellTargetClientRpc -> {newTarget}, {playerName}");
+        OvertimeMonitor.targetTotalCredits = newTarget;
+        OvertimeMonitor.UpdateMonitor();
+
+        HudUtils.DisplayNotification($"Sale target has been updated to ${newTarget} by {playerName}");
+    }
 
     [ServerRpc(RequireOwnership = false)]
     public void SellAllScrapServerRpc()
     {
-        Logger.LogDebug("NetworkManager.SellAllScrapServerRpc");
+        _logger.LogDebug("NetworkManager.SellAllScrapServerRpc");
         SellAllScrapClientRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void TargetSellForNetworkObjectServerRpc(ulong networkObjectId)
     {
-        Logger.LogDebug($"NetworkManager.TargetSellForNetworkObjectServerRpc => networkObjectId: {networkObjectId}");
+        _logger.LogDebug($"NetworkManager.TargetSellForNetworkObjectServerRpc => networkObjectId: {networkObjectId}");
         TargetSellForNetworkObjectClientRpc(networkObjectId);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void ExecuteSellAmountServerRpc()
     {
-        Logger.LogDebug("NetworkManager.ExecuteSellAmountServerRpc");
+        _logger.LogDebug("NetworkManager.ExecuteSellAmountServerRpc");
         ExecuteSellAmountClientRpc();
     }
 
     [ClientRpc]
     public void SellAllScrapClientRpc()
     {
-        Logger.LogDebug("NetworkManager.SellAllScrapClientRpc");
-        PerformSell(ScrapHelpers.GetAllScrapInShip());
+        _logger.LogDebug("NetworkManager.SellAllScrapClientRpc");
+        PerformSell(ScrapUtils.GetAllSellableScrapInShip());
     }
 
     [ClientRpc]
     public void TargetSellForNetworkObjectClientRpc(ulong networkObjectId)
     {
-        Logger.LogDebug($"NetworkManager.TargetSellForNetworkObjectClientRpc => networkObjectId: {networkObjectId}");
+        _logger.LogDebug($"NetworkManager.TargetSellForNetworkObjectClientRpc => networkObjectId: {networkObjectId}");
         MoveNetworkObjectToDepositDesk(networkObjectId);
     }
 
     [ClientRpc]
     public void ExecuteSellAmountClientRpc()
     {
-        Logger.LogDebug("NetworkManager.ExecuteSellAmountClientRpc");
+        _logger.LogDebug("NetworkManager.ExecuteSellAmountClientRpc");
 
-        Notification.Display($"Placed {totalItems} pieces of scrap onto the Company Desk for sale. Total ${totalValueForSale}!");
+        var depositItemsDesk = FindObjectOfType<DepositItemsDesk>();
+        depositItemsDesk.SetTimesHeardNoiseServerRpc(5f);
+
+        HudUtils.DisplayNotification($"Placed {totalItems} pieces of scrap onto the Company Desk for sale. Total ${totalValueForSale}!");
 
         totalItems = 0;
         totalValueForSale = 0;
@@ -86,16 +97,18 @@ public class NetworkHandler : NetworkBehaviour
             index++;
         });
 
-        var totalValue = ScrapHelpers.SumScrapListSellValue(scrap);
-        Notification.Display($"Placed {scrap.Count} pieces of scrap onto the Company Desk for sale. Total ${totalValue}!");
+        depositItemsDesk.SetTimesHeardNoiseServerRpc(5f);
+
+        var totalValue = ScrapUtils.SumScrapListSellValue(scrap);
+        HudUtils.DisplayNotification($"Placed {scrap.Count} pieces of scrap onto the Company Desk for sale. Total ${totalValue}!");
     }
 
     private void MoveNetworkObjectToDepositDesk(ulong networkObjectId)
     {
-        var scrap = ScrapHelpers.GetAllScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
+        var scrap = ScrapUtils.GetAllSellableScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
         if (scrap is null)
         {
-            Logger.LogDebug($"Failed to find network object on this client: {networkObjectId}");
+            _logger.LogDebug($"Failed to find network object on this client: {networkObjectId}");
             return;
         }
 
@@ -110,7 +123,7 @@ public class NetworkHandler : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        Logger.LogDebug("NetworkManager.OnNetworkSpawn");
+        _logger.LogDebug("NetworkManager.OnNetworkSpawn");
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
             Instance?.gameObject.GetComponent<NetworkObject>().Despawn();

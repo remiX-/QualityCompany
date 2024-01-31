@@ -1,8 +1,8 @@
-﻿namespace AdvancedCompany.Game;
+﻿namespace AdvancedCompany.Utils;
 
-internal class Notification
+public class HudUtils
 {
-    public static void Display(string message)
+    public static void DisplayNotification(string message)
     {
         HUDManager.Instance.globalNotificationAnimator.SetTrigger("TriggerNotif");
         HUDManager.Instance.globalNotificationText.text = message;

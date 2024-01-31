@@ -1,17 +1,25 @@
-﻿using System;
+﻿using AdvancedCompany.Service;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AdvancedCompany.Game;
 
-namespace AdvancedCompany.Scrap;
+namespace AdvancedCompany.Utils;
 
-public static class ScrapHelpers
+public static class ScrapUtils
 {
+    private static readonly ACLogger _logger = new(nameof(ScrapUtils));
+
     public static List<GrabbableObject> GetAllScrapInShip()
     {
         return GameUtils.ShipGameObject
             .GetComponentsInChildren<GrabbableObject>()
+            .ToList();
+    }
+
+    public static List<GrabbableObject> GetAllSellableScrapInShip()
+    {
+        return GetAllScrapInShip()
             .Where(scrap => scrap.CanSellItem())
             .ToList();
     }
@@ -20,15 +28,15 @@ public static class ScrapHelpers
     {
         // Sanity check that we actually have enough
         // Technically should never happen since terminal doesn't allow player to sell scrap if it won't meet the amount
-        var totalScrapValue = GetTotalScrapValueInShip();
+        var totalScrapValue = GetShipTotalSellableScrapValue();
         if (totalScrapValue < amount)
         {
-            Logger.LogMessage($"Cannot reach required amount of {amount}! Total value: {totalScrapValue}, total num scrap: {CountAllScrapInShip()}");
+            _logger.LogMessage($"Cannot reach required amount of {amount}! Total value: {totalScrapValue}, total num scrap: {GetShipSellableScrapCount()}");
             return new List<GrabbableObject>();
         }
 
         var nextScrapIndex = 0;
-        var allScrap = GetAllScrapInShip()
+        var allScrap = GetAllSellableScrapInShip()
             .OrderByDescending(scrap => scrap.itemProperties.twoHanded)
             .ThenByDescending(scrap => scrap.scrapValue)
             // .ThenBy(scrap => scrap.NetworkObjectId)
@@ -87,23 +95,33 @@ public static class ScrapHelpers
 
         // Worst case scenario, we found no sums :(
         // Whatever we have will have to do
-        Logger.LogMessage("Couldn't find a way to perfectly meet quota :(");
+        _logger.LogMessage("Couldn't find a way to perfectly meet quota :(");
         return scrapForQuota;
     }
 
-    public static int CountAllScrapInShip() => GetAllScrapInShip().Count;
+    public static int GetShipSellableScrapCount() => GetAllSellableScrapInShip().Count;
 
-    public static int GetTotalScrapValueInShip() => GetAllScrapInShip().Sum(scrap => scrap.ActualSellValue());
+    public static int GetShipTotalSellableScrapValue() => GetAllSellableScrapInShip().Sum(scrap => scrap.ActualSellValue());
+
+    public static int GetShipTotalRawScrapValue() => GetAllScrapInShip().Sum(scrap => scrap.scrapValue);
 
     public static int SumScrapListSellValue(IEnumerable<GrabbableObject> scraps) => scraps.Where(item => item.itemProperties.isScrap).Sum(scrap => scrap.ActualSellValue());
 
     public static bool CanSellItem(this GrabbableObject item)
     {
+        if (item is null)
+        {
+            _logger.LogDebug("CanSellItem: Trying to evaluate a null item");
+            return false;
+        }
+        _logger.LogDebug($"CanSellItem: ConfigSellIgnoreList => {Plugin.Instance.PluginConfig.ConfigSellIgnoreList}");
+
+        // ignore: CatItem, WeezerGuitar, FireAxe?
         var canSell = item.itemProperties.isScrap && item.scrapValue > 0 && !item.isHeld;
-        var isInIgnoreList = Plugin.ConfigSellIgnoreList.Value
+        var isInIgnoreList = Plugin.Instance.PluginConfig.ConfigSellIgnoreList
             .Split(",")
             .Select(x => x.Trim())
-            .Select(x => Regex.Match(x, item.itemProperties.name, RegexOptions.IgnoreCase))
+            .Select(x => Regex.Match(item.itemProperties.name, x, RegexOptions.IgnoreCase))
             .Any(match => match.Success);
 
         return canSell && !isInIgnoreList;

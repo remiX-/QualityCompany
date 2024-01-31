@@ -1,12 +1,13 @@
-﻿using System;
+﻿using AdvancedCompany.Service;
+using AdvancedCompany.Utils;
+using System;
 using System.Linq;
-using AdvancedCompany.Game;
-using AdvancedCompany.Scrap;
+using AdvancedCompany.Network;
 using UnityEngine;
 
 namespace AdvancedCompany.Components;
 
-public class OvertimeMonitor : BaseMonitor
+internal class OvertimeMonitor : BaseMonitor
 {
     public static OvertimeMonitor Instance;
 
@@ -14,53 +15,29 @@ public class OvertimeMonitor : BaseMonitor
     private static GameObject _depositDesk;
 
     public static int targetTotalCredits = 1200;
-    private static float sellNeededForCurrentQuota;
 
     protected override void PostStart()
     {
         Instance = this;
+        _logger = new ACLogger(nameof(OvertimeMonitor));
 
         _textMesh.fontSize *= 0.65f;
         _terminal = FindObjectOfType<Terminal>();
 
-        SetupTerminalCommands();
-
         UpdateMonitor();
     }
-
-    private static void SetupTerminalCommands()
-    {
-        // TerminalParsedSentence += TextSubmitted;
-    }
-
-    // private static void TextSubmitted(object sender, TerminalParseSentenceEventArgs e)
-    // {
-    //     var input = e.SubmittedText;
-    //     Logger.LogMessage($"OvertimeMonitor.TextSubmitted: {e.SubmittedText} Node Returned: {e.ReturnedNode}");
-    //
-    //     if (input is null || input.Length == 0) return;
-    //
-    //     var inputArray = input.Split(" ");
-    //     var command = inputArray[0].ToLower();
-    //     if (command != "target" || inputArray.Length == 1) return;
-    //
-    //     var amountArg = inputArray[1];
-    //     Logger.LogMessage($"Input checker: |{input}|");
-    //
-    //     if (!int.TryParse(amountArg, out var amount)) return;
-    //     
-    //     targetTotalCredits = amount;
-    //
-    //     UpdateMonitor();
-    // }
 
     public static void UpdateMonitor()
     {
         if (!GameUtils.IsOnCompany())
         {
-            Instance.UpdateMonitorText(GameUtils.TimeOfDay.daysUntilDeadline == 0
-                ? "Company time boiz"
-                : $"Finish {GameUtils.TimeOfDay.daysUntilDeadline} more days");
+            var quotaStartScrap = CompanyNetworkHandler.Instance.SaveData.TotalLootValue;
+            var daysCompleted = CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota;
+            var lootGainedInCurrentQuota = ScrapUtils.GetShipTotalRawScrapValue() - quotaStartScrap;
+            Instance.UpdateMonitorText($"On day: {daysCompleted}\nQuota start: ${quotaStartScrap}\nGained: ${lootGainedInCurrentQuota}");
+            // Instance.UpdateMonitorText(GameUtils.TimeOfDay.daysUntilDeadline == 0
+            //     ? "Company time boiz"
+            //     : $"Finish {GameUtils.TimeOfDay.daysUntilDeadline} more days");
 
             return;
         }
@@ -72,21 +49,18 @@ public class OvertimeMonitor : BaseMonitor
         Instance.UpdateMonitorText($"TARGET:${targetTotalCredits}\nNEEDED:${stillNeeded}\nOVERTIME:${overtime}\nDESK:${CalculateSumOnDepositDesk()}");
     }
 
-    // TODO maybe int rather, but testing
-    private static float CalculateSellNeeded()
-    {
-        sellNeededForCurrentQuota = CalculateSellAmountRequired();
-
-        return Math.Max(0, sellNeededForCurrentQuota - GameUtils.TimeOfDay.quotaFulfilled);
-    }
-
-    private static int CalculateSellAmountRequired()
+    private static int CalculateSellNeeded()
     {
         if (GameUtils.TimeOfDay.profitQuota >= targetTotalCredits)
         {
             return Math.Max(0, GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled);
         }
 
+        return Math.Max(0, CalculateSellAmountRequired() - GameUtils.TimeOfDay.quotaFulfilled);
+    }
+
+    private static int CalculateSellAmountRequired()
+    {
         var amountStillNeeded = targetTotalCredits - _terminal.groupCredits + GameUtils.TimeOfDay.quotaFulfilled;
         var deadlineDaysDifference = 15 * (GameUtils.TimeOfDay.daysUntilDeadline - 1);
         return (int)Math.Ceiling(5 * (amountStillNeeded - deadlineDaysDifference + (float)GameUtils.TimeOfDay.profitQuota / 5) / 6);
@@ -110,6 +84,6 @@ public class OvertimeMonitor : BaseMonitor
         }
 
         var deskScrapItems = _depositDesk.GetComponentsInChildren<GrabbableObject>().Where(item => item.itemProperties.isScrap);
-        return ScrapHelpers.SumScrapListSellValue(deskScrapItems);
+        return ScrapUtils.SumScrapListSellValue(deskScrapItems);
     }
 }
