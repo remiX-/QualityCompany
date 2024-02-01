@@ -1,4 +1,5 @@
 ﻿using AdvancedCompany.Components;
+using AdvancedCompany.Modules;
 using AdvancedCompany.Network;
 using AdvancedCompany.Service;
 using AdvancedCompany.Utils;
@@ -6,6 +7,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
 using UnityEngine;
+using static AdvancedCompany.Service.GameEvents;
 
 namespace AdvancedCompany.Patch;
 
@@ -16,7 +18,7 @@ internal class MonitorPatch
 
     private static bool hasInitialized = false;
 
-    private static readonly ACLogger _logger = new ACLogger(nameof(MonitorPatch));
+    private static readonly ACLogger _logger = new(nameof(MonitorPatch));
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StartOfRound), "Start")]
@@ -24,13 +26,36 @@ internal class MonitorPatch
     {
         _logger.LogDebug("StartOfRound.Start");
         InitializeMonitorCluster();
-        hasInitialized = true;
 
         GameUtils.Init();
+
+        hasInitialized = true;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(HUDManager), "Start")]
+    private static void HudManagerStartPatch(HUDManager __instance)
+    {
+        _logger.LogDebug("HudManagerStartPatch");
+
+        InitializeMonitorCluster();
+
+        GameUtils.Init();
+
+        // TODO: move shotty ammo ui loading to a ModuleLoader of sorts
+        var shotty = new GameObject("ShotgunAmmoUI");
+        shotty.AddComponent<ShotgunUIModule>();
+        shotty.transform.parent = __instance.HUDContainer.transform;
+
+        hasInitialized = true;
+
+        OnHudManagerStart(__instance);
     }
 
     private static void InitializeMonitorCluster()
     {
+        if (hasInitialized) return;
+
         var hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
         var hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
         Object.Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
@@ -201,6 +226,27 @@ internal class MonitorPatch
     }
 
     [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerControllerB), "BeginGrabObject")]
+    private static void BeginGrabObjectPatch(PlayerControllerB __instance)
+    {
+        OnPlayerBeginGrabObject(__instance);
+    }
+
+    // [HarmonyPostfix]
+    // [HarmonyPatch(typeof(ShotgunItem), "reloadGunAnimation")]
+    // private static void reloadGunAnimationPatch()
+    // {
+    //     OnPlayerBeginGrabObject(GameNetworkManager.Instance.localPlayerController);
+    // }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerControllerB), "SwitchToItemSlot")]
+    private static void SwitchToItemSlotPatch(PlayerControllerB __instance)
+    {
+        OnPlayerSwitchToItemSlot(__instance);
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "GrabObjectClientRpc")]
     private static void RefreshLootOnPickupClient(bool grabValidated, ref NetworkObjectReference grabbedObject)
     {
@@ -208,17 +254,14 @@ internal class MonitorPatch
 
         if (!grabbedObject.TryGet(out var networkObject)) return;
 
-        var shotgunItem = networkObject.gameObject.GetComponent<ShotgunItem>();
-        if (shotgunItem is not null)
-        {
-            _logger.LogDebug($"YOU GOT {shotgunItem.shellsLoaded} bullets ma boi");
-        }
-
         var componentInChildren = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
         if (componentInChildren.isInShipRoom || componentInChildren.isInElevator)
         {
             LootMonitor.UpdateMonitor();
+            OvertimeMonitor.UpdateMonitor();
         }
+
+        CreditMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -227,10 +270,14 @@ internal class MonitorPatch
     {
         _logger.LogDebug("ThrowObjectClientRpc");
 
+        _logger.LogDebug($" > isInShipRoom: {droppedInShipRoom} | isInElevator: {droppedInElevator}");
         if (droppedInShipRoom || droppedInElevator)
         {
             LootMonitor.UpdateMonitor();
+            OvertimeMonitor.UpdateMonitor();
         }
+
+        CreditMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -270,7 +317,16 @@ internal class MonitorPatch
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(TimeOfDay), "UpdateProfitQuotaCurrentTime")]
-    private static void UpdateProfitQuotaCurrentTime(TimeOfDay __instance)
+    private static void UpdateProfitQuotaCurrentTime()
+    {
+        if (!hasInitialized) return;
+
+        OvertimeMonitor.UpdateMonitor();
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(HUDManager), "DisplayDaysLeft")]
+    private static void DisplayDaysLeft(TimeOfDay __instance)
     {
         _logger.LogDebug($"UpdateProfitQuotaCurrentTime: {hasInitialized}");
         if (!hasInitialized) return;

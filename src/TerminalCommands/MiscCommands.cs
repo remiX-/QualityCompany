@@ -1,5 +1,8 @@
 ﻿using AdvancedCompany.Manager.ShipTerminal;
+using AdvancedCompany.Network;
 using AdvancedCompany.Service;
+using AdvancedCompany.Utils;
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,6 +11,8 @@ namespace AdvancedCompany.TerminalCommands;
 internal class MiscCommands : ITerminalSubscriber
 {
     private static readonly ACLogger _logger = new(nameof(MiscCommands));
+
+    private int scrapCountToHack;
 
     public void Run()
     {
@@ -22,22 +27,6 @@ internal class MiscCommands : ITerminalSubscriber
                 .WithCondition("inTransitToMoon", "Unable to comply. The ship is already in transit to another moon.", () => !StartOfRound.Instance.shipDoorsEnabled && StartOfRound.Instance.travellingToNewLevel)
                 .WithAction(() =>
                 {
-                    // const string alreadyTransitMessage = "Unable to comply. The ship is already in transit.";
-                    // if (leverObject is null) return "!! Can't find StartGameLever !!";
-                    // var lever = leverObject.GetComponent<StartMatchLever>();
-                    // if (lever is null) return "!! Can't find StartMatchLever component !!";
-                    //
-                    // // Doors are enabled (on a moon), ship is either not landed or is leaving
-                    // if (StartOfRound.Instance.shipDoorsEnabled && !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
-                    // {
-                    //     return alreadyTransitMessage;
-                    // }
-                    // // Doors are disabled (in space), ship is in transit to another moon
-                    // if (!StartOfRound.Instance.shipDoorsEnabled && StartOfRound.Instance.travellingToNewLevel)
-                    // {
-                    //     return alreadyTransitMessage;
-                    // }
-
                     var leverObject = GameObject.Find("StartGameLever");
                     var lever = leverObject.GetComponent<StartMatchLever>();
                     var newState = !lever.leverHasBeenPulled;
@@ -100,26 +89,40 @@ internal class MiscCommands : ITerminalSubscriber
 
         AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("hack")
-                .WithDescription(">Hack\nSpawn some ez lewt.")
-                .WithCondition("isHost", "You are not host.", () => !NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer)
-                .WithAction(() =>
-                {
-                    for (var i = 0; i < 10; i++)
+                .WithDescription(">hack <count>\nSpawn some ez lewt.")
+                .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
+                .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
+                .AddTextReplacement("[scrapCountToHack]", scrapCountToHack.ToString)
+                .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
+                    .WithMessage("Hacked in [scrapCountToHack] items")
+                    .WithConditions("isHost")
+                    .WithInputMatch(@"(\d+$)$")
+                    .WithPreAction(input =>
                     {
-                        var rand = new System.Random();
-                        var nextScrap = rand.Next(16, 68);
-                        var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
-                        scrap.GetComponent<GrabbableObject>().fallTime = 0f;
-                        var scrapValue = rand.Next(20, 120);
-                        scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
-                        scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
-                        scrap.GetComponent<NetworkObject>().Spawn();
+                        scrapCountToHack = Convert.ToInt32(input);
 
-                        RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                    }
+                        if (scrapCountToHack <= 0) return false;
 
-                    return "Ez lewt.";
-                })
+                        return true;
+                    })
+                    .WithAction(() =>
+                    {
+                        for (var i = 0; i < scrapCountToHack; i++)
+                        {
+                            var rand = new System.Random();
+                            var nextScrap = rand.Next(16, 68);
+                            var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
+                            scrap.GetComponent<GrabbableObject>().fallTime = 0f;
+                            var scrapValue = rand.Next(40, 120);
+                            scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
+                            scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
+                            scrap.GetComponent<NetworkObject>().Spawn();
+
+                            RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
+                            scrap.transform.parent = GameUtils.ShipGameObject.transform;
+                        }
+                    })
+                )
         );
     }
 

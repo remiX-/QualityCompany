@@ -18,7 +18,6 @@ internal class SellCommands : ITerminalSubscriber
             new TerminalCommandBuilder("sell")
                 .WithDescription(">SELL [ALL|QUOTA|<AMOUNT>]\nTo sell items on the ship.")
                 .WithText("Please enter [all|quota|<amount>]")
-                .SetConfirmMessage("This should never appear")
                 .WithSubCommand(new TerminalSubCommandBuilder("all")
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell ALL scrap ([shipTotalScrapCount]) for [shipTotalScrapValue] credits.")
                     .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for [shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
@@ -52,7 +51,7 @@ internal class SellCommands : ITerminalSubscriber
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to [sellScrapFor] as possible...\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
                     .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap")
-                    .WithInputMatch(@"(\d+$)$")
+                    .WithInputMatch(@"(\d+)$")
                     .WithPreAction(input =>
                     {
                         sellScrapFor = Convert.ToInt32(input);
@@ -116,15 +115,18 @@ internal class SellCommands : ITerminalSubscriber
                         NetworkHandler.Instance.ExecuteSellAmountServerRpc();
                     })
                 )
-                .WithSubCommand(new TerminalSubCommandBuilder("poopy")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell all shitty poopy cushions.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
+                .WithSubCommand(new TerminalSubCommandBuilder("<sell_item>")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell specified items.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
                     .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
-                    .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap")
-                    .WithPreAction(() =>
+                    .WithConditions("landedAtCompany", "hasScrapItems")
+                    .WithInputMatch(@"(\w+)$")
+                    .WithPreAction(input =>
                     {
-                        recommendedScraps = ScrapUtils.GetAllSellableScrapInShip()
-                            .Where(x => x.itemProperties.name.ToLower().Contains("woopie") || x.itemProperties.name.ToLower().Contains("cush"))
+                        recommendedScraps = ScrapUtils.GetAllScrapInShip()
+                            .Where(x => x.itemProperties.name.ToLower().Contains(input))
                             .ToList();
+
+                        return true;
                     })
                     .WithAction(() =>
                     {

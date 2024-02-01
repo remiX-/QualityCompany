@@ -7,7 +7,7 @@ namespace AdvancedCompany.Patch;
 [HarmonyPatch(typeof(GameNetworkManager))]
 internal class GameNetworkManagerPatch
 {
-    private static readonly ACLogger _logger = new ACLogger(nameof(GameNetworkManagerPatch));
+    private static readonly ACLogger _logger = new(nameof(GameNetworkManagerPatch));
 
     [HarmonyPostfix]
     [HarmonyPatch("Disconnect")]

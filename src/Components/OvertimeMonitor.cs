@@ -32,7 +32,7 @@ internal class OvertimeMonitor : BaseMonitor
         if (!GameUtils.IsOnCompany())
         {
             var quotaStartScrap = CompanyNetworkHandler.Instance.SaveData.TotalLootValue;
-            var daysCompleted = CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota;
+            var daysCompleted = CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota + 1;
             var lootGainedInCurrentQuota = ScrapUtils.GetShipTotalRawScrapValue() - quotaStartScrap;
             Instance.UpdateMonitorText($"On day: {daysCompleted}\nQuota start: ${quotaStartScrap}\nGained: ${lootGainedInCurrentQuota}");
             // Instance.UpdateMonitorText(GameUtils.TimeOfDay.daysUntilDeadline == 0

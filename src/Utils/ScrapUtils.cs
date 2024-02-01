@@ -105,6 +105,13 @@ public static class ScrapUtils
 
     public static int GetShipTotalRawScrapValue() => GetAllScrapInShip().Sum(scrap => scrap.scrapValue);
 
+    public static int GetShipSettledTotalRawScrapValue()
+    {
+        return GetAllScrapInShip()
+               .Where(scrap => scrap.itemProperties.isScrap && scrap.scrapValue > 0 && !scrap.isHeld)
+               .Sum(scrap => scrap.scrapValue);
+    }
+
     public static int SumScrapListSellValue(IEnumerable<GrabbableObject> scraps) => scraps.Where(item => item.itemProperties.isScrap).Sum(scrap => scrap.ActualSellValue());
 
     public static bool CanSellItem(this GrabbableObject item)
@@ -114,9 +121,7 @@ public static class ScrapUtils
             _logger.LogDebug("CanSellItem: Trying to evaluate a null item");
             return false;
         }
-        _logger.LogDebug($"CanSellItem: ConfigSellIgnoreList => {Plugin.Instance.PluginConfig.ConfigSellIgnoreList}");
 
-        // ignore: CatItem, WeezerGuitar, FireAxe?
         var canSell = item.itemProperties.isScrap && item.scrapValue > 0 && !item.isHeld;
         var isInIgnoreList = Plugin.Instance.PluginConfig.ConfigSellIgnoreList
             .Split(",")

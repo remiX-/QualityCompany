@@ -30,7 +30,7 @@ public static class GameUtils
 
     public static string CurrentPlanet()
     {
-        return TimeOfDay.currentLevel.PlanetName;
+        return TimeOfDay.currentLevel?.PlanetName;
     }
 
     public static bool IsOnCompany()

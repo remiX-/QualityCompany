@@ -74,7 +74,7 @@
 		<Message Text="Executing CopyDLLs task" Importance="High" />
 
 		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" />
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" />
+		<!-- <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
 		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" />
 		<!-- <Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
 
