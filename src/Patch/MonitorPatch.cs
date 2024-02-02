@@ -29,6 +29,12 @@ internal class MonitorPatch
 
         GameUtils.Init();
 
+        // Startup ModuleLoader
+        _logger.LogMessage($"Loading ModuleLoader...");
+        var mlgo = new GameObject("AdvancedCompanyLoader");
+        mlgo.AddComponent<ModuleLoader>();
+        Object.DontDestroyOnLoad(mlgo);
+
         hasInitialized = true;
     }
 
@@ -267,6 +273,14 @@ internal class MonitorPatch
     {
         _logger.LogDebug($"ReloadGun: {start}");
         OnPlayerBeginGrabObject(GameNetworkManager.Instance.localPlayerController);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ShotgunItem), "ShootGun")]
+    private static void ShootGunPatch(HUDManager __instance)
+    {
+        _logger.LogDebug("ShootGun");
+        OnPlayerShootShotgun(GameNetworkManager.Instance.localPlayerController);
     }
 
     [HarmonyPostfix]

@@ -48,7 +48,11 @@ public class Plugin : BaseUnityPlugin
         PluginConfig.Bind();
 
         // Loaded
-        ACLogger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        ACLogger.LogMessage($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+    }
+
+    private void Start()
+    {
     }
 
     private void Patch()

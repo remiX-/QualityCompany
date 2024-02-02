@@ -9,17 +9,19 @@ internal class ShotgunUIModule : MonoBehaviour
 {
     public static ShotgunUIModule Instance { get; private set; }
 
+    public GameObject FrameParent;
+    public int MyItemSlotIShouldListenTo;
+
     private readonly ACLogger _logger = new(nameof(ShotgunUIModule));
 
     private Text _text;
     private static readonly Color TEXT_COLOR_FULL = new(0f, 1f, 0f, 0.75f);
     private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f); // rgb(255, 243, 36) yellow
-    // private readonly Color TEXT_COLOR_HALF = new(0.8156862745f, 0.5411764706f, 0.2705882353f, 0.75f); // orange
     private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
-
+    
     public int ItemIndex;
 
-    private void Awake()
+    private void Start()
     {
         Instance = this;
 
@@ -34,9 +36,15 @@ internal class ShotgunUIModule : MonoBehaviour
         _text.alignment = TextAnchor.MiddleCenter;
         _text.enabled = true;
 
+        transform.SetParent(FrameParent.transform);
+        transform.position = Vector3.zero;
+        transform.localPosition = Vector3.zero;
+        transform.localScale = Vector3.one;
+
         GameEvents.PlayerBeginGrabObject += UpdateUI;
-        GameEvents.PlayerSwitchToItemSlot += UpdateUI;
         GameEvents.PlayerDiscardHeldObject += UpdateUI;
+        GameEvents.PlayerSwitchToItemSlot += UpdateUI;
+        GameEvents.PlayerShootShotgun += UpdateUI;
     }
 
     private void UpdateUI(PlayerControllerB instance)
@@ -46,7 +54,7 @@ internal class ShotgunUIModule : MonoBehaviour
         var shotgunItem = instance.currentlyHeldObjectServer?.GetComponent<ShotgunItem>();
         if (shotgunItem is not null)
         {
-            Show(shotgunItem.shellsLoaded, instance.currentItemSlot);
+            Show(shotgunItem.shellsLoaded);
         }
         else
         {
@@ -54,9 +62,8 @@ internal class ShotgunUIModule : MonoBehaviour
         }
     }
 
-    private void Show(int shellsLoaded, int slotIndex)
+    private void Show(int shellsLoaded)
     {
-        _logger.LogMessage($"Show: shells {shellsLoaded}, index: {slotIndex}");
         _text.enabled = true;
         _text.text = shellsLoaded.ToString();
         _text.color = shellsLoaded switch
@@ -65,12 +72,6 @@ internal class ShotgunUIModule : MonoBehaviour
             1 => TEXT_COLOR_HALF,
             _ => TEXT_COLOR_EMPTY
         };
-
-        var slotIcon = HUDManager.Instance.itemSlotIconFrames[slotIndex];
-        transform.SetParent(slotIcon.gameObject.transform);
-        transform.position = Vector3.zero;
-        transform.localPosition = Vector3.zero;
-        transform.localScale = Vector3.one;
     }
 
     private void Hide()

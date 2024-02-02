@@ -11,6 +11,9 @@ internal class ScrapValueUIModule : MonoBehaviour
 {
     public static ScrapValueUIModule Instance { get; private set; }
 
+    public GameObject FrameParent;
+    public int MyItemSlotIShouldListenTo;
+
     private readonly ACLogger _logger = new(nameof(ScrapValueUIModule));
     private static readonly Color TEXT_COLOR_ABOVE150 = new(255f / 255f, 128f / 255f, 0f / 255f, 1f); // Legendary orange??
     private static readonly Color TEXT_COLOR_ABOVE100 = new(163f / 255f, 53f / 255f, 238f / 255f, 0.75f); // Epic
@@ -18,10 +21,6 @@ internal class ScrapValueUIModule : MonoBehaviour
     private static readonly Color TEXT_COLOR_ABOVE50 = new(30f / 255f, 1f, 0f, 0.75f); // green
     private static readonly Color TEXT_COLOR_NOOBS = new(1f, 1f, 1f, 0.75f);
 
-    public GameObject FrameParent;
-    public int MyItemSlotIShouldListenTo;
-
-    private Text _text;
 
     private void Start()
     {
@@ -56,13 +55,13 @@ internal class ScrapValueUIModule : MonoBehaviour
         }
         else
         {
-            Show(instance.currentlyHeldObjectServer, instance.currentItemSlot);
+            Show(instance.currentlyHeldObjectServer);
         }
     }
 
-    private void Show(GrabbableObject currentHeldItem, int slotIndex)
+    private void Show(GrabbableObject currentHeldItem)
     {
-        if (currentHeldItem is null) return;
+        if (currentHeldItem is null || !currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0) return;
 
         _text.enabled = true;
         _text.text = "$" + currentHeldItem.scrapValue;

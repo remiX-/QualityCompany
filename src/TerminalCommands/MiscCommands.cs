@@ -5,6 +5,8 @@ using AdvancedCompany.Utils;
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Logger = AdvancedCompany.Utils.Logger;
 
 namespace AdvancedCompany.TerminalCommands;
 
@@ -92,13 +94,14 @@ internal class MiscCommands : ITerminalSubscriber
                 .WithDescription(">hack <count>\nSpawn some ez lewt.")
                 .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
                 .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
-                .AddTextReplacement("[scrapCountToHack]", scrapCountToHack.ToString)
+                .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
                 .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
                     .WithMessage("Hacked in [scrapCountToHack] items")
                     .WithConditions("isHost")
                     .WithInputMatch(@"(\d+$)$")
                     .WithPreAction(input =>
                     {
+                        Logger.LogMessage($"hacky: {input}");
                         scrapCountToHack = Convert.ToInt32(input);
 
                         if (scrapCountToHack <= 0) return false;
@@ -107,6 +110,7 @@ internal class MiscCommands : ITerminalSubscriber
                     })
                     .WithAction(() =>
                     {
+                        Logger.LogMessage("ACTION");
                         for (var i = 0; i < scrapCountToHack; i++)
                         {
                             var rand = new System.Random();
@@ -117,9 +121,10 @@ internal class MiscCommands : ITerminalSubscriber
                             scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
                             scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
                             scrap.GetComponent<NetworkObject>().Spawn();
+                            Logger.LogMessage($"Spawned in {scrap.name} for {scrapValue}");
 
                             RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                            scrap.transform.parent = GameUtils.ShipGameObject.transform;
+                            // scrap.transform.parent = GameUtils.ShipGameObject.transform;
                         }
                     })
                 )
