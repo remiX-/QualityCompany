@@ -46,6 +46,7 @@ internal class ScrapValueUIModule : MonoBehaviour
 
     private void UpdateUI(PlayerControllerB instance)
     {
+        _logger.LogMessage($"UpdateUI: currentItemSlot: {instance.currentItemSlot} | ItemIndex: {ItemIndex} | currentlyHeldObjectServer: {instance.currentlyHeldObjectServer?.name ?? "null"}");
         if (instance.currentItemSlot != ItemIndex) return;
 
         if (instance.currentlyHeldObjectServer is null)
