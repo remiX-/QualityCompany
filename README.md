@@ -30,6 +30,5 @@ These are just some additional ones I added whilst playing around with the termi
 
 - Animate sell command
 - sell <item> command
-- some kind of loot hud
 - scan <item> in ship
-- shotty ammo counter hud
+- show value of item in hand

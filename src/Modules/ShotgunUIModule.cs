@@ -12,9 +12,10 @@ internal class ShotgunUIModule : MonoBehaviour
     private readonly ACLogger _logger = new(nameof(ShotgunUIModule));
 
     private Text _text;
-    private readonly Color TEXT_COLOR_FULL = new(0f, 1f, 0f, 1f);
-    private readonly Color TEXT_COLOR_HALF = new(0f, 0f, 1f, 1f);
-    private readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 1f);
+    private static readonly Color TEXT_COLOR_FULL = new(0f, 1f, 0f, 0.75f);
+    private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f); // rgb(255, 243, 36) yellow
+    // private readonly Color TEXT_COLOR_HALF = new(0.8156862745f, 0.5411764706f, 0.2705882353f, 0.75f); // orange
+    private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
 
     private void Awake()
     {
@@ -23,7 +24,7 @@ internal class ShotgunUIModule : MonoBehaviour
         var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
         _text = gameObject.AddComponent<Text>();
-        _text.fontSize = 20;
+        _text.fontSize = 16;
         _text.font = font;
         _text.fontStyle = FontStyle.Bold;
         _text.text = "0";
@@ -31,10 +32,6 @@ internal class ShotgunUIModule : MonoBehaviour
         _text.alignment = TextAnchor.MiddleCenter;
         _text.enabled = true;
 
-        GameEvents.HudManagerStart += hudManager =>
-        {
-            _logger.LogMessage($"Event Sub Test: {hudManager.itemSlotIconFrames.Length}");
-        };
         GameEvents.PlayerBeginGrabObject += UpdateUI;
         GameEvents.PlayerSwitchToItemSlot += UpdateUI;
     }

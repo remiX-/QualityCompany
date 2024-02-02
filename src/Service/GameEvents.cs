@@ -11,6 +11,7 @@ public class GameEvents
 
     public static event PlayerControllerEvent PlayerBeginGrabObject;
     public static event PlayerControllerEvent PlayerSwitchToItemSlot;
+    public static event PlayerControllerEvent PlayerDiscardHeldObject;
     public delegate void PlayerControllerEvent(PlayerControllerB instance);
 
 
@@ -30,6 +31,12 @@ public class GameEvents
     {
         Logger.LogDebug("[GameEvents] OnPlayerSwitchToItemSlot");
         PlayerSwitchToItemSlot?.Invoke(instance);
+    }
+
+    public static void OnPlayerDiscardHeldObject(PlayerControllerB instance)
+    {
+        Logger.LogDebug("[GameEvents] OnPlayerDiscardHeldObject");
+        PlayerDiscardHeldObject?.Invoke(instance);
     }
 }
 

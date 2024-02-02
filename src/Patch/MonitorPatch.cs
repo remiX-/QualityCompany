@@ -45,7 +45,15 @@ internal class MonitorPatch
         // TODO: move shotty ammo ui loading to a ModuleLoader of sorts
         var shotty = new GameObject("ShotgunAmmoUI");
         shotty.AddComponent<ShotgunUIModule>();
-        shotty.transform.parent = __instance.HUDContainer.transform;
+
+        for (var i = 0; i < __instance.itemSlotIconFrames.Length; i++)
+        {
+            var scrapUI = new GameObject($"hudScrapUI{i}");
+            scrapUI.AddComponent<ScrapValueUIModule>();
+            var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
+            uiMod.FrameParent = __instance.itemSlotIconFrames[i].gameObject;
+            uiMod.MyItemSlotIShouldListenTo = i;
+        }
 
         hasInitialized = true;
 
@@ -232,17 +240,19 @@ internal class MonitorPatch
         OnPlayerBeginGrabObject(__instance);
     }
 
-    // [HarmonyPostfix]
-    // [HarmonyPatch(typeof(ShotgunItem), "reloadGunAnimation")]
-    // private static void reloadGunAnimationPatch()
-    // {
-    //     OnPlayerBeginGrabObject(GameNetworkManager.Instance.localPlayerController);
-    // }
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ShotgunItem), "ReloadGunEffectsClientRpc")]
+    private static void ReloadGunEffectsClientRpcPatch(bool start)
+    {
+        _logger.LogDebug($"ReloadGun: {start}");
+        OnPlayerBeginGrabObject(GameNetworkManager.Instance.localPlayerController);
+    }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "SwitchToItemSlot")]
     private static void SwitchToItemSlotPatch(PlayerControllerB __instance)
     {
+        // if (GameNetworkManager.Instance.localPlayerController != __instance) return;
         OnPlayerSwitchToItemSlot(__instance);
     }
 
@@ -262,6 +272,15 @@ internal class MonitorPatch
         }
 
         CreditMonitor.UpdateMonitor();
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(PlayerControllerB), "DiscardHeldObject")]
+    private static void DiscardHeldObjectPatch(PlayerControllerB __instance, bool placeObject)
+    {
+        _logger.LogDebug($"DiscardHeldObjectPatch: {placeObject}");
+
+        OnPlayerDiscardHeldObject(__instance);
     }
 
     [HarmonyPostfix]

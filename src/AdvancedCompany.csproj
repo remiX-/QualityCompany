@@ -8,6 +8,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
+	
+	<Import Project="CommonBuildProperties.proj"/>
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
@@ -22,61 +24,52 @@
 
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
 		<Reference Include="BepInEx">
-			<HintPath>..\..\..\..\..\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\core\BepInEx.dll</HintPath>
+			<HintPath>$(BepInExDirectory)\core\BepInEx.dll</HintPath>
 		</Reference>
 		<Reference Include="0Harmony">
-			<HintPath>..\..\..\..\..\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\core\0Harmony.dll</HintPath>
+			<HintPath>$(BepInExDirectory)\core\0Harmony.dll</HintPath>
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Newtonsoft.Json.dll</HintPath>
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Newtonsoft.Json.dll</HintPath>
 		</Reference>
 		<Reference Include="Unity.Netcode.Runtime">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
 		</Reference>
 		<Reference Include="Unity.TextMeshPro">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Unity.TextMeshPro.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.AnimationModule">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.AssetBundleModule">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-		</Reference>
-		<Reference Include="UnityEngine.IMGUIModule">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\UnityEngine.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.UI">
-			<HintPath>F:\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath>
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
-	<!-- Networking Patching -->
+	<!-- Bundle copying -->
 	<ItemGroup>
 		<None Update="Assets\modnetworkhandlerbundle">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
+	<!-- Networking Patching -->
 	<Target Name="CopyDLLs" AfterTargets="Build">
+		<Message Text="Test: $(Test)" Importance="High" />
 		<Message Text="NetcodePatch task" Importance="High" />
 
 		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
 
 		<Message Text="Executing CopyDLLs task" Importance="High" />
 
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" />
-		<!-- <Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
-		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx\plugins" />
-		<!-- <Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" /> -->
+		<!-- Auto copy dlls to mod profile -->
+		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(BepInExDirectory)\plugins" />
+		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="$(BepInExDirectory)\plugins" />
+		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" />
+		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" />
 
 		<Message Text="Copied build files" Importance="High" />
 	</Target>
