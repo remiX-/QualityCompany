@@ -33,7 +33,7 @@ internal class ScrapValueUIModule : MonoBehaviour
         _text.font = font;
         _text.fontStyle = FontStyle.Normal;
         _text.alignment = TextAnchor.MiddleCenter;
-        _text.enabled = true;
+        _text.enabled = false;
 
         transform.SetParent(FrameParent.transform);
         transform.position = Vector3.zero;

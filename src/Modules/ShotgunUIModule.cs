@@ -30,10 +30,9 @@ internal class ShotgunUIModule : MonoBehaviour
         _text.fontSize = 16;
         _text.font = font;
         _text.fontStyle = FontStyle.Bold;
-        _text.text = "0";
         _text.color = TEXT_COLOR_FULL;
         _text.alignment = TextAnchor.MiddleCenter;
-        _text.enabled = true;
+        _text.enabled = false;
 
         transform.SetParent(FrameParent.transform);
         transform.position = Vector3.zero;
