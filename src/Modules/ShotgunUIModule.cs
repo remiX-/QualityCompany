@@ -10,7 +10,7 @@ internal class ShotgunUIModule : MonoBehaviour
     public static ShotgunUIModule Instance { get; private set; }
 
     public GameObject FrameParent;
-    public int MyItemSlotIShouldListenTo;
+    public int ItemIndex;
 
     private readonly ACLogger _logger = new(nameof(ShotgunUIModule));
 
@@ -19,7 +19,6 @@ internal class ShotgunUIModule : MonoBehaviour
     private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f); // rgb(255, 243, 36) yellow
     private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
     
-    public int ItemIndex;
 
     private void Start()
     {

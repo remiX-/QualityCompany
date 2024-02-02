@@ -19,27 +19,13 @@ internal class ModuleLoader : MonoBehaviour
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
 
-        // GameEvents.HudManagerStart += LoadScrapValueUIModules;
-        // GameEvents.PlayerDiscardHeldObject += UpdateUI;
-
         StartCoroutine(LoadScrapValueUIModulesCoroutine());
     }
-
-    // private void Update()
-    // {
-    //     _logger.LogDebug("Update");
-    // }
-
-    // private void LoadScrapValueUIModules(HUDManager instance)
-    // {
-    //     StartCoroutine(LoadScrapValueUIModulesCoroutine());
-    //     GameEvents.HudManagerStart -= LoadScrapValueUIModules;
-    // }
 
     private IEnumerator LoadScrapValueUIModulesCoroutine()
     {
         _logger.LogMessage("LoadScrapValueUIModulesCoroutine -> waiting...");
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(2.0f);
         _logger.LogMessage("LoadScrapValueUIModulesCoroutine -> done!");
 
         for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
@@ -49,14 +35,14 @@ internal class ModuleLoader : MonoBehaviour
             shotty.AddComponent<ShotgunUIModule>();
             var shottyModule = shotty.GetComponent<ShotgunUIModule>();
             shottyModule.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-            shottyModule.MyItemSlotIShouldListenTo = i;
+            shottyModule.ItemIndex = i;
 
             // scrap value item ui
             var scrapUI = new GameObject($"hudScrapUI{i}");
             scrapUI.AddComponent<ScrapValueUIModule>();
             var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
             uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-            uiMod.MyItemSlotIShouldListenTo = i;
+            uiMod.ItemIndex = i;
         }
     }
 }

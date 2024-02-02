@@ -28,11 +28,4 @@ internal class LootMonitor : BaseMonitor
         Instance._logger.LogDebug($"Update loot value: {num}");
         Instance?.UpdateMonitorText("LOOT", num);
     }
-
-    // private static int CalculateShipScrapLoot()
-    // {
-    //     return ScrapUtils.GetAllScrapInShip()
-    //         .Where(item => item.itemProperties.isScrap && !item.isHeld && !item.isPocketed)
-    //         .Sum(item => item.scrapValue);
-    // }
 }

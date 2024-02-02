@@ -106,10 +106,6 @@ internal class MiscCommands : ITerminalSubscriber
 
                         if (scrapCountToHack <= 0) return false;
 
-                        return true;
-                    })
-                    .WithAction(() =>
-                    {
                         Logger.LogMessage("ACTION");
                         for (var i = 0; i < scrapCountToHack; i++)
                         {
@@ -126,6 +122,11 @@ internal class MiscCommands : ITerminalSubscriber
                             RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
                             // scrap.transform.parent = GameUtils.ShipGameObject.transform;
                         }
+
+                        return true;
+                    })
+                    .WithAction(() =>
+                    {
                     })
                 )
         );

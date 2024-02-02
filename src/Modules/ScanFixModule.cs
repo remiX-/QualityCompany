@@ -11,7 +11,7 @@ internal class ScanFixModule
 {
     private static readonly ACLogger _logger = new(nameof(ScanFixModule));
 
-    private static bool hasPatched = false;
+    private static bool hasPatched;
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Terminal), "Awake")]

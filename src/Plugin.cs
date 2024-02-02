@@ -51,10 +51,6 @@ public class Plugin : BaseUnityPlugin
         ACLogger.LogMessage($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
     }
 
-    private void Start()
-    {
-    }
-
     private void Patch()
     {
         AdvancedTerminal.Sub(new SellCommands());

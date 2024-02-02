@@ -15,7 +15,6 @@ internal class TimeMonitor : BaseMonitor
         Instance = this;
 
         _logger = new ACLogger(nameof(TimeMonitor));
-        // _textMesh = GetComponent<TextMeshProUGUI>();
         _timeMesh = GameObject.Find("Systems/UI/Canvas/IngamePlayerHUD/ProfitQuota/Container/Box/TimeNumber").GetComponent<TextMeshProUGUI>();
         _textMesh.text = "TIME:\n7:30\nAM";
     }
