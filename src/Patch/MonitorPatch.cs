@@ -22,7 +22,7 @@ internal class MonitorPatch
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(StartOfRound), "Start")]
-    private static void Initialize()
+    private static void Initialize(StartOfRound __instance)
     {
         _logger.LogDebug("StartOfRound.Start");
         InitializeMonitorCluster();
@@ -43,17 +43,17 @@ internal class MonitorPatch
         GameUtils.Init();
 
         // TODO: move shotty ammo ui loading to a ModuleLoader of sorts
-        var shotty = new GameObject("ShotgunAmmoUI");
-        shotty.AddComponent<ShotgunUIModule>();
+        //var shotty = new GameObject("ShotgunAmmoUI");
+        //shotty.AddComponent<ShotgunUIModule>();
 
-        for (var i = 0; i < __instance.itemSlotIconFrames.Length; i++)
-        {
-            var scrapUI = new GameObject($"hudScrapUI{i}");
-            scrapUI.AddComponent<ScrapValueUIModule>();
-            var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
-            uiMod.FrameParent = __instance.itemSlotIconFrames[i].gameObject;
-            uiMod.MyItemSlotIShouldListenTo = i;
-        }
+        //for (var i = 0; i < __instance.itemSlotIconFrames.Length; i++)
+        //{
+        //    var scrapUI = new GameObject($"hudScrapUI{i}");
+        //    scrapUI.AddComponent<ScrapValueUIModule>();
+        //    var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
+        //    uiMod.FrameParent = __instance.itemSlotIconFrames[i].gameObject;
+        //    uiMod.MyItemSlotIShouldListenTo = i;
+        //}
 
         hasInitialized = true;
 
@@ -233,10 +233,31 @@ internal class MonitorPatch
         TimeMonitor.UpdateMonitor();
     }
 
+
+    public static bool itemSlotsInit;
+
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "BeginGrabObject")]
     private static void BeginGrabObjectPatch(PlayerControllerB __instance)
     {
+        if (!itemSlotsInit) {
+            
+
+
+            for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
+            {
+                var scrapUI = new GameObject($"HUDScrapUI{i}");
+                scrapUI.AddComponent<ScrapValueUIModule>();
+                var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
+                uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
+                uiMod.MyItemSlotIShouldListenTo = i;
+                var shotty = new GameObject($"ShotgunAmmoUI{i}");
+                shotty.AddComponent<ShotgunUIModule>();
+                var ShotgunAmmoUI = shotty.GetComponent<ShotgunUIModule>();
+                ShotgunAmmoUI.ItemIndex = i;
+            }
+            itemSlotsInit = true;
+        }
         OnPlayerBeginGrabObject(__instance);
     }
 

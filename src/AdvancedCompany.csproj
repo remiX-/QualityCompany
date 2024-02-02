@@ -55,22 +55,4 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
-
-	<!-- Networking Patching -->
-	<Target Name="CopyDLLs" AfterTargets="Build">
-		<Message Text="Test: $(Test)" Importance="High" />
-		<Message Text="NetcodePatch task" Importance="High" />
-
-		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-
-		<Message Text="Executing CopyDLLs task" Importance="High" />
-
-		<!-- Auto copy dlls to mod profile -->
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(BepInExDirectory)\plugins" />
-		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="$(BepInExDirectory)\plugins" />
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" />
-		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="C:\Users\njord\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\duo actually\BepInEx\plugins" />
-
-		<Message Text="Copied build files" Importance="High" />
-	</Target>
 </Project>

@@ -17,6 +17,8 @@ internal class ShotgunUIModule : MonoBehaviour
     // private readonly Color TEXT_COLOR_HALF = new(0.8156862745f, 0.5411764706f, 0.2705882353f, 0.75f); // orange
     private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
 
+    public int ItemIndex;
+
     private void Awake()
     {
         Instance = this;
@@ -34,10 +36,13 @@ internal class ShotgunUIModule : MonoBehaviour
 
         GameEvents.PlayerBeginGrabObject += UpdateUI;
         GameEvents.PlayerSwitchToItemSlot += UpdateUI;
+        GameEvents.PlayerDiscardHeldObject += UpdateUI;
     }
 
     private void UpdateUI(PlayerControllerB instance)
     {
+        if (instance.currentItemSlot != ItemIndex) return;
+
         var shotgunItem = instance.currentlyHeldObjectServer?.GetComponent<ShotgunItem>();
         if (shotgunItem is not null)
         {
