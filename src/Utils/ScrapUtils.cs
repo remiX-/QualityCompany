@@ -46,7 +46,6 @@ public static class ScrapUtils
         var allScrap = GetAllSellableScrapInShip()
             .OrderByDescending(scrap => scrap.itemProperties.twoHanded)
             .ThenByDescending(scrap => scrap.scrapValue)
-            // .ThenBy(scrap => scrap.NetworkObjectId)
             .ToList();
 
         var scrapForQuota = new List<GrabbableObject>();
@@ -63,11 +62,9 @@ public static class ScrapUtils
         // Time to actually be precise
         allScrap = allScrap.Skip(nextScrapIndex)
             .OrderBy(scrap => scrap.scrapValue)
-            // .ThenBy(scrap => scrap.NetworkObjectId)
             .ToList();
         nextScrapIndex = 0;
 
-        // Check if sell amount request is smaller than the lowest value scrap
         if (amountNeeded < allScrap.Last().ActualSellValue())
         {
             scrapForQuota.Add(allScrap.Last());
@@ -76,17 +73,16 @@ public static class ScrapUtils
 
         while (amountNeeded > 0)
         {
-            var sums = new List<(GrabbableObject first, GrabbableObject second, int sum)>();
+            var sums = new List<(GrabbableObject first, GrabbableObject second, int total)>();
             for (var i = nextScrapIndex; i < allScrap.Count; i++)
             {
                 for (var j = i + 1; j < allScrap.Count; j++)
                 {
-                    // Starting second loop at i+1 lets us skip redundant sums
                     sums.Add((allScrap[i], allScrap[j], allScrap[i].ActualSellValue() + allScrap[j].ActualSellValue()));
                 }
             }
 
-            var foundSum = sums.FirstOrDefault(sum => sum.sum >= amountNeeded);
+            var foundSum = sums.FirstOrDefault(sum => sum.total >= amountNeeded);
             if (foundSum != default)
             {
                 scrapForQuota.Add(foundSum.first);
@@ -94,15 +90,11 @@ public static class ScrapUtils
                 return scrapForQuota;
             }
 
-            // If we haven't found a sum, we take the next scrap and continue our sums
             var nextScrap = allScrap[nextScrapIndex++];
             scrapForQuota.Add(nextScrap);
             amountNeeded -= nextScrap.ActualSellValue();
         }
 
-        // Worst case scenario, we found no sums :(
-        // Whatever we have will have to do
-        _logger.LogMessage("Couldn't find a way to perfectly meet quota :(");
         return scrapForQuota;
     }
 

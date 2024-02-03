@@ -1,6 +1,6 @@
 {
   "name": "QualityCompany",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/remiX-/QualityCompany",
   "description": "QualityCompany adds many quality of life aspects into the game, such as HUD improvements, a Terminal API to make simple & complex commands. Has Networking capabilities.",
   "dependencies": [
