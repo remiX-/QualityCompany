@@ -40,13 +40,13 @@ internal class ScrapValueUIModule : MonoBehaviour
         transform.localPosition = Vector3.zero + new Vector3(-_text.fontSize * 2, 0f);
         transform.localScale = Vector3.one;
 
-        GameEvents.PlayerBeginGrabObject += UpdateUI;
+        GameEvents.PlayerGrabObjectClientRpc += UpdateUI;
         GameEvents.PlayerDiscardHeldObject += UpdateUI;
     }
 
     private void UpdateUI(PlayerControllerB instance)
     {
-        _logger.LogMessage($"UpdateUI: currentItemSlot: {instance.currentItemSlot} | ItemIndex: {ItemIndex} | currentlyHeldObjectServer: {instance.currentlyHeldObjectServer?.name ?? "null"}");
+        _logger.LogMessage($"UpdateUI: currentItemSlot: {instance.currentItemSlot} | ItemIndex: {ItemIndex} | currentlyHeldObjectServer: {instance.currentlyHeldObjectServer?.name ?? "null"} | currentlyHeldObject: {instance.currentlyHeldObject?.name ?? "null"}");
         if (instance.currentItemSlot != ItemIndex) return;
 
         if (instance.currentlyHeldObjectServer is null)

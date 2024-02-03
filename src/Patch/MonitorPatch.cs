@@ -225,45 +225,46 @@ internal class MonitorPatch
         TimeMonitor.UpdateMonitor();
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(PlayerControllerB), "BeginGrabObject")]
-    private static void BeginGrabObjectPatch(PlayerControllerB __instance)
-    {
-        OnPlayerBeginGrabObject(__instance);
-    }
-
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(ShotgunItem), "ReloadGunEffectsClientRpc")]
-    private static void ReloadGunEffectsClientRpcPatch(bool start)
-    {
-        _logger.LogDebug($"ReloadGun: {start}");
-        OnPlayerBeginGrabObject(GameNetworkManager.Instance.localPlayerController);
-    }
+    // [HarmonyPostfix]
+    // [HarmonyPatch(typeof(PlayerControllerB), "BeginGrabObject")]
+    // private static void BeginGrabObjectPatch(PlayerControllerB __instance)
+    // {
+    //     OnPlayerBeginGrabObject(__instance);
+    // }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ShotgunItem), "ShootGun")]
     private static void ShootGunPatch()
     {
         _logger.LogDebug("ShootGun");
-        OnPlayerShootShotgun(GameNetworkManager.Instance.localPlayerController);
+        OnPlayerShotgunShoot(GameNetworkManager.Instance.localPlayerController);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ShotgunItem), "ReloadGunEffectsClientRpc")]
+    private static void ReloadGunEffectsClientRpcPatch(ref PlayerControllerB previousPlayerHeldBy)
+    {
+        _logger.LogDebug("ReloadGunEffectsClientRpcPatch");
+        OnPlayerShotgunReload(GameNetworkManager.Instance.localPlayerController);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "SwitchToItemSlot")]
     private static void SwitchToItemSlotPatch(PlayerControllerB __instance)
     {
-        _logger.LogMessage("PlayerUsername " + __instance.playerUsername);
-        _logger.LogMessage("PlayerUsername " + GameNetworkManager.Instance.localPlayerController.playerUsername);
+        // _logger.LogMessage("PlayerUsername " + __instance.playerUsername);
+        // _logger.LogMessage("PlayerUsername " + GameNetworkManager.Instance.localPlayerController.playerUsername);
         if (GameNetworkManager.Instance.localPlayerController != __instance) return;
         OnPlayerSwitchToItemSlot(__instance);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "GrabObjectClientRpc")]
-    private static void RefreshLootOnPickupClient(bool grabValidated, ref NetworkObjectReference grabbedObject)
+    private static void RefreshLootOnPickupClient(PlayerControllerB __instance, ref NetworkObjectReference grabbedObject)
     {
         _logger.LogDebug("GrabObjectClientRpc");
 
+        OnPlayerGrabObjectClientRpc(__instance);
         if (!grabbedObject.TryGet(out var networkObject)) return;
 
         var componentInChildren = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
@@ -291,7 +292,6 @@ internal class MonitorPatch
     {
         _logger.LogDebug("ThrowObjectClientRpc");
 
-        _logger.LogDebug($" > isInShipRoom: {droppedInShipRoom} | isInElevator: {droppedInElevator}");
         if (droppedInShipRoom || droppedInElevator)
         {
             LootMonitor.UpdateMonitor();
