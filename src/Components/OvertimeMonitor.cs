@@ -1,11 +1,11 @@
-﻿using AdvancedCompany.Network;
-using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
+﻿using QualityCompany.Network;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System;
 using System.Linq;
 using UnityEngine;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
 internal class OvertimeMonitor : BaseMonitor
 {

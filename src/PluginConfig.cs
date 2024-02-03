@@ -1,7 +1,7 @@
 ﻿using BepInEx.Configuration;
 using System;
 
-namespace AdvancedCompany;
+namespace QualityCompany;
 
 [Serializable]
 internal class PluginConfig

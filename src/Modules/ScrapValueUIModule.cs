@@ -1,9 +1,9 @@
-﻿// using AdvancedCompany.Service;
+﻿// using QualityCompany.Service;
 // using GameNetcodeStuff;
 // using UnityEngine;
 // using UnityEngine.UI;
 //
-// namespace AdvancedCompany.Modules;
+// namespace QualityCompany.Modules;
 //
 // internal class ScrapValueUIModule : MonoBehaviour
 // {

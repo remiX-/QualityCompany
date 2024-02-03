@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AdvancedCompany.Manager.ShipTerminal;
+namespace QualityCompany.Manager.ShipTerminal;
 
 public class TerminalSubCommand
 {

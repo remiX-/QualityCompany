@@ -1,8 +1,8 @@
-﻿using AdvancedCompany.Service;
+﻿using QualityCompany.Service;
 using System.Collections;
 using UnityEngine;
 
-namespace AdvancedCompany.Modules;
+namespace QualityCompany.Modules;
 
 internal class ModuleLoader : MonoBehaviour
 {
@@ -30,25 +30,6 @@ internal class ModuleLoader : MonoBehaviour
 
         // scrap value item ui
         HUDExtensionModule.Spawn();
-
-        // for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
-        // {
-        //     shotgun ammo counter ui
-        //     var shotty = new GameObject($"shotgunAmmoUI{i}");
-        //     shotty.AddComponent<ShotgunUIModule>();
-        //     var shottyModule = shotty.GetComponent<ShotgunUIModule>();
-        //     shottyModule.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-        //     shottyModule.ItemIndex = i;
-        //
-        //     var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
-        //     uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-        //     uiMod.ItemIndex = i;
-        //     var scrapUI = new GameObject($"hudScrapUI{i}");
-        //     scrapUI.AddComponent<ScrapValueUIModule>();
-        //     var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
-        //     uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-        //     uiMod.ItemIndex = i;
-        // }
     }
 }
 

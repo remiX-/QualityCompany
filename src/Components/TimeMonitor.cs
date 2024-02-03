@@ -1,8 +1,8 @@
-﻿using AdvancedCompany.Service;
+﻿using QualityCompany.Service;
 using TMPro;
 using UnityEngine;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
 internal class TimeMonitor : BaseMonitor
 {

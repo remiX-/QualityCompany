@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace AdvancedCompany.Utils;
+namespace QualityCompany.Utils;
 
 public static class GameUtils
 {

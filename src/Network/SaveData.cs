@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AdvancedCompany.Network;
+namespace QualityCompany.Network;
 
 [Serializable]
 internal class SaveData

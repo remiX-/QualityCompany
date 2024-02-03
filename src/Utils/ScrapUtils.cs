@@ -1,10 +1,10 @@
-﻿using AdvancedCompany.Service;
+﻿using QualityCompany.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace AdvancedCompany.Utils;
+namespace QualityCompany.Utils;
 
 public static class ScrapUtils
 {

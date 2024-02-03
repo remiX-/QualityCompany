@@ -1,11 +1,11 @@
-﻿using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
-using HarmonyLib;
+﻿using HarmonyLib;
+using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System.Linq;
 using UnityEngine;
 
-namespace AdvancedCompany.Modules;
+namespace QualityCompany.Modules;
 
 internal class ScanFixModule
 {

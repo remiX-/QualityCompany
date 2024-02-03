@@ -1,12 +1,12 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
+﻿using QualityCompany.Components;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace AdvancedCompany.Network;
+namespace QualityCompany.Network;
 
 public class NetworkHandler : NetworkBehaviour
 {
@@ -20,14 +20,12 @@ public class NetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void UpdateSellTargetServerRpc(int newTarget, string playerName)
     {
-        _logger.LogDebug($"NetworkManager.UpdateSellTargetServerRpc -> {newTarget}, {playerName}");
         UpdateSellTargetClientRpc(newTarget, playerName);
     }
 
     [ClientRpc]
     public void UpdateSellTargetClientRpc(int newTarget, string playerName)
     {
-        _logger.LogDebug($"NetworkManager.UpdateSellTargetClientRpc -> {newTarget}, {playerName}");
         OvertimeMonitor.targetTotalCredits = newTarget;
         OvertimeMonitor.UpdateMonitor();
 
@@ -37,43 +35,36 @@ public class NetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void SellAllScrapServerRpc()
     {
-        _logger.LogDebug("NetworkManager.SellAllScrapServerRpc");
         SellAllScrapClientRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void TargetSellForNetworkObjectServerRpc(ulong networkObjectId)
     {
-        _logger.LogDebug($"NetworkManager.TargetSellForNetworkObjectServerRpc => networkObjectId: {networkObjectId}");
         TargetSellForNetworkObjectClientRpc(networkObjectId);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void ExecuteSellAmountServerRpc()
     {
-        _logger.LogDebug("NetworkManager.ExecuteSellAmountServerRpc");
         ExecuteSellAmountClientRpc();
     }
 
     [ClientRpc]
     public void SellAllScrapClientRpc()
     {
-        _logger.LogDebug("NetworkManager.SellAllScrapClientRpc");
         PerformSell(ScrapUtils.GetAllSellableScrapInShip());
     }
 
     [ClientRpc]
     public void TargetSellForNetworkObjectClientRpc(ulong networkObjectId)
     {
-        _logger.LogDebug($"NetworkManager.TargetSellForNetworkObjectClientRpc => networkObjectId: {networkObjectId}");
         MoveNetworkObjectToDepositDesk(networkObjectId);
     }
 
     [ClientRpc]
     public void ExecuteSellAmountClientRpc()
     {
-        _logger.LogDebug("NetworkManager.ExecuteSellAmountClientRpc");
-
         var depositItemsDesk = FindObjectOfType<DepositItemsDesk>();
         depositItemsDesk.SetTimesHeardNoiseServerRpc(5f);
 
@@ -108,7 +99,7 @@ public class NetworkHandler : NetworkBehaviour
         var scrap = ScrapUtils.GetAllSellableScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
         if (scrap is null)
         {
-            _logger.LogDebug($"Failed to find network object on this client: {networkObjectId}");
+            _logger.LogError($"Failed to find network object on this client: {networkObjectId}");
             return;
         }
 
@@ -123,9 +114,10 @@ public class NetworkHandler : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        _logger.LogDebug("NetworkManager.OnNetworkSpawn");
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
+            // This is recommended in the docs, but it doesn't seem to work
+            // https://lethal.wiki/dev/advanced/networking#preventing-duplication
             // Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
         }
 

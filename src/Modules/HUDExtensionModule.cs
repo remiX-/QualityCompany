@@ -1,11 +1,11 @@
-﻿using AdvancedCompany.Service;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
+using QualityCompany.Service;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static AdvancedCompany.Service.GameEvents;
+using static QualityCompany.Service.GameEvents;
 
-namespace AdvancedCompany.Modules;
+namespace QualityCompany.Modules;
 
 internal class HUDExtensionModule : MonoBehaviour
 {
@@ -23,7 +23,6 @@ internal class HUDExtensionModule : MonoBehaviour
     private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f); // rgb(255, 243, 36) yellow
     private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
 
-    // private Text _text;
     private readonly List<Text> scrapTexts = new();
     private readonly List<Text> shotgunTexts = new();
 
@@ -108,9 +107,9 @@ internal class HUDExtensionModule : MonoBehaviour
 
         var text = scrapTexts[currentItemSlotIndex];
 
-        //▲
+        // ▲
         text.enabled = true;
-        text.text = "\u258d" + currentHeldItem.scrapValue;
+        text.text = "\u25b2\u258e" + currentHeldItem.scrapValue;
         text.color = currentHeldItem.scrapValue switch
         {
             > 150 => TEXT_COLOR_ABOVE150,

@@ -1,9 +1,9 @@
-﻿using AdvancedCompany.Service;
-using HarmonyLib;
+﻿using HarmonyLib;
+using QualityCompany.Service;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace AdvancedCompany.Network;
+namespace QualityCompany.Network;
 
 [HarmonyPatch]
 internal class NetworkObjectManager
@@ -37,12 +37,9 @@ internal class NetworkObjectManager
     [HarmonyPatch(typeof(StartOfRound), "Awake")]
     public static void SpawnNetworkHandlerObject()
     {
-        _logger.LogDebug($"~~~ SpawnNetworkHandlerObject | {NetworkManager.Singleton.IsHost} | {NetworkManager.Singleton.IsServer}");
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-        {
-            _logger.LogDebug("networkPrefab null? " + networkPrefab == null);
-            var networkHandlerHost = Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
-            networkHandlerHost.GetComponent<NetworkObject>().Spawn();
-        }
+        if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer) return;
+
+        var networkHandlerHost = Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
+        networkHandlerHost.GetComponent<NetworkObject>().Spawn();
     }
 }

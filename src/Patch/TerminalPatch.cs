@@ -1,8 +1,8 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Service;
-using BepInEx;
+﻿using BepInEx;
 using HarmonyLib;
+using QualityCompany.Components;
+using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Service;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 #pragma warning disable IDE0060
 #pragma warning disable Harmony003
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(Terminal))]
 public class TerminalPatch
@@ -97,7 +97,7 @@ public class TerminalPatch
 
             //_logger.LogDebug(" > executing ComplexCommand");
             // if (command.node.name != __result.name) continue;
-            var resNode = ExecuteMultiCommand(command, __result, __instance);
+            var resNode = ExecuteComplexCommand(command, __result, __instance);
             if (resNode != null) return resNode;
         }
 
@@ -121,9 +121,10 @@ public class TerminalPatch
         return __result;
     }
 
-    private static TerminalNode ExecuteMultiCommand(TerminalCommandBuilder command, TerminalNode __result, Terminal __instance)
+    private static TerminalNode ExecuteComplexCommand(TerminalCommandBuilder command, TerminalNode __result, Terminal __instance)
     {
         var commandFound = false;
+
         foreach (var keyword in command.SubCommands)
         {
             //_logger.LogDebug($" > kw: {keyword.Id}");

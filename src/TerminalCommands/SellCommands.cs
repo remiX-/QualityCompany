@@ -1,11 +1,11 @@
-﻿using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Network;
-using AdvancedCompany.Utils;
+﻿using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Network;
+using QualityCompany.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdvancedCompany.TerminalCommands;
+namespace QualityCompany.TerminalCommands;
 
 internal class SellCommands : ITerminalSubscriber
 {

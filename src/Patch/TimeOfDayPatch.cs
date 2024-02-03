@@ -1,10 +1,10 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Network;
-using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
-using HarmonyLib;
+﻿using HarmonyLib;
+using QualityCompany.Components;
+using QualityCompany.Network;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(TimeOfDay))]
 internal class TimeOfDayPatch

@@ -1,4 +1,4 @@
-﻿namespace AdvancedCompany.Manager.ShipTerminal;
+﻿namespace QualityCompany.Manager.ShipTerminal;
 
 public interface ITerminalSubscriber
 {

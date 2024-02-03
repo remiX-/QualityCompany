@@ -1,13 +1,13 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Modules;
-using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
-using HarmonyLib;
+﻿using HarmonyLib;
+using QualityCompany.Components;
+using QualityCompany.Modules;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System.Text;
 using TMPro;
 using UnityEngine;
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(StartOfRound))]
 internal class StartOfRoundPatcher
@@ -26,7 +26,7 @@ internal class StartOfRoundPatcher
 
         // TODO see if better place
         _logger.LogMessage($"Loading ModuleLoader...");
-        var mlgo = new GameObject("AdvancedCompanyLoader");
+        var mlgo = new GameObject("QualityCompanyLoader");
         mlgo.AddComponent<ModuleLoader>();
         // Object.DontDestroyOnLoad(mlgo);
 

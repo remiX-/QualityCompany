@@ -1,9 +1,9 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Network;
-using AdvancedCompany.Service;
+﻿using QualityCompany.Components;
+using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Network;
+using QualityCompany.Service;
 
-namespace AdvancedCompany.TerminalCommands;
+namespace QualityCompany.TerminalCommands;
 
 internal class TargetCommands : ITerminalSubscriber
 {
@@ -17,7 +17,6 @@ internal class TargetCommands : ITerminalSubscriber
                 .WithText("Please enter an amount.\neg: target 2000")
                 .WithSubCommand(new TerminalSubCommandBuilder("<ta>")
                     .WithMessage("[companyBuyingRateWarning]Target has been set to [targetSetTo]")
-                    // .WithConditions("landedAtCompany")
                     .WithInputMatch(@"(\d+$)$")
                     .WithPreAction(input =>
                     {
@@ -30,7 +29,6 @@ internal class TargetCommands : ITerminalSubscriber
                     .WithAction(() => _logger.LogDebug("EXEC target.Action???"))
                 )
                 .AddTextReplacement("[targetSetTo]", () => OvertimeMonitor.targetTotalCredits.ToString())
-        // .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
         );
     }
 }

@@ -1,10 +1,10 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Network;
-using AdvancedCompany.Service;
-using HarmonyLib;
-using static AdvancedCompany.Service.GameEvents;
+﻿using HarmonyLib;
+using QualityCompany.Components;
+using QualityCompany.Network;
+using QualityCompany.Service;
+using static QualityCompany.Service.GameEvents;
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(HUDManager))]
 internal class HUDManagerPatch

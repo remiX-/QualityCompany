@@ -1,4 +1,4 @@
-﻿namespace AdvancedCompany.Utils;
+﻿namespace QualityCompany.Utils;
 
 public class HudUtils
 {

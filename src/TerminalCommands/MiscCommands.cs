@@ -1,10 +1,11 @@
-﻿using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Service;
+﻿using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace AdvancedCompany.TerminalCommands;
+namespace QualityCompany.TerminalCommands;
 
 internal class MiscCommands : ITerminalSubscriber
 {
@@ -112,7 +113,7 @@ internal class MiscCommands : ITerminalSubscriber
                             _logger.LogMessage($"Spawned in {scrap.name} for {scrapValue}");
 
                             RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                            // scrap.transform.parent = GameUtils.ShipGameObject.transform;
+                            scrap.transform.parent = GameUtils.ShipGameObject.transform;
                         }
 
                         return true;

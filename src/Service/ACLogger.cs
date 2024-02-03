@@ -1,4 +1,4 @@
-﻿namespace AdvancedCompany.Service;
+﻿namespace QualityCompany.Service;
 
 internal class ACLogger
 {

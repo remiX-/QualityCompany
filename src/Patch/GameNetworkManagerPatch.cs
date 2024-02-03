@@ -1,9 +1,9 @@
-﻿using AdvancedCompany.Network;
-using AdvancedCompany.Service;
-using HarmonyLib;
-using static AdvancedCompany.Service.GameEvents;
+﻿using HarmonyLib;
+using QualityCompany.Network;
+using QualityCompany.Service;
+using static QualityCompany.Service.GameEvents;
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(GameNetworkManager))]
 internal class GameNetworkManagerPatch

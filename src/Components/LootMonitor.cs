@@ -1,7 +1,7 @@
-﻿using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
+﻿using QualityCompany.Service;
+using QualityCompany.Utils;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
 internal class LootMonitor : BaseMonitor
 {

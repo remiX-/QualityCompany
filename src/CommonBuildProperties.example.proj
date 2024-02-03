@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<LethalCompanyGameSteamDirectory>F:\Steam\steamapps\common\Lethal Company</LethalCompanyGameSteamDirectory>
+		<BepInExDirectory>C:\Users\<USERNAME>\AppData\Roaming\Thunderstore Mod Manager\DataFolder\LethalCompany\profiles\modding\BepInEx</BepInExDirectory>
+	</PropertyGroup>
+
+	<!-- Networking Patching -->
+	<Target Name="CopyDLLs" AfterTargets="Build">
+		<Message Text="NetcodePatch task" Importance="High" />
+
+		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
+
+		<Message Text="Executing CopyDLLs task" Importance="High" />
+
+		<!-- Auto copy dlls to mod profile -->
+		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(BepInExDirectory)\plugins" />
+		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="$(BepInExDirectory)\plugins" />
+
+		<Message Text="Copied build files" Importance="High" />
+	</Target>
+
+</Project>

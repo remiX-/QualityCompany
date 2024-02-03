@@ -1,6 +1,6 @@
-﻿using AdvancedCompany.Service;
+﻿using QualityCompany.Service;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
 internal class CreditMonitor : BaseMonitor
 {

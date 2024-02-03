@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdvancedCompany.Manager.ShipTerminal;
+namespace QualityCompany.Manager.ShipTerminal;
 
 public class TerminalCommandBuilder
 {

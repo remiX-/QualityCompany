@@ -1,11 +1,11 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Service;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
+using QualityCompany.Components;
+using QualityCompany.Service;
 using Unity.Netcode;
-using static AdvancedCompany.Service.GameEvents;
+using static QualityCompany.Service.GameEvents;
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(PlayerControllerB))]
 internal class PlayerControllerBPatch

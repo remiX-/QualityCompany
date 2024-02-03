@@ -1,12 +1,12 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Service;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using QualityCompany.Components;
+using QualityCompany.Service;
 using System.Collections;
 using System.IO;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace AdvancedCompany.Network;
+namespace QualityCompany.Network;
 
 public class CompanyNetworkHandler : NetworkBehaviour
 {
@@ -21,14 +21,12 @@ public class CompanyNetworkHandler : NetworkBehaviour
 
     private void Start()
     {
-        _logger.LogDebug("Start called 123123");
-
         Instance = this;
 
         if (NetworkManager.IsHost)
         {
             var saveNum = GameNetworkManager.Instance.saveFileNum.ToString();
-            var filePath = Path.Combine(Application.persistentDataPath, $"AdvancedCompany_{saveNum}.json");
+            var filePath = Path.Combine(Application.persistentDataPath, $"QualityCompany_{saveNum}.json");
             if (File.Exists(filePath))
             {
                 _logger.LogInfo($"  > HOST: Loading save file for slot {saveNum}.");
@@ -52,7 +50,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     public void ServerSaveFileServerRpc()
     {
         var saveNum = GameNetworkManager.Instance.saveFileNum.ToString();
-        var filePath = Path.Combine(Application.persistentDataPath, $"AdvancedCompany_{saveNum}.json");
+        var filePath = Path.Combine(Application.persistentDataPath, $"QualityCompany_{saveNum}.json");
         var json = JsonConvert.SerializeObject(SaveData);
         File.WriteAllText(filePath, json);
     }
@@ -117,11 +115,6 @@ public class CompanyNetworkHandler : NetworkBehaviour
         SaveData = JsonConvert.DeserializeObject<SaveData>(json);
     }
 
-    // void Update()
-    // {
-    //     _logger.LogDebug($"IsInShipMode: {GameUtils.IsInShipMode}");
-    // }
-
     [ServerRpc(RequireOwnership = false)]
     public void SyncDepositDeskTotalValueServerRpc()
     {
@@ -144,7 +137,8 @@ public class CompanyNetworkHandler : NetworkBehaviour
 
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
-            // _logger.LogDebug($"1...{Instance?.gameObject} | {Instance?.gameObject?.GetComponent<NetworkObject>()}");
+            // This is recommended in the docs, but it doesn't seem to work
+            // https://lethal.wiki/dev/advanced/networking#preventing-duplication
             // Instance?.gameObject?.GetComponent<NetworkObject>()?.Despawn();
         }
 

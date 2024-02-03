@@ -1,10 +1,9 @@
-﻿using AdvancedCompany.Components;
-using AdvancedCompany.Network;
-using AdvancedCompany.Service;
-using GameNetcodeStuff;
-using HarmonyLib;
+﻿using HarmonyLib;
+using QualityCompany.Components;
+using QualityCompany.Network;
+using QualityCompany.Service;
 
-namespace AdvancedCompany.Patch;
+namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(DepositItemsDesk))]
 internal class DepositItemsDeskPatch
@@ -13,15 +12,11 @@ internal class DepositItemsDeskPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("PlaceItemOnCounter")]
-    private static void PlaceItemOnCounterPatch(ref PlayerControllerB playerWhoTriggered)
+    private static void PlaceItemOnCounterPatch()
     {
         _logger.LogDebug("PlaceItemOnCounter");
 
         CompanyNetworkHandler.Instance.SyncDepositDeskTotalValueServerRpc();
-        // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.IsHost}");
-        // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.name}");
-        // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.playerSteamId}");
-        // Logger.LogInfo($"PlaceItemOnCounter: {playerWhoTriggered.playerUsername}");
     }
 
     [HarmonyPostfix]

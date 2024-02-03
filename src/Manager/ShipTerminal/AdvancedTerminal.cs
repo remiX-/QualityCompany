@@ -1,11 +1,11 @@
-﻿using AdvancedCompany.Service;
-using BepInEx;
+﻿using BepInEx;
 using HarmonyLib;
+using QualityCompany.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdvancedCompany.Manager.ShipTerminal;
+namespace QualityCompany.Manager.ShipTerminal;
 
 public class AdvancedTerminal
 {
@@ -44,7 +44,7 @@ public class AdvancedTerminal
 
         Terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
         {
-            name = "AdvancedCompany",
+            name = "QualityCompany",
             word = "advcomp",
             specialKeywordResult = new TerminalNode
             {
