@@ -1,15 +1,16 @@
-﻿using System.Linq;
-using AdvancedCompany.Game;
+﻿using QualityCompany.Service;
+using QualityCompany.Utils;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
-public class LootMonitor : BaseMonitor
+internal class LootMonitor : BaseMonitor
 {
     public static LootMonitor Instance;
 
     protected override void PostStart()
     {
         Instance = this;
+        _logger = new ACLogger(nameof(LootMonitor));
 
         UpdateMonitor();
     }
@@ -18,21 +19,12 @@ public class LootMonitor : BaseMonitor
     {
         if (GameUtils.ShipGameObject == null)
         {
-            Logger.LogError("ShipGameObject is null");
+            Instance?._logger.LogError("ShipGameObject is null");
             return;
         }
 
-        var num = CalculateShipScrapLoot();
+        var num = ScrapUtils.GetShipSettledTotalRawScrapValue();
+        Instance?._logger.LogDebug($"Update loot value: {num}");
         Instance?.UpdateMonitorText("LOOT", num);
-    }
-
-    private static int CalculateShipScrapLoot()
-    {
-        return GameUtils.ShipGameObject.GetComponentsInChildren<GrabbableObject>()
-            .Where(item => item.itemProperties.isScrap && !item.isHeld && !item.isPocketed)
-            .Sum(item => item.scrapValue);
-        // return (from x in _ship.GetComponentsInChildren<GrabbableObject>()
-        //     where x.itemProperties.isScrap && !x.isPocketed && !x.isHeld
-        //     select x).Sum(x => x.scrapValue);
     }
 }

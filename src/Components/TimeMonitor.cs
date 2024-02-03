@@ -1,23 +1,26 @@
-﻿using TMPro;
+﻿using QualityCompany.Service;
+using TMPro;
 using UnityEngine;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
-public class TimeMonitor : MonoBehaviour
+internal class TimeMonitor : BaseMonitor
 {
-    private static TextMeshProUGUI _textMesh;
+    public static TimeMonitor Instance;
 
     private static TextMeshProUGUI _timeMesh;
 
-    public void Start()
+    protected override void PostStart()
     {
-        _textMesh = GetComponent<TextMeshProUGUI>();
+        Instance = this;
+
+        _logger = new ACLogger(nameof(TimeMonitor));
         _timeMesh = GameObject.Find("Systems/UI/Canvas/IngamePlayerHUD/ProfitQuota/Container/Box/TimeNumber").GetComponent<TextMeshProUGUI>();
         _textMesh.text = "TIME:\n7:30\nAM";
     }
 
     public static void UpdateMonitor()
     {
-        _textMesh.text = "TIME:\n" + ((TMP_Text)_timeMesh).text;
+        Instance?.UpdateMonitorText($"TIME:\n{_timeMesh.text}");
     }
 }

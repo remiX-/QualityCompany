@@ -1,10 +1,8 @@
-﻿using System;
-using TMPro;
-using UnityEngine;
+﻿using QualityCompany.Service;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
-public class CreditMonitor : BaseMonitor
+internal class CreditMonitor : BaseMonitor
 {
     public static CreditMonitor Instance;
 
@@ -13,7 +11,10 @@ public class CreditMonitor : BaseMonitor
     protected override void PostStart()
     {
         Instance = this;
+        _logger = new ACLogger(nameof(CreditMonitor));
+
         _terminal = FindObjectOfType<Terminal>();
+
         UpdateMonitor();
     }
 
@@ -21,6 +22,6 @@ public class CreditMonitor : BaseMonitor
     {
         if (_terminal is null) return;
 
-        Instance.UpdateMonitorText("CREDITS", _terminal.groupCredits);
+        Instance?.UpdateMonitorText("CREDITS", _terminal.groupCredits);
     }
 }

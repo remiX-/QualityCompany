@@ -1,18 +1,13 @@
-﻿using System.IO;
-using System.Reflection;
-using BepInEx;
-using BepInEx.Configuration;
+﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using AdvancedCompany.Manager;
-// using TerminalApi.Classes;
-using AdvancedCompany.Patch;
-using AdvancedCompany.TerminalCommands;
+using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.TerminalCommands;
+using System.IO;
+using System.Reflection;
 using UnityEngine;
-// using static TerminalApi.Events.Events;
-// using static TerminalApi.TerminalApi;
 
-namespace AdvancedCompany;
+namespace QualityCompany;
 
 [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
@@ -22,64 +17,58 @@ public class Plugin : BaseUnityPlugin
     internal static Plugin Instance;
     internal static AssetBundle CustomAssets;
 
-    internal ManualLogSource Logger;
+    internal ManualLogSource ACLogger;
+
+    internal PluginConfig PluginConfig;
 
     private void Awake()
     {
         Instance = this;
-        Logger = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
-
-        // GameUtils.Init();
+        ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
 
         // Plugin patch logic
+        NetcodePatcher();
         Patch();
 
+        // Asset Bundles
         var dllFolderPath = Path.GetDirectoryName(Info.Location);
-        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(dllFolderPath, "sellfromterminalbundle"));
+        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(dllFolderPath!, "modnetworkhandlerbundle"));
         if (CustomAssets is null)
         {
-            Logger.LogError("Failed to load custom assets!");
-        }
-        else
-        {
-            Logger.LogDebug("Loaded asset: modnetworkhandlerbundle");
+            ACLogger.LogError("Failed to load custom assets!");
         }
 
-        LoadConfigs();
+        // Config
+        PluginConfig = new PluginConfig(Config);
+        PluginConfig.Bind();
 
         // Loaded
-        Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        ACLogger.LogMessage($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
     }
 
     private void Patch()
     {
-        TerminalManager.Sub(new SellCommands());
-        TerminalManager.Sub(new MiscCommands());
-        TerminalManager.Sub(new TargetCommands());
+        AdvancedTerminal.Sub(new SellCommands());
+        AdvancedTerminal.Sub(new MiscCommands());
+        AdvancedTerminal.Sub(new TargetCommands());
 
-        harmony.PatchAll(typeof(MonitorPatch));
-        harmony.PatchAll(typeof(WeatherPatch));
-        harmony.PatchAll(typeof(TerminalPatch));
-        harmony.PatchAll(typeof(NetworkObjectManager));
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 
-    #region Config
-
-    // public static ConfigEntry<int> ConfigExactAmountAllowance;
-    public static ConfigEntry<string> ConfigSellIgnoreList;
-
-    private void LoadConfigs()
+    private static void NetcodePatcher()
     {
-        ConfigSellIgnoreList = Config.Bind("Can Sell",
-            "SellIgnoreList",
-            "shotgun,gunammo,gift,pickle,airhorn",
-            "A comma separated list of items to ignore in the ship. Does not have to be the exact name.");
-
-        // ConfigExactAmountAllowance = Config.Bind("Misc",
-        //     "ExactAmountAllowance",
-        //     0,
-        //     "The amount of allowance over the specified amount to grant. Ex: Setting this to 5 will make 'sell 50' also sell at 51, 52, 53, 54 and 55");
+        var types = Assembly.GetExecutingAssembly().GetTypes();
+        foreach (var type in types)
+        {
+            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            foreach (var method in methods)
+            {
+                var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    method.Invoke(null, null);
+                }
+            }
+        }
     }
-
-    #endregion
 }

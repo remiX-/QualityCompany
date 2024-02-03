@@ -1,16 +1,17 @@
-﻿using TMPro;
+﻿using QualityCompany.Service;
+using TMPro;
 using UnityEngine;
 
-namespace AdvancedCompany.Components;
+namespace QualityCompany.Components;
 
-public abstract class BaseMonitor : MonoBehaviour
+internal abstract class BaseMonitor : MonoBehaviour
 {
+    protected ACLogger _logger;
     protected TextMeshProUGUI _textMesh;
 
     public void Start()
     {
         _textMesh = GetComponent<TextMeshProUGUI>();
-        Logger.LogDebug(_textMesh);
         ResetMonitor();
 
         PostStart();

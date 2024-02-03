@@ -1,39 +1,29 @@
-﻿using AdvancedCompany.Manager;
+﻿using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Service;
+using QualityCompany.Utils;
+using System;
+using Unity.Netcode;
 using UnityEngine;
 
-namespace AdvancedCompany.TerminalCommands;
+namespace QualityCompany.TerminalCommands;
 
 internal class MiscCommands : ITerminalSubscriber
 {
+    private static readonly ACLogger _logger = new(nameof(MiscCommands));
+
+    private int scrapCountToHack;
+
     public void Run()
     {
-        Logger.LogMessage("MiscCommands.StartGame");
-
-        TerminalManager.AddCommand(
+        AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("launch")
-                .WithText("Launching!")
-                .WithDescription("To launch or land the ship. Host needs to do the very first launch.")
-                .EnableConfirmDeny("Are you sure you want to launch?", "Launch has been cancelled")
+                .WithText("asd")
+                .WithDescription(">LAUNCH\nTo launch or land the ship. Host needs to do the very first launch.")
+                // .EnableConfirmDeny("Are you sure you want to launch?", "Launch has been cancelled")
                 .WithCondition("inTransitLandedOrLeaving", "Unable to comply. The ship is landing or taking off.", () => StartOfRound.Instance.shipDoorsEnabled && !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
                 .WithCondition("inTransitToMoon", "Unable to comply. The ship is already in transit to another moon.", () => !StartOfRound.Instance.shipDoorsEnabled && StartOfRound.Instance.travellingToNewLevel)
                 .WithAction(() =>
                 {
-                    // const string alreadyTransitMessage = "Unable to comply. The ship is already in transit.";
-                    // if (leverObject is null) return "!! Can't find StartGameLever !!";
-                    // var lever = leverObject.GetComponent<StartMatchLever>();
-                    // if (lever is null) return "!! Can't find StartMatchLever component !!";
-                    //
-                    // // Doors are enabled (on a moon), ship is either not landed or is leaving
-                    // if (StartOfRound.Instance.shipDoorsEnabled && !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
-                    // {
-                    //     return alreadyTransitMessage;
-                    // }
-                    // // Doors are disabled (in space), ship is in transit to another moon
-                    // if (!StartOfRound.Instance.shipDoorsEnabled && StartOfRound.Instance.travellingToNewLevel)
-                    // {
-                    //     return alreadyTransitMessage;
-                    // }
-
                     var leverObject = GameObject.Find("StartGameLever");
                     var lever = leverObject.GetComponent<StartMatchLever>();
                     var newState = !lever.leverHasBeenPulled;
@@ -48,8 +38,9 @@ internal class MiscCommands : ITerminalSubscriber
                 })
         );
 
-        TerminalManager.AddCommand(
+        AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("door")
+                .WithDescription(">DOOR\nToggle the ship door.")
                 .WithAction(() =>
                 {
                     var trigger = GameObject.Find(StartOfRound.Instance.hangarDoorsClosed ? "StartButton" : "StopButton").GetComponentInChildren<InteractTrigger>();
@@ -59,8 +50,9 @@ internal class MiscCommands : ITerminalSubscriber
                 })
         );
 
-        TerminalManager.AddCommand(
+        AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("lights")
+                .WithDescription(">LIGHTS\nToggle the lights.")
                 .WithAction(() =>
                 {
                     var trigger = GameObject.Find("LightSwitch").GetComponent<InteractTrigger>();
@@ -70,8 +62,9 @@ internal class MiscCommands : ITerminalSubscriber
                 })
         );
 
-        TerminalManager.AddCommand(
+        AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("tp")
+                .WithDescription(">TP\nTeleport the currently active player on the view monitor to the ship. Must have a teleporter.")
                 .WithAction(() =>
                 {
                     var teleporterObject = GameObject.Find("Teleporter(Clone)");
@@ -87,7 +80,49 @@ internal class MiscCommands : ITerminalSubscriber
                 })
         );
 
-        TerminalManager.AddCommand(new TerminalCommandBuilder("time").WithAction(GetTime));
+        AdvancedTerminal.AddCommand(new TerminalCommandBuilder("time")
+            .WithDescription(">TIME\nGet the current time whilst on a moon.")
+            .WithAction(GetTime));
+
+        AdvancedTerminal.AddCommand(
+            new TerminalCommandBuilder("hack")
+                .WithDescription(">hack <count>\nSpawn some ez lewt.")
+                .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
+                .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
+                .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
+                .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
+                    .WithMessage("Hacked in [scrapCountToHack] items")
+                    .WithConditions("isHost")
+                    .WithInputMatch(@"(\d+$)$")
+                    .WithPreAction(input =>
+                    {
+                        scrapCountToHack = Convert.ToInt32(input);
+
+                        if (scrapCountToHack <= 0) return false;
+
+                        for (var i = 0; i < scrapCountToHack; i++)
+                        {
+                            var rand = new System.Random();
+                            var nextScrap = rand.Next(16, 68);
+                            var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
+                            scrap.GetComponent<GrabbableObject>().fallTime = 0f;
+                            var scrapValue = rand.Next(40, 120);
+                            scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
+                            scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
+                            scrap.GetComponent<NetworkObject>().Spawn();
+                            _logger.LogMessage($"Spawned in {scrap.name} for {scrapValue}");
+
+                            RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
+                            scrap.transform.parent = GameUtils.ShipGameObject.transform;
+                        }
+
+                        return true;
+                    })
+                    .WithAction(() =>
+                    {
+                    })
+                )
+        );
     }
 
     private string GetTime()
