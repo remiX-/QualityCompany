@@ -1,16 +1,16 @@
 # QualityCompany
 
-![logo](/docs/assets/logo.png)
+![logo](/assets/logo.png)
 
 ## Features
 
-## HUD improvements
+### HUD improvements
 
-### Held items scrap value
+#### Held items scrap value
 
 ++
 
-### Shotgun ammo counter
+#### Shotgun ammo counter
 
 ++
 
