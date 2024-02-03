@@ -79,10 +79,7 @@ internal class HUDExtensionModule : MonoBehaviour
 
     private void UpdateUI(PlayerControllerB instance)
     {
-        _logger.LogMessage($"UpdateUI: _text:");
         if (instance != GameNetworkManager.Instance.localPlayerController) return;
-
-        _logger.LogMessage($"UpdateUI: currentItemSlot: {instance.currentItemSlot} | currentlyHeldObjectServer: {instance.currentlyHeldObjectServer?.name ?? "null"}");
 
         if (instance.currentlyHeldObjectServer is null)
         {

@@ -14,7 +14,6 @@ public static class ScrapUtils
     {
         try
         {
-            _logger.LogMessage($"GetAllScrapInShip: ship null? {GameUtils.ShipGameObject == null}");
             return GameUtils.ShipGameObject
                 .GetComponentsInChildren<GrabbableObject>()
                 .ToList();
