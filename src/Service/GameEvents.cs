@@ -11,7 +11,7 @@ public class GameEvents
 
     public static event PlayerControllerEvent PlayerGrabObjectClientRpc;
     public static event PlayerControllerEvent PlayerSwitchToItemSlot;
-    public static event PlayerControllerEvent PlayerDiscardHeldObject;
+    public static event PlayerControllerEvent PlayerThrowObjectClientRpc;
     public static event PlayerControllerEvent PlayerShotgunShoot;
     public static event PlayerControllerEvent PlayerShotgunReload;
     public delegate void PlayerControllerEvent(PlayerControllerB instance);
@@ -25,7 +25,7 @@ public class GameEvents
 
     public static void OnPlayerGrabObjectClientRpc(PlayerControllerB instance)
     {
-        Logger.LogDebug("[GameEvents] OnPlayerBeginGrabObject");
+        Logger.LogDebug("[GameEvents] OnPlayerGrabObjectClientRpc");
         PlayerGrabObjectClientRpc?.Invoke(instance);
     }
 
@@ -35,10 +35,10 @@ public class GameEvents
         PlayerSwitchToItemSlot?.Invoke(instance);
     }
 
-    public static void OnPlayerDiscardHeldObject(PlayerControllerB instance)
+    public static void OnPlayerThrowObjectClientRpc(PlayerControllerB instance)
     {
         Logger.LogDebug("[GameEvents] OnPlayerDiscardHeldObject");
-        PlayerDiscardHeldObject?.Invoke(instance);
+        PlayerThrowObjectClientRpc?.Invoke(instance);
     }
 
     public static void OnPlayerShotgunShoot(PlayerControllerB instance)

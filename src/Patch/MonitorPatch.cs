@@ -242,7 +242,7 @@ internal class MonitorPatch
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(ShotgunItem), "ReloadGunEffectsClientRpc")]
-    private static void ReloadGunEffectsClientRpcPatch(ref PlayerControllerB previousPlayerHeldBy)
+    private static void ReloadGunEffectsClientRpcPatch()
     {
         _logger.LogDebug("ReloadGunEffectsClientRpcPatch");
         OnPlayerShotgunReload(GameNetworkManager.Instance.localPlayerController);
@@ -252,9 +252,8 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(PlayerControllerB), "SwitchToItemSlot")]
     private static void SwitchToItemSlotPatch(PlayerControllerB __instance)
     {
-        // _logger.LogMessage("PlayerUsername " + __instance.playerUsername);
-        // _logger.LogMessage("PlayerUsername " + GameNetworkManager.Instance.localPlayerController.playerUsername);
         if (GameNetworkManager.Instance.localPlayerController != __instance) return;
+
         OnPlayerSwitchToItemSlot(__instance);
     }
 
@@ -262,9 +261,12 @@ internal class MonitorPatch
     [HarmonyPatch(typeof(PlayerControllerB), "GrabObjectClientRpc")]
     private static void RefreshLootOnPickupClient(PlayerControllerB __instance, ref NetworkObjectReference grabbedObject)
     {
+        if (GameNetworkManager.Instance.localPlayerController != __instance) return;
+
         _logger.LogDebug("GrabObjectClientRpc");
 
         OnPlayerGrabObjectClientRpc(__instance);
+
         if (!grabbedObject.TryGet(out var networkObject)) return;
 
         var componentInChildren = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
@@ -277,20 +279,25 @@ internal class MonitorPatch
         CreditMonitor.UpdateMonitor();
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(PlayerControllerB), "DiscardHeldObject")]
-    private static void DiscardHeldObjectPatch(PlayerControllerB __instance, bool placeObject)
-    {
-        _logger.LogDebug($"DiscardHeldObjectPatch: {placeObject}");
-
-        OnPlayerDiscardHeldObject(__instance);
-    }
+    // [HarmonyPostfix]
+    // [HarmonyPatch(typeof(PlayerControllerB), "DiscardHeldObject")]
+    // private static void DiscardHeldObjectPatch(PlayerControllerB __instance, bool placeObject)
+    // {
+    //     if (GameNetworkManager.Instance.localPlayerController != __instance) return;
+    //
+    //     _logger.LogDebug($"DiscardHeldObjectPatch: {placeObject}");
+    //
+    //     OnPlayerDiscardHeldObject(__instance);
+    // }
 
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerControllerB), "ThrowObjectClientRpc")]
-    private static void RefreshLootOnThrowClient(bool droppedInElevator, bool droppedInShipRoom, Vector3 targetFloorPosition, NetworkObjectReference grabbedObject)
+    private static void RefreshLootOnThrowClient(PlayerControllerB __instance, bool droppedInElevator, bool droppedInShipRoom)
     {
+        if (GameNetworkManager.Instance.localPlayerController != __instance) return;
+
         _logger.LogDebug("ThrowObjectClientRpc");
+        OnPlayerThrowObjectClientRpc(__instance);
 
         if (droppedInShipRoom || droppedInElevator)
         {

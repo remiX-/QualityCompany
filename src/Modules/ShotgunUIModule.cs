@@ -40,8 +40,7 @@ internal class ShotgunUIModule : MonoBehaviour
         transform.localScale = Vector3.one;
 
         GameEvents.PlayerGrabObjectClientRpc += UpdateUI;
-        GameEvents.PlayerDiscardHeldObject += UpdateUI;
-        GameEvents.PlayerSwitchToItemSlot += UpdateUI;
+        GameEvents.PlayerThrowObjectClientRpc += UpdateUI;
         GameEvents.PlayerShotgunShoot += UpdateUI;
         GameEvents.PlayerShotgunReload += UpdateUI;
     }
