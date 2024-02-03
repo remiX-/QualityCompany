@@ -56,13 +56,13 @@
 		</None>
 	</ItemGroup>
 
-	<Target Name="Build Dist" AfterTargets="Build">
+	<Target Name="NetcodePatch" AfterTargets="Build">
 		<Message Text="NetcodePatch task" Importance="High" />
 
 		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
 	</Target>
 
-	<Target Name="Copy To Dist" AfterTargets="Build Dist" Condition="'$(Configuration)' == 'Release'">
+	<Target Name="Copy To Dist" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
 		<Message Text="Building dist directory" Importance="High" />
 
 		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(SolutionDir)\dist" />

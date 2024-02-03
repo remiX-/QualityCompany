@@ -60,6 +60,9 @@ internal class HUDExtensionModule : MonoBehaviour
     // Maybe some kind of [ModuleOnAttach] attribute?
     private void Attach()
     {
+        // deposit at desk
+        // dying
+        // depositing into shopping cart
         PlayerGrabObjectClientRpc += UpdateUI;
         PlayerThrowObjectClientRpc += UpdateUI;
         PlayerShotgunShoot += UpdateUI;
