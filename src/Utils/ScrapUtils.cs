@@ -12,9 +12,16 @@ public static class ScrapUtils
 
     public static List<GrabbableObject> GetAllScrapInShip()
     {
-        return GameUtils.ShipGameObject
-            .GetComponentsInChildren<GrabbableObject>()
-            .ToList();
+        try
+        {
+            return GameUtils.ShipGameObject
+                .GetComponentsInChildren<GrabbableObject>()
+                .ToList();
+        }
+        catch
+        {
+            return new List<GrabbableObject>();
+        }
     }
 
     public static List<GrabbableObject> GetAllSellableScrapInShip()

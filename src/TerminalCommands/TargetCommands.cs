@@ -1,12 +1,14 @@
 ﻿using AdvancedCompany.Components;
 using AdvancedCompany.Manager.ShipTerminal;
 using AdvancedCompany.Network;
-using AdvancedCompany.Utils;
+using AdvancedCompany.Service;
 
 namespace AdvancedCompany.TerminalCommands;
 
 internal class TargetCommands : ITerminalSubscriber
 {
+    private static readonly ACLogger _logger = new(nameof(TargetCommands));
+
     public void Run()
     {
         AdvancedTerminal.AddCommand(
@@ -25,7 +27,7 @@ internal class TargetCommands : ITerminalSubscriber
 
                         return true;
                     })
-                    .WithAction(() => Logger.LogDebug("EXEC target.Action???"))
+                    .WithAction(() => _logger.LogDebug("EXEC target.Action???"))
                 )
                 .AddTextReplacement("[targetSetTo]", () => OvertimeMonitor.targetTotalCredits.ToString())
         // .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)

@@ -1,11 +1,11 @@
-﻿using System;
-using AdvancedCompany.Utils;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 
 namespace AdvancedCompany.Service;
 
 public class GameEvents
 {
+    private static readonly ACLogger _logger = new(nameof(GameEvents));
+
     public static event HUDEvent HudManagerStart;
     public delegate void HUDEvent(HUDManager instance);
 
@@ -19,37 +19,37 @@ public class GameEvents
 
     public static void OnHudManagerStart(HUDManager instance)
     {
-        Logger.LogDebug("[GameEvents] OnHudManagerStart");
+        _logger.LogDebug("[GameEvents] OnHudManagerStart");
         HudManagerStart?.Invoke(instance);
     }
 
     public static void OnPlayerGrabObjectClientRpc(PlayerControllerB instance)
     {
-        Logger.LogDebug("[GameEvents] OnPlayerGrabObjectClientRpc");
+        _logger.LogDebug("[GameEvents] OnPlayerGrabObjectClientRpc");
         PlayerGrabObjectClientRpc?.Invoke(instance);
     }
 
     public static void OnPlayerSwitchToItemSlot(PlayerControllerB instance)
     {
-        Logger.LogDebug("[GameEvents] OnPlayerSwitchToItemSlot");
+        _logger.LogDebug("[GameEvents] OnPlayerSwitchToItemSlot");
         PlayerSwitchToItemSlot?.Invoke(instance);
     }
 
     public static void OnPlayerThrowObjectClientRpc(PlayerControllerB instance)
     {
-        Logger.LogDebug("[GameEvents] OnPlayerDiscardHeldObject");
+        _logger.LogDebug("[GameEvents] OnPlayerDiscardHeldObject");
         PlayerThrowObjectClientRpc?.Invoke(instance);
     }
 
     public static void OnPlayerShotgunShoot(PlayerControllerB instance)
     {
-        Logger.LogDebug("[GameEvents] OnPlayerShootShotgun");
+        _logger.LogDebug("[GameEvents] OnPlayerShootShotgun");
         PlayerShotgunShoot?.Invoke(instance);
     }
 
     public static void OnPlayerShotgunReload(PlayerControllerB instance)
     {
-        Logger.LogDebug("[GameEvents] OnPlayerShotgunReload");
+        _logger.LogDebug("[GameEvents] OnPlayerShotgunReload");
         PlayerShotgunReload?.Invoke(instance);
     }
 }

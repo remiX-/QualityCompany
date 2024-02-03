@@ -1,12 +1,8 @@
 ﻿using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Network;
 using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
 using System;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
-using Logger = AdvancedCompany.Utils.Logger;
 
 namespace AdvancedCompany.TerminalCommands;
 
@@ -18,8 +14,6 @@ internal class MiscCommands : ITerminalSubscriber
 
     public void Run()
     {
-        _logger.LogMessage("MiscCommands.StartGame");
-
         AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("launch")
                 .WithText("asd")
@@ -101,12 +95,10 @@ internal class MiscCommands : ITerminalSubscriber
                     .WithInputMatch(@"(\d+$)$")
                     .WithPreAction(input =>
                     {
-                        Logger.LogMessage($"hacky: {input}");
                         scrapCountToHack = Convert.ToInt32(input);
 
                         if (scrapCountToHack <= 0) return false;
 
-                        Logger.LogMessage("ACTION");
                         for (var i = 0; i < scrapCountToHack; i++)
                         {
                             var rand = new System.Random();
@@ -117,7 +109,7 @@ internal class MiscCommands : ITerminalSubscriber
                             scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
                             scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
                             scrap.GetComponent<NetworkObject>().Spawn();
-                            Logger.LogMessage($"Spawned in {scrap.name} for {scrapValue}");
+                            _logger.LogMessage($"Spawned in {scrap.name} for {scrapValue}");
 
                             RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
                             // scrap.transform.parent = GameUtils.ShipGameObject.transform;

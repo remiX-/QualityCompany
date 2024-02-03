@@ -22,6 +22,6 @@ internal class CreditMonitor : BaseMonitor
     {
         if (_terminal is null) return;
 
-        Instance.UpdateMonitorText("CREDITS", _terminal.groupCredits);
+        Instance?.UpdateMonitorText("CREDITS", _terminal.groupCredits);
     }
 }

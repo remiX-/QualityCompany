@@ -18,7 +18,7 @@ internal class ShotgunUIModule : MonoBehaviour
     private static readonly Color TEXT_COLOR_FULL = new(0f, 1f, 0f, 0.75f);
     private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f); // rgb(255, 243, 36) yellow
     private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
-    
+
 
     private void Start()
     {

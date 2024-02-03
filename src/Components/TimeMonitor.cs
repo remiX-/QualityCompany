@@ -21,6 +21,6 @@ internal class TimeMonitor : BaseMonitor
 
     public static void UpdateMonitor()
     {
-        Instance.UpdateMonitorText($"TIME:\n{_timeMesh.text}");
+        Instance?.UpdateMonitorText($"TIME:\n{_timeMesh.text}");
     }
 }

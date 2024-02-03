@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using AdvancedCompany.Components;
+﻿using AdvancedCompany.Components;
 using AdvancedCompany.Service;
-using AdvancedCompany.Utils;
+using Newtonsoft.Json;
+using System.Collections;
 using System.IO;
-using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace AdvancedCompany.Network;
 
@@ -147,8 +144,8 @@ public class CompanyNetworkHandler : NetworkBehaviour
 
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
-            _logger.LogDebug("1");
-            Instance?.gameObject.GetComponent<NetworkObject>()?.Despawn();
+            // _logger.LogDebug($"1...{Instance?.gameObject} | {Instance?.gameObject?.GetComponent<NetworkObject>()}");
+            // Instance?.gameObject?.GetComponent<NetworkObject>()?.Despawn();
         }
 
         _logger.LogDebug("2");

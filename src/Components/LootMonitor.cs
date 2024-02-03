@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AdvancedCompany.Service;
+﻿using AdvancedCompany.Service;
 using AdvancedCompany.Utils;
 
 namespace AdvancedCompany.Components;
@@ -20,12 +19,12 @@ internal class LootMonitor : BaseMonitor
     {
         if (GameUtils.ShipGameObject == null)
         {
-            Instance._logger.LogError("ShipGameObject is null");
+            Instance?._logger.LogError("ShipGameObject is null");
             return;
         }
 
         var num = ScrapUtils.GetShipSettledTotalRawScrapValue();
-        Instance._logger.LogDebug($"Update loot value: {num}");
+        Instance?._logger.LogDebug($"Update loot value: {num}");
         Instance?.UpdateMonitorText("LOOT", num);
     }
 }

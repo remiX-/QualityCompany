@@ -1,7 +1,4 @@
 ﻿using AdvancedCompany.Manager.ShipTerminal;
-using AdvancedCompany.Modules;
-using AdvancedCompany.Network;
-using AdvancedCompany.Patch;
 using AdvancedCompany.TerminalCommands;
 using BepInEx;
 using BepInEx.Configuration;
@@ -57,12 +54,11 @@ public class Plugin : BaseUnityPlugin
         AdvancedTerminal.Sub(new MiscCommands());
         AdvancedTerminal.Sub(new TargetCommands());
 
-        harmony.PatchAll(typeof(MonitorPatch));
-        harmony.PatchAll(typeof(WeatherPatch));
-        harmony.PatchAll(typeof(ScanFixModule));
-        harmony.PatchAll(typeof(TerminalPatch));
-        harmony.PatchAll(typeof(GameNetworkManagerPatch));
-        harmony.PatchAll(typeof(NetworkObjectManager));
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
+        // harmony.PatchAll(typeof(ScanFixModule));
+        // harmony.PatchAll(typeof(TerminalPatch));
+        // harmony.PatchAll(typeof(GameNetworkManagerPatch));
+        // harmony.PatchAll(typeof(NetworkObjectManager));
     }
 
     private static void NetcodePatcher()

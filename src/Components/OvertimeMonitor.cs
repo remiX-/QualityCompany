@@ -1,8 +1,8 @@
-﻿using AdvancedCompany.Service;
+﻿using AdvancedCompany.Network;
+using AdvancedCompany.Service;
 using AdvancedCompany.Utils;
 using System;
 using System.Linq;
-using AdvancedCompany.Network;
 using UnityEngine;
 
 namespace AdvancedCompany.Components;
@@ -29,6 +29,8 @@ internal class OvertimeMonitor : BaseMonitor
 
     public static void UpdateMonitor()
     {
+        if (Instance is null) return;
+
         if (!GameUtils.IsOnCompany())
         {
             var quotaStartScrap = CompanyNetworkHandler.Instance.SaveData.TotalLootValue;
