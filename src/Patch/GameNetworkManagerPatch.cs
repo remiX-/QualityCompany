@@ -1,6 +1,7 @@
 ﻿using AdvancedCompany.Network;
 using AdvancedCompany.Service;
 using HarmonyLib;
+using static AdvancedCompany.Service.GameEvents;
 
 namespace AdvancedCompany.Patch;
 
@@ -11,9 +12,10 @@ internal class GameNetworkManagerPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("Disconnect")]
-    private static void Disconnect()
+    private static void Disconnect(GameNetworkManager __instance)
     {
         _logger.LogDebug("Disconnect!!");
+        OnDisconnected(__instance);
     }
 
     [HarmonyPrefix]

@@ -16,6 +16,9 @@ public class GameEvents
     public static event PlayerControllerEvent PlayerShotgunReload;
     public delegate void PlayerControllerEvent(PlayerControllerB instance);
 
+    public static event DisconnectEvent Disconnected;
+    public delegate void DisconnectEvent(GameNetworkManager instance);
+
 
     public static void OnHudManagerStart(HUDManager instance)
     {
@@ -51,6 +54,12 @@ public class GameEvents
     {
         _logger.LogDebug("[GameEvents] OnPlayerShotgunReload");
         PlayerShotgunReload?.Invoke(instance);
+    }
+
+    public static void OnDisconnected(GameNetworkManager instance)
+    {
+        _logger.LogDebug("[GameEvents] OnDisconnected");
+        Disconnected?.Invoke(instance);
     }
 }
 

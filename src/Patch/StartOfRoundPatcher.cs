@@ -12,7 +12,7 @@ namespace AdvancedCompany.Patch;
 [HarmonyPatch(typeof(StartOfRound))]
 internal class StartOfRoundPatcher
 {
-    private static bool hasInitialized;
+    // private static bool hasInitialized;
 
     private static readonly ACLogger _logger = new(nameof(StartOfRoundPatcher));
 
@@ -28,9 +28,9 @@ internal class StartOfRoundPatcher
         _logger.LogMessage($"Loading ModuleLoader...");
         var mlgo = new GameObject("AdvancedCompanyLoader");
         mlgo.AddComponent<ModuleLoader>();
-        Object.DontDestroyOnLoad(mlgo);
+        // Object.DontDestroyOnLoad(mlgo);
 
-        hasInitialized = true;
+        // hasInitialized = true;
     }
 
     [HarmonyPostfix]
@@ -107,7 +107,9 @@ internal class StartOfRoundPatcher
 
     private static void InitializeMonitorCluster()
     {
-        if (hasInitialized) return;
+        // if (hasInitialized) return;
+
+        _logger.LogMessage($"Ship: {GameUtils.ShipGameObject}");
 
         var hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
         var hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");

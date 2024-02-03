@@ -126,7 +126,7 @@ public class NetworkHandler : NetworkBehaviour
         _logger.LogDebug("NetworkManager.OnNetworkSpawn");
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
-            Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
+            // Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
         }
 
         Instance = this;

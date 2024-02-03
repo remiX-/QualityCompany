@@ -118,7 +118,7 @@ internal class SellCommands : ITerminalSubscriber
                 .WithSubCommand(new TerminalSubCommandBuilder("<sell_item>")
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell specified items.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
                     .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
-                    .WithConditions("landedAtCompany", "hasScrapItems")
+                    .WithConditions("landedAtCompany", "hasScrapItems", "hasMatchingScrapItems")
                     .WithInputMatch(@"(\w+)$")
                     .WithPreAction(input =>
                     {
@@ -143,11 +143,12 @@ internal class SellCommands : ITerminalSubscriber
                 .AddTextReplacement("[shipTotalScrapCount]", () => ScrapUtils.GetShipSellableScrapCount().ToString())
                 .AddTextReplacement("[shipTotalScrapValue]", () => ScrapUtils.GetShipTotalSellableScrapValue().ToString())
                 .AddTextReplacement("[sellScrapActualTotal]", () => ScrapUtils.SumScrapListSellValue(recommendedScraps).ToString())
-                .AddTextReplacement("[companyBuyItemsCombo]", () => recommendedScraps.Select(x => $"{x.itemProperties.name}: {x.ActualSellValue()}").Aggregate((first, next) => $"{first}\n{next}"))
+                .AddTextReplacement("[companyBuyItemsCombo]", () => recommendedScraps?.Select(x => $"{x.itemProperties.name}: {x.ActualSellValue()}").Aggregate((first, next) => $"{first}\n{next}"))
                 .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
                 .WithCondition("hasScrapItems", "Bruh, you don't even have any items.", () => ScrapUtils.GetShipSellableScrapCount() > 0)
                 .WithCondition("notEnoughScrap", "Not enough scrap to meet [sellScrapFor] credits.\nTotal value: [shipTotalScrapValue].", () => sellScrapFor < ScrapUtils.GetShipTotalSellableScrapValue())
                 .WithCondition("quotaAlreadyMet", "Quota already met.", () => TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled > 0)
+                .WithCondition("hasMatchingScrapItems", "No matching items found for input.", () => recommendedScraps.Count > 0)
         );
     }
 }

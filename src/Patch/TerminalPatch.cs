@@ -123,6 +123,7 @@ public class TerminalPatch
 
     private static TerminalNode ExecuteMultiCommand(TerminalCommandBuilder command, TerminalNode __result, Terminal __instance)
     {
+        var commandFound = false;
         foreach (var keyword in command.SubCommands)
         {
             //_logger.LogDebug($" > kw: {keyword.Id}");
@@ -144,12 +145,12 @@ public class TerminalPatch
                 if (__result.name != keyword.Id) continue;
                 //_logger.LogDebug("  > preAction()");
                 keyword.PreConditionAction();
+                commandFound = true;
             }
 
             //_logger.LogDebug(" > checking special conditions");
             foreach (var cc in keyword.Conditions)
             {
-                //_logger.LogDebug($"  > {cc}");
                 var specialCondition = command.specialNodes.FirstOrDefault(x => x.node.name == cc);
                 if (specialCondition == default)
                 {
@@ -167,6 +168,11 @@ public class TerminalPatch
 
             //_logger.LogDebug($"keyword.IsVariableCommand => {keyword.IsVariableCommand}");
             if (keyword.IsVariableCommand)
+            {
+                return keyword.Node;
+            }
+
+            if (commandFound)
             {
                 return keyword.Node;
             }

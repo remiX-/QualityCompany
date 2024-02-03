@@ -28,22 +28,27 @@ internal class ModuleLoader : MonoBehaviour
         yield return new WaitForSeconds(2.0f);
         _logger.LogMessage("LoadScrapValueUIModulesCoroutine -> done!");
 
-        for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
-        {
-            // shotgun ammo counter ui
-            var shotty = new GameObject($"shotgunAmmoUI{i}");
-            shotty.AddComponent<ShotgunUIModule>();
-            var shottyModule = shotty.GetComponent<ShotgunUIModule>();
-            shottyModule.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-            shottyModule.ItemIndex = i;
+        // scrap value item ui
+        HUDExtensionModule.Spawn();
 
-            // scrap value item ui
-            var scrapUI = new GameObject($"hudScrapUI{i}");
-            scrapUI.AddComponent<ScrapValueUIModule>();
-            var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
-            uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
-            uiMod.ItemIndex = i;
-        }
+        // for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
+        // {
+        //     shotgun ammo counter ui
+        //     var shotty = new GameObject($"shotgunAmmoUI{i}");
+        //     shotty.AddComponent<ShotgunUIModule>();
+        //     var shottyModule = shotty.GetComponent<ShotgunUIModule>();
+        //     shottyModule.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
+        //     shottyModule.ItemIndex = i;
+        //
+        //     var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
+        //     uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
+        //     uiMod.ItemIndex = i;
+        //     var scrapUI = new GameObject($"hudScrapUI{i}");
+        //     scrapUI.AddComponent<ScrapValueUIModule>();
+        //     var uiMod = scrapUI.GetComponent<ScrapValueUIModule>();
+        //     uiMod.FrameParent = HUDManager.Instance.itemSlotIconFrames[i].gameObject;
+        //     uiMod.ItemIndex = i;
+        // }
     }
 }
 
