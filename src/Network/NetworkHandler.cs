@@ -30,6 +30,12 @@ public class NetworkHandler : NetworkBehaviour
         OvertimeMonitor.UpdateMonitor();
 
         HudUtils.DisplayNotification($"Sale target has been updated to ${newTarget} by {playerName}");
+
+        CompanyNetworkHandler.Instance.SaveData.TargetForSelling = newTarget;
+        if (IsHost)
+        {
+            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -65,7 +71,7 @@ public class NetworkHandler : NetworkBehaviour
     [ClientRpc]
     public void ExecuteSellAmountClientRpc()
     {
-        var depositItemsDesk = FindObjectOfType<DepositItemsDesk>();
+        var depositItemsDesk = FindFirstObjectByType<DepositItemsDesk>();
         depositItemsDesk.SetTimesHeardNoiseServerRpc(5f);
 
         HudUtils.DisplayNotification($"Placed {totalItems} pieces of scrap onto the Company Desk for sale. Total ${totalValueForSale}!");
@@ -76,7 +82,7 @@ public class NetworkHandler : NetworkBehaviour
 
     private void PerformSell(List<GrabbableObject> scrap)
     {
-        var depositItemsDesk = FindObjectOfType<DepositItemsDesk>();
+        var depositItemsDesk = FindFirstObjectByType<DepositItemsDesk>();
 
         var index = 0;
         scrap.ForEach(item =>
@@ -103,7 +109,7 @@ public class NetworkHandler : NetworkBehaviour
             return;
         }
 
-        var depositItemsDesk = FindObjectOfType<DepositItemsDesk>();
+        var depositItemsDesk = FindFirstObjectByType<DepositItemsDesk>();
         scrap.transform.parent = depositItemsDesk.deskObjectsContainer.transform;
         scrap.transform.localPosition = depositItemsDesk.transform.position + new Vector3(0f, 0f, (totalItems - 5) * 1f);
         depositItemsDesk.AddObjectToDeskServerRpc(new NetworkObjectReference(scrap.gameObject.GetComponent<NetworkObject>()));

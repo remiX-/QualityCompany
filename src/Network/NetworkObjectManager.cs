@@ -18,7 +18,6 @@ internal class NetworkObjectManager
     [HarmonyPatch(typeof(GameNetworkManager), "Start")]
     public static void Init()
     {
-        _logger.LogDebug($"NOM: {hasInit}");
         if (networkPrefab != null || hasInit)
         {
             return;

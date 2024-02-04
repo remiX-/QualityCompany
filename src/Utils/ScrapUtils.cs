@@ -33,12 +33,9 @@ public static class ScrapUtils
 
     public static List<GrabbableObject> GetScrapForAmount(int amount)
     {
-        // Sanity check that we actually have enough
-        // Technically should never happen since terminal doesn't allow player to sell scrap if it won't meet the amount
         var totalScrapValue = GetShipTotalSellableScrapValue();
         if (totalScrapValue < amount)
         {
-            _logger.LogMessage($"Cannot reach required amount of {amount}! Total value: {totalScrapValue}, total num scrap: {GetShipSellableScrapCount()}");
             return new List<GrabbableObject>();
         }
 
@@ -48,15 +45,13 @@ public static class ScrapUtils
             .ThenByDescending(scrap => scrap.scrapValue)
             .ToList();
 
-        var scrapForQuota = new List<GrabbableObject>();
+        var scrapToSell = new List<GrabbableObject>();
 
-        var amountNeeded = amount;
-        // Highest value scrap is 210
-        while (amountNeeded > 210)
+        while (amount > 300) // arbitrary amount until it starts to specifically look for a perfect match, favouring 2handed scrap first
         {
             var nextScrap = allScrap[nextScrapIndex++];
-            scrapForQuota.Add(nextScrap);
-            amountNeeded -= nextScrap.ActualSellValue();
+            scrapToSell.Add(nextScrap);
+            amount -= nextScrap.ActualSellValue();
         }
 
         // Time to actually be precise
@@ -65,37 +60,38 @@ public static class ScrapUtils
             .ToList();
         nextScrapIndex = 0;
 
-        if (amountNeeded < allScrap.Last().ActualSellValue())
+        // When trying last few OR a very low amount (eg sell 10), just see if it's less than the cheapest item in 'allScrap' list
+        if (amount < allScrap.Last().ActualSellValue())
         {
-            scrapForQuota.Add(allScrap.Last());
-            return scrapForQuota;
+            scrapToSell.Add(allScrap.Last());
+            return scrapToSell;
         }
 
-        while (amountNeeded > 0)
+        while (amount > 0)
         {
-            var sums = new List<(GrabbableObject first, GrabbableObject second, int total)>();
-            for (var i = nextScrapIndex; i < allScrap.Count; i++)
+            var scrapCombinations = new List<(GrabbableObject First, GrabbableObject Second)>();
+            for (var currentIndex = nextScrapIndex; currentIndex < allScrap.Count; currentIndex++)
             {
-                for (var j = i + 1; j < allScrap.Count; j++)
+                for (var nextIndex = currentIndex + 1; nextIndex < allScrap.Count; nextIndex++)
                 {
-                    sums.Add((allScrap[i], allScrap[j], allScrap[i].ActualSellValue() + allScrap[j].ActualSellValue()));
+                    scrapCombinations.Add((allScrap[currentIndex], allScrap[nextIndex]));
                 }
             }
 
-            var foundSum = sums.FirstOrDefault(sum => sum.total >= amountNeeded);
-            if (foundSum != default)
+            var matchingSumForAmountRemaining = scrapCombinations.FirstOrDefault(combo => combo.First.ActualSellValue() + combo.Second.ActualSellValue() >= amount);
+            if (matchingSumForAmountRemaining != default)
             {
-                scrapForQuota.Add(foundSum.first);
-                scrapForQuota.Add(foundSum.second);
-                return scrapForQuota;
+                scrapToSell.Add(matchingSumForAmountRemaining.First);
+                scrapToSell.Add(matchingSumForAmountRemaining.Second);
+                return scrapToSell;
             }
 
             var nextScrap = allScrap[nextScrapIndex++];
-            scrapForQuota.Add(nextScrap);
-            amountNeeded -= nextScrap.ActualSellValue();
+            scrapToSell.Add(nextScrap);
+            amount -= nextScrap.ActualSellValue();
         }
 
-        return scrapForQuota;
+        return scrapToSell;
     }
 
     public static int GetShipSellableScrapCount() => GetAllSellableScrapInShip().Count;
@@ -122,7 +118,7 @@ public static class ScrapUtils
         }
 
         var canSell = item.itemProperties.isScrap && item.scrapValue > 0 && !item.isHeld;
-        var isInIgnoreList = Plugin.Instance.PluginConfig.ConfigSellIgnoreList
+        var isInIgnoreList = Plugin.Instance.PluginConfig.SellIgnoreList
             .Split(",")
             .Select(x => x.Trim())
             .Select(x => Regex.Match(item.itemProperties.name, x, RegexOptions.IgnoreCase))
@@ -134,6 +130,6 @@ public static class ScrapUtils
     public static int ActualSellValue(this GrabbableObject scrap)
     {
         var actualSellValue = scrap.scrapValue * StartOfRound.Instance.companyBuyingRate;
-        return (int)Math.Round(actualSellValue);
+        return (int)Math.Round(actualSellValue); // Not sure if Game ceils/floors/rounds, so might be off by 1 at most
     }
 }

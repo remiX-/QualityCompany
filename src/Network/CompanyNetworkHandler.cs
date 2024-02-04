@@ -29,7 +29,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
             var filePath = Path.Combine(Application.persistentDataPath, $"QualityCompany_{saveNum}.json");
             if (File.Exists(filePath))
             {
-                _logger.LogInfo($"  > HOST: Loading save file for slot {saveNum}.");
+                _logger.LogDebug($"  > HOST: Loading save file for slot {saveNum}.");
                 var json = File.ReadAllText(filePath);
                 SaveData = JsonConvert.DeserializeObject<SaveData>(json);
             }
@@ -50,7 +50,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     public void ServerSaveFileServerRpc()
     {
         var saveNum = GameNetworkManager.Instance.saveFileNum.ToString();
-        var filePath = Path.Combine(Application.persistentDataPath, $"QualityCompany_{saveNum}.json");
+        var filePath = Path.Combine(Application.persistentDataPath, $"{PluginMetadata.PLUGIN_NAME}_{saveNum}.json");
         var json = JsonConvert.SerializeObject(SaveData);
         File.WriteAllText(filePath, json);
     }
@@ -58,7 +58,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void SendConfigServerRpc()
     {
-        _logger.LogInfo($"SendConfigServerRpc > from client");
+        _logger.LogDebug("SendConfigServerRpc > from client");
         var json = JsonConvert.SerializeObject(Plugin.Instance.PluginConfig);
         SendConfigClientRpc(json);
     }
@@ -68,14 +68,14 @@ public class CompanyNetworkHandler : NetworkBehaviour
     {
         if (retrievedCfg)
         {
-            _logger.LogInfo("Config has already been received from host on this client, disregarding.");
+            _logger.LogDebug("Config has already been received from host on this client, disregarding.");
             return;
         }
 
         var cfg = JsonConvert.DeserializeObject<PluginConfig>(json);
         if (cfg != null && !IsHost && !IsServer)
         {
-            _logger.LogInfo("Config received, deserializing and constructing...");
+            _logger.LogDebug("Config received, deserializing and constructing...");
             Plugin.Instance.PluginConfig = cfg;
             retrievedCfg = true;
         }
@@ -89,7 +89,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     private IEnumerator WaitALittleToShareTheFile()
     {
         yield return new WaitForSeconds(0.5f);
-        _logger.LogInfo("Now sharing save file with clients...");
+        _logger.LogDebug("Now sharing save file with clients...");
         ShareSaveServerRpc();
     }
 
@@ -113,6 +113,8 @@ public class CompanyNetworkHandler : NetworkBehaviour
         _logger.LogDebug("Save file received, registering.");
 
         SaveData = JsonConvert.DeserializeObject<SaveData>(json);
+
+        OvertimeMonitor.UpdateMonitor();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -133,8 +135,6 @@ public class CompanyNetworkHandler : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        _logger.LogDebug("OnNetworkSpawn");
-
         if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
         {
             // This is recommended in the docs, but it doesn't seem to work
@@ -142,14 +142,8 @@ public class CompanyNetworkHandler : NetworkBehaviour
             // Instance?.gameObject?.GetComponent<NetworkObject>()?.Despawn();
         }
 
-        _logger.LogDebug("2");
-
         Instance = this;
 
-        _logger.LogDebug("3");
-
         base.OnNetworkSpawn();
-
-        _logger.LogDebug("4");
     }
 }

@@ -4,6 +4,7 @@ using QualityCompany.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using QualityCompany.Components;
 
 namespace QualityCompany.TerminalCommands;
 
@@ -11,6 +12,7 @@ internal class SellCommands : ITerminalSubscriber
 {
     public static List<GrabbableObject> recommendedScraps = new();
     public static int sellScrapFor;
+    public static int sellScrapActualTarget;
 
     public void Run()
     {
@@ -47,11 +49,31 @@ internal class SellCommands : ITerminalSubscriber
                         NetworkHandler.Instance.ExecuteSellAmountServerRpc();
                     })
                 )
+                .WithSubCommand(new TerminalSubCommandBuilder("target")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to current target ($[sellScrapTarget], needing $[sellScrapFor]) as possible...\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
+                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for [shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
+                    .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap", "targetAlreadyMet")
+                    .WithPreAction(() =>
+                    {
+                        sellScrapActualTarget = OvertimeMonitor.targetTotalCredits;
+                        sellScrapFor = OvertimeMonitor.targetNeeded;
+                        recommendedScraps = ScrapUtils.GetScrapForAmount(sellScrapFor);
+                    })
+                    .WithAction(() =>
+                    {
+                        foreach (var scrapNetworkObjectId in recommendedScraps.Select(x => x.NetworkObjectId))
+                        {
+                            NetworkHandler.Instance.TargetSellForNetworkObjectServerRpc(scrapNetworkObjectId);
+                        }
+
+                        NetworkHandler.Instance.ExecuteSellAmountServerRpc();
+                    })
+                )
                 .WithSubCommand(new TerminalSubCommandBuilder("<amount>")
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to [sellScrapFor] as possible...\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
                     .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap")
-                    .WithInputMatch(@"(\d+)$")
+                    .WithInputMatch(@"^(\d+)$")
                     .WithPreAction(input =>
                     {
                         sellScrapFor = Convert.ToInt32(input);
@@ -95,31 +117,11 @@ internal class SellCommands : ITerminalSubscriber
                         NetworkHandler.Instance.ExecuteSellAmountServerRpc();
                     })
                 )
-                .WithSubCommand(new TerminalSubCommandBuilder("mask")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell all shitty masks.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
-                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
-                    .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap")
-                    .WithPreAction(() =>
-                    {
-                        recommendedScraps = ScrapUtils.GetAllSellableScrapInShip()
-                            .Where(x => x.itemProperties.name.ToLower().Contains("trag") || x.itemProperties.name.ToLower().Contains("com"))
-                            .ToList();
-                    })
-                    .WithAction(() =>
-                    {
-                        foreach (var scrapNetworkObjectId in recommendedScraps.Select(x => x.NetworkObjectId))
-                        {
-                            NetworkHandler.Instance.TargetSellForNetworkObjectServerRpc(scrapNetworkObjectId);
-                        }
-
-                        NetworkHandler.Instance.ExecuteSellAmountServerRpc();
-                    })
-                )
                 .WithSubCommand(new TerminalSubCommandBuilder("<sell_item>")
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell specified items.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
                     .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "hasMatchingScrapItems")
-                    .WithInputMatch(@"(\w+)$")
+                    .WithInputMatch(@"^(\w+)$")
                     .WithPreAction(input =>
                     {
                         recommendedScraps = ScrapUtils.GetAllScrapInShip()
@@ -139,6 +141,7 @@ internal class SellCommands : ITerminalSubscriber
                     })
                 )
                 .AddTextReplacement("[sellScrapFor]", () => sellScrapFor.ToString())
+                .AddTextReplacement("[sellScrapTarget]", () => sellScrapActualTarget.ToString())
                 .AddTextReplacement("[numScrapSold]", () => recommendedScraps.Count.ToString())
                 .AddTextReplacement("[shipTotalScrapCount]", () => ScrapUtils.GetShipSellableScrapCount().ToString())
                 .AddTextReplacement("[shipTotalScrapValue]", () => ScrapUtils.GetShipTotalSellableScrapValue().ToString())

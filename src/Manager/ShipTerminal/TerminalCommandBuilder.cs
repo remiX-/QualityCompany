@@ -6,6 +6,7 @@ namespace QualityCompany.Manager.ShipTerminal;
 
 public class TerminalCommandBuilder
 {
+    public string CommandText { get; set; }
     public Func<string> Action;
     public bool IsSimpleCommand;
     public string ActionEvent;
@@ -23,6 +24,7 @@ public class TerminalCommandBuilder
 
     public TerminalCommandBuilder(string name)
     {
+        CommandText = name;
         node.name = name;
         node.clearPreviousText = true;
         nodeKeyword = new TerminalKeyword

@@ -15,6 +15,7 @@ internal class OvertimeMonitor : BaseMonitor
     private static GameObject _depositDesk;
 
     public static int targetTotalCredits = 1200;
+    public static int targetNeeded = 1200;
 
     protected override void PostStart()
     {
@@ -22,9 +23,11 @@ internal class OvertimeMonitor : BaseMonitor
         _logger = new ACLogger(nameof(OvertimeMonitor));
 
         _textMesh.fontSize *= 0.65f;
-        _terminal = FindObjectOfType<Terminal>();
+        _terminal = FindFirstObjectByType<Terminal>();
 
         UpdateMonitor();
+
+        targetTotalCredits = CompanyNetworkHandler.Instance.SaveData.TargetForSelling;
     }
 
     public static void UpdateMonitor()
@@ -42,18 +45,32 @@ internal class OvertimeMonitor : BaseMonitor
         }
         _depositDesk = GameObject.Find("/DepositCounter/DoorAndHookAnim/InteractCube");
 
-        var stillNeeded = CalculateSellNeeded();
+        targetNeeded = CalculateSellNeeded();
         var overtime = CalculateOvertime();
 
-        Instance.UpdateMonitorText($"TARGET:${targetTotalCredits}\nNEEDED:${stillNeeded}\nOVERTIME:${overtime}\nDESK:${CalculateSumOnDepositDesk()}");
+        Instance.UpdateMonitorText($"TARGET:${targetTotalCredits}\nNEEDED:${targetNeeded}\nOVERTIME:${overtime}\nDESK:${CalculateSumOnDepositDesk()}");
+    }
+
+    public static string GetText()
+    {
+        if (Instance is null) return string.Empty;
+
+        return Instance.GetMonitorText();
     }
 
     private static int CalculateSellNeeded()
     {
-        if (GameUtils.TimeOfDay.profitQuota >= targetTotalCredits)
+        // if the current profit quota is more than target
+        var isQuotaMoreThanTarget = GameUtils.TimeOfDay.profitQuota >= targetTotalCredits;
+        // if players have more credits than the actual target, it would show 0
+        var groupCreditsMoreThanTarget = _terminal.groupCredits >= targetTotalCredits;
+        // if either hit, then just show remaining amount needed to just meet the quota
+        if (isQuotaMoreThanTarget || groupCreditsMoreThanTarget)
         {
             return Math.Max(0, GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled);
         }
+
+        if (_terminal.groupCredits > targetTotalCredits) return GameUtils.TimeOfDay.profitQuota;
 
         return Math.Max(0, CalculateSellAmountRequired() - GameUtils.TimeOfDay.quotaFulfilled);
     }

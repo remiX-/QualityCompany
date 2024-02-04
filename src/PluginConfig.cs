@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using Newtonsoft.Json;
 using System;
 
 namespace QualityCompany;
@@ -6,22 +7,29 @@ namespace QualityCompany;
 [Serializable]
 internal class PluginConfig
 {
-    readonly ConfigFile configFile;
+    public string SellIgnoreList { get; set; }
 
-    public string ConfigSellIgnoreList { get; set; }
+    [JsonIgnore]
+    public bool ShowDebugLogs { get; set; }
 
-    public PluginConfig(ConfigFile config)
+    public PluginConfig()
     {
-        configFile = config;
     }
 
-    public void Bind()
+    public void Bind(ConfigFile configFile)
     {
-        ConfigSellIgnoreList = configFile.Bind(
+        SellIgnoreList = configFile.Bind(
             "Selling",
             "SellIgnoreList",
             "shotgun,gunammo,gift,pickle,airhorn",
-            "A comma separated list of items to ignore in the ship. Does not have to be the exact name but at least a matching portion. e.g. 'trag' for 'tragedy'"
+            "[HOST] A comma separated list of items to ignore in the ship. Does not have to be the exact name but at least a matching portion. e.g. 'trag' for 'tragedy'"
+        ).Value;
+
+        ShowDebugLogs = configFile.Bind(
+            "Logs",
+            "ShowDebugLogs",
+            false,
+            "[CLIENT] Turn on/off debug logs."
         ).Value;
     }
 }

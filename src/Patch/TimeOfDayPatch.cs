@@ -13,10 +13,8 @@ internal class TimeOfDayPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("SyncNewProfitQuotaClientRpc")]
-    private static void OvertimeBonus(TimeOfDay __instance)
+    private static void SyncNewProfitQuotaClientRpcPatch(TimeOfDay __instance)
     {
-        _logger.LogMessage("SyncNewProfitQuotaClientRpc");
-
         CompanyNetworkHandler.Instance.SaveData.TotalLootValue = ScrapUtils.GetShipTotalRawScrapValue();
         CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota = 0;
 
@@ -30,14 +28,14 @@ internal class TimeOfDayPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("MoveTimeOfDay")]
-    private static void RefreshClock()
+    private static void MoveTimeOfDayPatch()
     {
         TimeMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("UpdateProfitQuotaCurrentTime")]
-    private static void UpdateProfitQuotaCurrentTime()
+    private static void UpdateProfitQuotaCurrentTimePatch()
     {
         OvertimeMonitor.UpdateMonitor();
     }

@@ -1,6 +1,13 @@
 - v1.0.0: Initial release
 - v1.0.1: Remove some message logging
 - v1.1.0:
-    - Update README
-    - Update ScrapValueUI - Position is calculated dynamically taking into account rotation on z-axis.
-    - Update Release build script
+  - Update README
+  - Update ScrapValueUI - Position is calculated dynamically taking into account rotation on z-axis.
+  - Update Release build script
+  - GameEvents: to include more player actions: DropAllHeldItems, DiscardHeldItem, Death
+  - AdvancedTerminal: update command & sub command text processing to be more efficient
+  - new `sell target` command to just sell amount needed as per `target` calculation
+  - Config: Add "ShowDebugLogs" config option (should hopefully be client side)
+  - OvertimeMonitor:
+    - Update for a case where `groupCredits > set target` which would just show `0` needed (but need to sell actual quota still...)
+    - Added saving of target set (host)

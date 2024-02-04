@@ -12,25 +12,18 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(StartOfRound))]
 internal class StartOfRoundPatcher
 {
-    // private static bool hasInitialized;
-
     private static readonly ACLogger _logger = new(nameof(StartOfRoundPatcher));
 
     [HarmonyPostfix]
     [HarmonyPatch("Start")]
-    private static void Initialize(StartOfRound __instance)
+    private static void Initialize()
     {
-        _logger.LogDebug("StartOfRound.Start");
         GameUtils.Init();
         InitializeMonitorCluster();
 
-        // TODO see if better place
-        _logger.LogMessage($"Loading ModuleLoader...");
-        var mlgo = new GameObject("QualityCompanyLoader");
-        mlgo.AddComponent<ModuleLoader>();
-        // Object.DontDestroyOnLoad(mlgo);
-
-        // hasInitialized = true;
+        // TODO see if better place?
+        var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
+        moduleLoaderGameObject.AddComponent<ModuleLoader>();
     }
 
     [HarmonyPostfix]
@@ -45,8 +38,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("SyncShipUnlockablesClientRpc")]
     private static void RefreshLootForClientOnStart()
     {
-        _logger.LogMessage("SyncShipUnlockablesClientRpc");
-
         LootMonitor.UpdateMonitor();
     }
 
@@ -54,8 +45,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("ChangeLevelClientRpc")]
     private static void SwitchPlanets()
     {
-        _logger.LogMessage("ChangeLevelClientRpc");
-
         CreditMonitor.UpdateMonitor();
     }
 
@@ -63,8 +52,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("StartGame")]
     private static void StartGame()
     {
-        _logger.LogMessage("StartGame");
-
         OvertimeMonitor.UpdateMonitor();
     }
 
@@ -72,7 +59,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("ArriveAtLevel")]
     private static void ArriveAtLevel()
     {
-        _logger.LogDebug("ArriveAtLevel");
         OvertimeMonitor.UpdateMonitor();
     }
 
@@ -107,10 +93,6 @@ internal class StartOfRoundPatcher
 
     private static void InitializeMonitorCluster()
     {
-        // if (hasInitialized) return;
-
-        _logger.LogMessage($"Ship: {GameUtils.ShipGameObject}");
-
         var hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
         var hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
         Object.Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));

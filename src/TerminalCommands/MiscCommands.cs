@@ -110,7 +110,7 @@ internal class MiscCommands : ITerminalSubscriber
                             scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
                             scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
                             scrap.GetComponent<NetworkObject>().Spawn();
-                            _logger.LogMessage($"Spawned in {scrap.name} for {scrapValue}");
+                            _logger.LogDebug($"Spawned in {scrap.name} for {scrapValue}");
 
                             RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
                             scrap.transform.parent = GameUtils.ShipGameObject.transform;

@@ -38,4 +38,9 @@ internal abstract class BaseMonitor : MonoBehaviour
     {
         _textMesh.text = $"{text}\n${number}";
     }
+
+    protected string GetMonitorText()
+    {
+        return _textMesh.text;
+    }
 }

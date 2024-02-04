@@ -23,7 +23,6 @@ public class TerminalPatch
     [HarmonyPatch("Awake")]
     public static void Awake(Terminal __instance)
     {
-        //_logger.LogDebug("TerminalPatch.Awake");
         if (patchedTerminal)
         {
             return;
@@ -43,8 +42,6 @@ public class TerminalPatch
     [HarmonyPatch("SyncGroupCreditsClientRpc")]
     private static void RefreshMoney()
     {
-        _logger.LogMessage("SyncGroupCreditsClientRpc");
-
         CreditMonitor.UpdateMonitor();
     }
 
@@ -52,7 +49,6 @@ public class TerminalPatch
     [HarmonyPatch("TextPostProcess")]
     public static string ProcessCustomText(string __result)
     {
-        //_logger.LogDebug($"TerminalPatch.ProcessCustomText: {__result}");
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
             if (!__result.Contains(key)) continue;
@@ -79,114 +75,124 @@ public class TerminalPatch
     {
         if (__result is null) return null;
 
-        //_logger.LogDebug($"TerminalPatch.TryReturnSpecialNodes: {__result?.name}");
-        //_logger.LogDebug($"TerminalPatch.TryReturnSpecialNodes.2");
+        var terminalInput = __instance.screenText.text.Substring(__instance.screenText.text.Length - __instance.textAdded).ToLower();
+        var inputArray = terminalInput.Split(" ").Where(x => !x.IsNullOrWhiteSpace()).ToList();
+        var inputCommand = inputArray[0];
+        var inputCommandArgs = inputArray.Count > 1 ? inputArray[1] : null;
+        //_logger.LogDebug($"TryReturnSpecialNodes: {__result.name} | input: {terminalInput}");
 
-        foreach (var command in AdvancedTerminal.Commands)
+        // Try to find the matching primary command first
+        var filteredCommands = AdvancedTerminal.Commands.Where(x => x.CommandText == inputCommand).ToList();
+        if (!filteredCommands.Any())
         {
-            //_logger.LogDebug($"command: {command.node.name}");
+            //_logger.LogDebug($" > No commands found matching '{inputCommand}' with args '{inputCommandArgs}'");
+            return __result;
+        }
 
-            if (command.IsSimpleCommand)
-            {
-                //_logger.LogDebug(" > executing SimpleCommand");
-                //_logger.LogDebug($"  > Checking {command.node.name} | e: /{__result.terminalEvent}/");
-                if (command.node.name != __result.name) continue;
+        if (filteredCommands.Count > 1)
+        {
+            _logger.LogError($" > Found multiple commands! HOW? Only using first one. Found: {filteredCommands.Select(x => x.CommandText).Aggregate((first, second) => $"{first}, {second}")}");
+        }
 
-                return ExecuteSimpleCommand(command, __result, __instance);
-            }
+        var advancedCommand = filteredCommands.First();
+        //_logger.LogDebug($" > command: {advancedCommand.CommandText} | event: /{__result.terminalEvent}/");
 
-            //_logger.LogDebug(" > executing ComplexCommand");
-            // if (command.node.name != __result.name) continue;
-            var resNode = ExecuteComplexCommand(command, __result, __instance);
+        if (advancedCommand.IsSimpleCommand)
+        {
+            var resNode = ExecuteSimpleCommand(advancedCommand);
+            if (resNode != null) return resNode;
+        }
+        else
+        {
+
+            var resNode = ExecuteComplexCommand(advancedCommand, __result, inputCommand, inputCommandArgs);
             if (resNode != null) return resNode;
         }
 
-        //_logger.LogDebug($"TerminalPatch.TryReturnSpecialNodes.end");
+        //_logger.LogDebug($"TryReturnSpecialNodes.end");
         return __result;
     }
 
-    private static TerminalNode ExecuteSimpleCommand(TerminalCommandBuilder command, TerminalNode __result, Terminal __instance)
+    private static TerminalNode ExecuteSimpleCommand(TerminalCommandBuilder command)
     {
-        //_logger.LogDebug("   > checking conditions");
+        //_logger.LogDebug(" > executing SimpleCommand");
+        //_logger.LogDebug("  > checking conditions");
         foreach (var (node, condition) in command.specialNodes)
         {
-            //_logger.LogDebug($"    > condition: {node.name}");
+            //_logger.LogDebug($"   > condition: {node.name}");
 
             if (!condition()) continue;
 
-            //_logger.LogDebug($"     > FAILED");
+            //_logger.LogDebug($"    > FAILED");
             return node;
         }
 
-        return __result;
+        return null;
     }
 
-    private static TerminalNode ExecuteComplexCommand(TerminalCommandBuilder command, TerminalNode __result, Terminal __instance)
+    private static TerminalNode ExecuteComplexCommand(TerminalCommandBuilder command, TerminalNode __result, string inputCommand, string inputCommandArgs)
     {
-        var commandFound = false;
+        //_logger.LogDebug(" > executing ComplexCommand");
 
-        foreach (var keyword in command.SubCommands)
+        // Try to find a matching non-variable (input) command
+        var subCommand = command.SubCommands.FirstOrDefault(subCmd => !subCmd.IsVariableCommand && subCmd.Name == inputCommandArgs);
+        if (subCommand is not null)
         {
-            //_logger.LogDebug($" > kw: {keyword.Id}");
+            // Found matching 'simple' sub command
+            subCommand.PreConditionAction();
+        }
+        else
+        {
+            // If not input args are provided, return primary command main node
+            if (inputCommandArgs.IsNullOrWhiteSpace()) return command.node;
 
-            if (keyword.IsVariableCommand)
+            // Now try to find a matching variable input command
+            subCommand = command.SubCommands.FirstOrDefault(subCmd =>
             {
-                var terminalInput = __instance.screenText.text.Substring(__instance.screenText.text.Length - __instance.textAdded);
-                //_logger.LogDebug($"  > INPUT: |{terminalInput}|");
-                var regex = new Regex(keyword.VariableRegexMatchPattern);
-                //_logger.LogDebug($"REGEX: {regex}");
-                var match = regex.Match(terminalInput.ToLower());
-                if (!match.Success) continue;
-                //_logger.LogDebug(" > MATCH! VariablePreAction()");
-                keyword.VariablePreAction(match.Groups[1].Value);
-            }
-            else
-            {
-                //_logger.LogDebug(" > ELSE");
-                if (__result.name != keyword.Id) continue;
-                //_logger.LogDebug("  > preAction()");
-                keyword.PreConditionAction();
-                commandFound = true;
-            }
+                if (!subCmd.IsVariableCommand) return false;
 
-            //_logger.LogDebug(" > checking special conditions");
-            foreach (var cc in keyword.Conditions)
-            {
-                var specialCondition = command.specialNodes.FirstOrDefault(x => x.node.name == cc);
-                if (specialCondition == default)
-                {
-                    _logger.LogError($"Keyword {keyword.Node.name} has special criteria for '{cc}' but it is not found as part of the commands' special conditions list.");
-                    break;
-                }
-
-                //_logger.LogDebug($"  > {cc} = {specialCondition.condition()}");
-
-                if (specialCondition.condition()) continue;
-
-                //_logger.LogDebug($" > FAILED: {specialCondition.node.name}");
-                return specialCondition.node;
-            }
-
-            //_logger.LogDebug($"keyword.IsVariableCommand => {keyword.IsVariableCommand}");
-            if (keyword.IsVariableCommand)
-            {
-                return keyword.Node;
-            }
-
-            if (commandFound)
-            {
-                return keyword.Node;
-            }
+                //_logger.LogDebug($"  > INPUT: '{inputCommand}' | '{inputCommandArgs}' | REGEX: {subCmd.VariableRegexMatchPattern}");
+                var regex = new Regex(subCmd.VariableRegexMatchPattern);
+                var match = regex.Match(inputCommandArgs);
+                return match.Success;
+            });
+            subCommand?.VariablePreAction(inputCommandArgs);
         }
 
-        return null;
+        // If nothing was found, just return early
+        if (subCommand is null)
+        {
+            //_logger.LogDebug($"  > No matching sub command found for input: '{inputCommand}' | '{inputCommandArgs}'");
+            return null;
+        }
+
+        //_logger.LogDebug("  > checking special conditions");
+        foreach (var conditionString in subCommand.Conditions)
+        {
+            var specialCondition = command.specialNodes.FirstOrDefault(x => x.node.name == conditionString);
+            if (specialCondition == default)
+            {
+                _logger.LogError($"> SubCommand {subCommand.Name} has special criteria for '{conditionString}' but it is not found as part of the commands' special conditions list.");
+                break;
+            }
+
+            //_logger.LogDebug($"   > {conditionString} = {specialCondition.condition()}");
+
+            if (specialCondition.condition()) continue;
+
+            //_logger.LogDebug($"   > FAILED: {specialCondition.node.name}");
+            return specialCondition.node;
+        }
+
+        // Finally, if all is well & conditions are happy, return the subCommands node.
+        return subCommand.Node;
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(Terminal.RunTerminalEvents))]
     public static void RunTerminalEvents(TerminalNode node)
     {
-        //_logger.LogDebug($"TerminalPatch.RunTerminalEvents: {node} | {node.terminalEvent}");
+        //_logger.LogDebug($"RunTerminalEvents: node: {node?.ToString() ?? "null"} | terminalEvent: {node?.terminalEvent ?? "empty"}");
 
         if (node.terminalEvent.IsNullOrWhiteSpace()) return;
 

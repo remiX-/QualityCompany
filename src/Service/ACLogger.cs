@@ -11,9 +11,9 @@ internal class ACLogger
 
     public void LogDebug(object message)
     {
-#if DEBUG
+        if (!Plugin.Instance.PluginConfig.ShowDebugLogs) return;
+
         Plugin.Instance.ACLogger.LogDebug($"[{_moduleName}] {message}");
-#endif
     }
 
     public void LogMessage(object message)

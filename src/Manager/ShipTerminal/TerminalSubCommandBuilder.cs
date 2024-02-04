@@ -85,8 +85,6 @@ public class TerminalSubCommandBuilder
         subCommand.Node.displayText = subCommand.Message + AdvancedTerminal.EndOfMessage;
         subCommand.ActionEvent = $"{rootCommandName}_{subCommand.Name}_event";
 
-        if (subCommand.VariableRegexMatchPattern is not null) subCommand.VariableRegexMatchPattern = $"^{rootCommandName} {subCommand.VariableRegexMatchPattern}";
-
         if (!subCommand.Node.isConfirmationNode) return subCommand;
 
         subCommand.Node.displayText += "[confirmOrDeny]";

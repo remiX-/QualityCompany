@@ -12,7 +12,6 @@ internal class ModuleLoader : MonoBehaviour
 
     private void Start()
     {
-        _logger.LogMessage("Start");
         Instance = this;
 
         transform.position = Vector3.zero;
@@ -24,12 +23,14 @@ internal class ModuleLoader : MonoBehaviour
 
     private IEnumerator LoadScrapValueUIModulesCoroutine()
     {
-        _logger.LogMessage("LoadScrapValueUIModulesCoroutine -> waiting...");
+        _logger.LogDebug("Loading up internal modules with a 2 second delay...");
+
         yield return new WaitForSeconds(2.0f);
-        _logger.LogMessage("LoadScrapValueUIModulesCoroutine -> done!");
 
         // scrap value item ui
         HUDExtensionModule.Spawn();
+
+        _logger.LogDebug("Internal modules loaded!");
     }
 }
 

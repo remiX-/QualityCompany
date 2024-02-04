@@ -15,8 +15,6 @@ internal class HUDManagerPatch
     [HarmonyPatch("Start")]
     private static void Start(HUDManager __instance)
     {
-        _logger.LogDebug("HudManagerStartPatch");
-
         OnHudManagerStart(__instance);
     }
 

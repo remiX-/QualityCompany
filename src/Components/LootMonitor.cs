@@ -23,8 +23,6 @@ internal class LootMonitor : BaseMonitor
             return;
         }
 
-        var num = ScrapUtils.GetShipSettledTotalRawScrapValue();
-        Instance?._logger.LogDebug($"Update loot value: {num}");
-        Instance?.UpdateMonitorText("LOOT", num);
+        Instance?.UpdateMonitorText("LOOT", ScrapUtils.GetShipSettledTotalRawScrapValue());
     }
 }

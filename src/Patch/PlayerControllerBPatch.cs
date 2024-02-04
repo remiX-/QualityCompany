@@ -16,8 +16,6 @@ internal class PlayerControllerBPatch
     [HarmonyPatch("ConnectClientToPlayerObject")]
     private static void OnPlayerConnect()
     {
-        _logger.LogMessage("ConnectClientToPlayerObject");
-
         CreditMonitor.UpdateMonitor();
     }
 
@@ -32,8 +30,6 @@ internal class PlayerControllerBPatch
     [HarmonyPatch("GrabObjectClientRpc")]
     private static void RefreshLootOnPickupClient(PlayerControllerB __instance, ref NetworkObjectReference grabbedObject)
     {
-        _logger.LogDebug("GrabObjectClientRpc");
-
         OnPlayerGrabObjectClientRpc(__instance);
 
         if (!grabbedObject.TryGet(out var networkObject)) return;
@@ -52,7 +48,6 @@ internal class PlayerControllerBPatch
     [HarmonyPatch("ThrowObjectClientRpc")]
     private static void RefreshLootOnThrowClient(PlayerControllerB __instance, bool droppedInElevator, bool droppedInShipRoom)
     {
-        _logger.LogDebug("ThrowObjectClientRpc");
         OnPlayerThrowObjectClientRpc(__instance);
 
         if (droppedInShipRoom || droppedInElevator)
@@ -62,6 +57,30 @@ internal class PlayerControllerBPatch
         }
 
         CreditMonitor.UpdateMonitor();
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlayerControllerB.DiscardHeldObject))]
+    private static void DiscardHeldObjectPatch(PlayerControllerB __instance)
+    {
+        // this seems to trigger 3 times for host? ...
+        // also does not seem to work for updating UI
+        OnPlayerDiscardHeldObject(__instance);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlayerControllerB.KillPlayer))]
+    private static void KillPlayerPatch(PlayerControllerB __instance)
+    {
+        OnPlayerDeath(__instance);
+    }
+
+    // This seems bad... it triggers a lot, such as just placing an item on the deposit desk triggers this
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(PlayerControllerB.DropAllHeldItems))]
+    private static void DropAllHeldItemsPatch(PlayerControllerB __instance)
+    {
+        OnPlayerDropAllHeldItems(__instance);
     }
 }
 

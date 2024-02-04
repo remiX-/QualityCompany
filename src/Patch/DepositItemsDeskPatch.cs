@@ -14,8 +14,6 @@ internal class DepositItemsDeskPatch
     [HarmonyPatch("PlaceItemOnCounter")]
     private static void PlaceItemOnCounterPatch()
     {
-        _logger.LogDebug("PlaceItemOnCounter");
-
         CompanyNetworkHandler.Instance.SyncDepositDeskTotalValueServerRpc();
     }
 
@@ -23,8 +21,6 @@ internal class DepositItemsDeskPatch
     [HarmonyPatch("AddObjectToDeskClientRpc")]
     private static void CalculateTotalOnDesk()
     {
-        _logger.LogDebug("AddObjectToDeskClientRpc");
-
         OvertimeMonitor.UpdateMonitor();
     }
 }

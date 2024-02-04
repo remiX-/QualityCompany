@@ -9,10 +9,10 @@ using UnityEngine;
 
 namespace QualityCompany;
 
-[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+[BepInPlugin(PluginMetadata.PLUGIN_GUID, PluginMetadata.PLUGIN_NAME, PluginMetadata.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-    private readonly Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+    private readonly Harmony harmony = new(PluginMetadata.PLUGIN_GUID);
 
     internal static Plugin Instance;
     internal static AssetBundle CustomAssets;
@@ -24,7 +24,7 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Instance = this;
-        ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginInfo.PLUGIN_GUID);
+        ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
 
         // Plugin patch logic
         NetcodePatcher();
@@ -39,11 +39,11 @@ public class Plugin : BaseUnityPlugin
         }
 
         // Config
-        PluginConfig = new PluginConfig(Config);
-        PluginConfig.Bind();
+        PluginConfig = new PluginConfig();
+        PluginConfig.Bind(Config);
 
         // Loaded
-        ACLogger.LogMessage($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
+        ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} is loaded!");
     }
 
     private void Patch()

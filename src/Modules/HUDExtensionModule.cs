@@ -26,6 +26,8 @@ internal class HUDExtensionModule : MonoBehaviour
     private readonly List<Text> scrapTexts = new();
     private readonly List<Text> shotgunTexts = new();
 
+    private int totalItemSlots = 4; // game default
+
     // Maybe some kind of [ModuleOnSpawn] attribute?
     public static void Spawn()
     {
@@ -35,7 +37,6 @@ internal class HUDExtensionModule : MonoBehaviour
 
     private void Awake()
     {
-        _logger.LogMessage("Awake");
         Instance = this;
 
         transform.SetParent(HUDManager.Instance.HUDContainer.transform);
@@ -44,8 +45,9 @@ internal class HUDExtensionModule : MonoBehaviour
         transform.localScale = Vector3.one;
 
         var scrapFontSize = 6;
+        totalItemSlots = HUDManager.Instance.itemSlotIconFrames.Length;
 
-        for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
+        for (var i = 0; i < totalItemSlots; i++)
         {
             var iconFrame = HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform;
             var rect = iconFrame.GetComponent<UnityEngine.RectTransform>();
@@ -79,9 +81,12 @@ internal class HUDExtensionModule : MonoBehaviour
     {
         // deposit at desk
         // dying
-        // depositing into shopping cart
+        // depositing into shopping cart (LGU)?
         PlayerGrabObjectClientRpc += UpdateUI;
         PlayerThrowObjectClientRpc += UpdateUI;
+        PlayerDiscardHeldObject += UpdateUI;
+        PlayerDropAllHeldItems += HideAll;
+        PlayerDeath += HideAll;
         PlayerShotgunShoot += UpdateUI;
         PlayerShotgunReload += UpdateUI;
         Disconnected += Detach;
@@ -92,6 +97,9 @@ internal class HUDExtensionModule : MonoBehaviour
     {
         PlayerGrabObjectClientRpc -= UpdateUI;
         PlayerThrowObjectClientRpc -= UpdateUI;
+        PlayerDiscardHeldObject -= UpdateUI;
+        PlayerDropAllHeldItems -= HideAll;
+        PlayerDeath -= HideAll;
         PlayerShotgunShoot -= UpdateUI;
         PlayerShotgunReload -= UpdateUI;
         Disconnected -= Detach;
@@ -157,6 +165,16 @@ internal class HUDExtensionModule : MonoBehaviour
 
         shotgunTexts[currentItemSlotIndex].text = string.Empty;
         shotgunTexts[currentItemSlotIndex].enabled = false;
+    }
+
+    private void HideAll(PlayerControllerB instance)
+    {
+        if (instance != GameNetworkManager.Instance.localPlayerController) return;
+
+        for (var itemIndex = 0; itemIndex < totalItemSlots; itemIndex++)
+        {
+            Hide(itemIndex);
+        }
     }
 
     private static Text CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent, Vector3 localPositionDelta)

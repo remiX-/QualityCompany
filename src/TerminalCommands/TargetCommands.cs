@@ -16,8 +16,8 @@ internal class TargetCommands : ITerminalSubscriber
                 .WithDescription(">TARGET <AMOUNT>\nSet a target sell requirement for the target monitor.")
                 .WithText("Please enter an amount.\neg: target 2000")
                 .WithSubCommand(new TerminalSubCommandBuilder("<ta>")
-                    .WithMessage("[companyBuyingRateWarning]Target has been set to [targetSetTo]")
-                    .WithInputMatch(@"(\d+$)$")
+                    .WithMessage("[companyBuyingRateWarning]Target has been set to [targetSetTo].\nMonitor Values:\n[targetMonitorValues]")
+                    .WithInputMatch(@"^(\d+$)$")
                     .WithPreAction(input =>
                     {
                         if (!int.TryParse(input, out var amount)) return false;
@@ -29,6 +29,7 @@ internal class TargetCommands : ITerminalSubscriber
                     .WithAction(() => _logger.LogDebug("EXEC target.Action???"))
                 )
                 .AddTextReplacement("[targetSetTo]", () => OvertimeMonitor.targetTotalCredits.ToString())
+                .AddTextReplacement("[targetMonitorValues]", OvertimeMonitor.GetText)
         );
     }
 }
