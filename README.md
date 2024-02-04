@@ -1,6 +1,6 @@
 # QualityCompany
 
-![logo](/assets/logo.png)
+![logo](assets/logo.png)
 
 ## Features
 
@@ -8,11 +8,15 @@
 
 #### Held items scrap value
 
-++
+The value of the held scrap is displayed above the item in the inventory. In addition a color palette on the values are used to indicate their worth more generally for quick decision making if you need to leave something behind.
+
+![ScrapValueUI](assets/ScrapValueUI.jpg)
 
 #### Shotgun ammo counter
 
-++
+In addition to the scrap value of the shotgun, the inventory slot will in addition show the amount of ammo present in the shotgun.
+
+![ShotgunUI](assets/ShotgunUI.jpg)
 
 ### Terminal Commands
 
@@ -36,23 +40,27 @@ These commands use an approximation for finding a perfect match, it may not find
 
 #### target
 
-++
+- `target <amouunt>` will set target that is displayed on the monitor from the terminal. This target denotes the target amount of credits you want after selling and leaving the company. Additionally a "Needed" field appears on the monitor (second from the left) which will tell you how much you need to sell in order to reach your target. This needed value takes into account approximately how much overtime you will earn and how much current credits you have, so that when you leave the company building you will have the desired amount of credits if you at least meet the "needed" amount.
+
+![SetTarget](assets/SetTarget.jpg)
+![TargetDisplay](assets/TargetDisplay.jpg)
+![TargetDisplayUpdate](assets/TargetDisplayUpdate.jpg)
 
 #### launch
 
-++
+- `launch` optional additional way of landing or launching the ship from the terminal.
 
 #### door
 
-++
+- `door` open or closes the door from the terminal.
 
 #### lights
 
-++
+- `lights` switch the lights on/off from the terminal.
 
 #### tp
 
-++
+- `tp` Teleports the currently viewed player, only works if you have a teleporter.
 
 #### time
 
@@ -60,7 +68,8 @@ These commands use an approximation for finding a perfect match, it may not find
 
 #### hack
 
-++
+Host only command, that spawns scrap with random values. Meant as a tool for testing (scales from current moon?).
+- `hack <amount>` Spawns specified amount of random scrap at your feet.
 
 ## Config
 

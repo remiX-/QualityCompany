@@ -1,2 +1,6 @@
 - v1.0.0: Initial release
 - v1.0.1: Remove some message logging
+- v1.1.0:
+    - Update README
+    - Update ScrapValueUI - Position is calculated dynamically taking into account rotation on z-axis.
+    - Update Release build script

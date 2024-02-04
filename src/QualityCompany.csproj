@@ -72,6 +72,11 @@
 		<Copy SourceFiles="$(SolutionDir)\manifest.json" DestinationFolder="$(SolutionDir)\dist" />
 		<Copy SourceFiles="$(SolutionDir)\assets\icon.png" DestinationFolder="$(SolutionDir)\dist" />
 		<Copy SourceFiles="$(SolutionDir)\assets\logo.png" DestinationFolder="$(SolutionDir)\dist\assets" />
+		<Copy SourceFiles="$(SolutionDir)\assets\ScrapValueUI.jpg" DestinationFolder="$(SolutionDir)\dist\assets" />
+		<Copy SourceFiles="$(SolutionDir)\assets\ShotgunUI.jpg" DestinationFolder="$(SolutionDir)\dist\assets" />
+		<Copy SourceFiles="$(SolutionDir)\assets\SetTarget.jpg" DestinationFolder="$(SolutionDir)\dist\assets" />
+		<Copy SourceFiles="$(SolutionDir)\assets\TargetDisplay.jpg" DestinationFolder="$(SolutionDir)\dist\assets" />
+		<Copy SourceFiles="$(SolutionDir)\assets\TargetDisplayUpdate.jpg" DestinationFolder="$(SolutionDir)\dist\assets" />
 
 		<Message Text="Finished!" Importance="High" />
 	</Target>

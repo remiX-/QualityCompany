@@ -43,11 +43,28 @@ internal class HUDExtensionModule : MonoBehaviour
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
 
-        var scrapLocalPositionDelta = new Vector3(-6 * 2, 0f);
+        var scrapFontSize = 6;
 
         for (var i = 0; i < HUDManager.Instance.itemSlotIconFrames.Length; i++)
         {
-            var text = CreateHudAndTextGameObject($"HUDScrapUI{i}", 6, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform, scrapLocalPositionDelta);
+            var iconFrame = HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform;
+            var rect = iconFrame.GetComponent<UnityEngine.RectTransform>();
+            var rectSize = rect?.sizeDelta ?? new Vector2(36, 36);
+            var rectEulerAngles = rect?.eulerAngles ?? Vector3.zero;
+            var zRotation = rectEulerAngles.z;
+            // Z - Rotation mapping for moving text "up"
+            // 0    -> ++y
+            // 90   -> ++x
+            // 180  -> --y
+            // 270  -> --x
+            var scrapLocalPositionDelta = zRotation switch
+            {
+                >= 270 => new Vector2(-rectSize.x / 2f, 0f),
+                >= 180 => new Vector2(0f, -rectSize.y / 2f),
+                >= 90 => new Vector2(rectSize.x / 2f, 0f),
+                _ => new Vector2(0f, rectSize.y / 2f)
+            };
+            var text = CreateHudAndTextGameObject($"HUDScrapUI{i}", scrapFontSize, iconFrame, TextAnchor.MiddleCenter, scrapLocalPositionDelta);
             var shotgunText = CreateHudAndTextGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform, Vector3.zero);
 
             scrapTexts.Add(text);
@@ -144,16 +161,21 @@ internal class HUDExtensionModule : MonoBehaviour
 
     private static Text CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent, Vector3 localPositionDelta)
     {
+        return CreateHudAndTextGameObject(gameObjectName, fontSize, parent, TextAnchor.MiddleCenter, localPositionDelta);
+    }
+
+    private static Text CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent, TextAnchor anchor, Vector3 localPositionDelta)
+    {
         var textGameObject = new GameObject(gameObjectName);
         var text = textGameObject.AddComponent<Text>();
         text.fontSize = fontSize;
         text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         text.fontStyle = FontStyle.Normal;
-        text.alignment = TextAnchor.MiddleCenter;
+        text.alignment = anchor;
         text.enabled = false;
         textGameObject.transform.SetParent(parent);
         textGameObject.transform.position = Vector3.zero;
-        textGameObject.transform.localPosition = Vector3.zero + localPositionDelta; //new Vector3(-text.fontSize * 2, 0f);
+        textGameObject.transform.localPosition = Vector3.zero + localPositionDelta;
         textGameObject.transform.localScale = Vector3.one;
 
         return text;
