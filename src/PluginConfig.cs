@@ -13,8 +13,7 @@ internal class PluginConfig
     public bool ShowDebugLogs { get; set; }
 
     public PluginConfig()
-    {
-    }
+    { }
 
     public void Bind(ConfigFile configFile)
     {

@@ -6,11 +6,7 @@
 	</PropertyGroup>
 
 	<!-- Networking Patching -->
-	<Target Name="CopyDLLs" AfterTargets="Build">
-		<Message Text="NetcodePatch task" Importance="High" />
-
-		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-
+	<Target Name="CopyDLLs" AfterTargets="NetcodePatch">
 		<Message Text="Executing CopyDLLs task" Importance="High" />
 
 		<!-- Auto copy dlls to mod profile -->

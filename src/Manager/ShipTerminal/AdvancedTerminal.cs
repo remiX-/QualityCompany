@@ -13,7 +13,7 @@ public class AdvancedTerminal
     internal static readonly List<TerminalCommandBuilder> Commands = new();
 
     private static readonly ACLogger Logger = new(nameof(AdvancedTerminal));
-    private static Terminal Terminal;
+    public static Terminal Terminal;
 
     private static readonly List<ITerminalSubscriber> Subscribers = new();
     private static TerminalKeyword terminalConfirmKeyword;

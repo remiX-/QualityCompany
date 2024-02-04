@@ -30,8 +30,9 @@ These can only be executed whilst landed at the Company Building.
 
 - `sell all` will sell all the scrap on your ship
 - `sell quota` will attempt to sell enough scrap to perfectly match the amount needed to fulfill quota
+- `sell target` will attempt to sell enough scrap to perfectly match the amount needed to fulfill specified target
 - `sell <amount>`, where `amount` is any positive integer, will attempt to sell enough scrap to perfectly match that amount
-- `sell 500` will try to sell scrap equal to 500 scrap value
+  - `sell 500` will try to sell scrap equal to 500 scrap value
 - `sell <item_name>`, where `item_name` is any portion of an item name to match against. All matching items will be listed
   - `sell whoop` will find all Whoopie Cushions on the ship
 
@@ -64,16 +65,33 @@ These commands use an approximation for finding a perfect match, it may not find
 
 #### time
 
-++
+Tells the time without having to look at the monitor or go outside.
 
 #### hack
 
 Host only command, that spawns scrap with random values. Meant as a tool for testing (scales from current moon?).
+
 - `hack <amount>` Spawns specified amount of random scrap at your feet.
+
+---
 
 ## Config
 
-- An ignore list for items to ignore, syncs from host to clients. defaults to "shotgun,gunammo,airhorn,gift"
+### SellIgnoreList
+
+**[HOST]** Syncs to clients\
+**DEFAULT**: "shotgun,gunammo,airhorn,gift"
+
+An ignore list for items to ignore, syncs from host to clients.
+
+### ShowDebugLogs
+
+**[CLIENT]** Syncs to clients\
+**DEFAULT**: false
+
+Whether to show or hide debug logs.
+
+---
 
 ## Development
 
@@ -81,6 +99,17 @@ You will need:
 
 - Local development setup for [UnityNetcodePatcher by EvaisaDev](https://github.com/EvaisaDev/UnityNetcodePatcher)
 - An IDE, Visual Studio / Rider / Visual Studio Code
+- Create a copy of `src/CommonBuildProperties.example.proj` in `src/`
+  - remove `.example`
+  - update placeholder paths & copy commands for your setup
+
+### AdvancedTerminal API
+
+Other mods may use this to easily add custom simple and complex commands to the terminal.
+
+An example plugin will be made for reference use. For now, you can look at `SellCommands` to see how the `sell` commands get setup.
+
+---
 
 ## TODO
 

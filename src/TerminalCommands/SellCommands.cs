@@ -21,8 +21,8 @@ internal class SellCommands : ITerminalSubscriber
                 .WithDescription(">SELL [ALL|QUOTA|<AMOUNT>]\nTo sell items on the ship.")
                 .WithText("Please enter [all|quota|<amount>]")
                 .WithSubCommand(new TerminalSubCommandBuilder("all")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell ALL scrap ([shipTotalScrapCount]) for [shipTotalScrapValue] credits.")
-                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for [shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell ALL scrap ([shipTotalScrapCount]) for $[shipTotalScrapValue] credits.")
+                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for $[shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems")
                     .WithPreAction(() => sellScrapFor = ScrapUtils.GetShipTotalSellableScrapValue())
                     .WithAction(() =>
@@ -31,8 +31,8 @@ internal class SellCommands : ITerminalSubscriber
                     })
                 )
                 .WithSubCommand(new TerminalSubCommandBuilder("quota")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to current quota ([sellScrapFor] credits) as possible...\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
-                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for [shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to current quota ($[sellScrapFor] credits) as possible...\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
+                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for $[shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap", "quotaAlreadyMet")
                     .WithPreAction(() =>
                     {
@@ -51,7 +51,7 @@ internal class SellCommands : ITerminalSubscriber
                 )
                 .WithSubCommand(new TerminalSubCommandBuilder("target")
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to current target ($[sellScrapTarget], needing $[sellScrapFor]) as possible...\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
-                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for [shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
+                    .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for $[shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap", "targetAlreadyMet")
                     .WithPreAction(() =>
                     {
@@ -70,8 +70,8 @@ internal class SellCommands : ITerminalSubscriber
                     })
                 )
                 .WithSubCommand(new TerminalSubCommandBuilder("<amount>")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to [sellScrapFor] as possible...\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
-                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to $[sellScrapFor] as possible...\n\nThe Company wants the follow items for a total of $[sellScrapActualTotal]:\n[companyBuyItemsCombo]")
+                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for $[sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap")
                     .WithInputMatch(@"^(\d+)$")
                     .WithPreAction(input =>
@@ -99,8 +99,8 @@ internal class SellCommands : ITerminalSubscriber
                     })
                 )
                 .WithSubCommand(new TerminalSubCommandBuilder("2h")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell all two-handed scrap.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
-                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell all two-handed scrap.\n\nThe Company wants the follow items for a total of $[sellScrapActualTotal]:\n[companyBuyItemsCombo]")
+                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for $[sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap")
                     .WithPreAction(() =>
                     {
@@ -118,8 +118,8 @@ internal class SellCommands : ITerminalSubscriber
                     })
                 )
                 .WithSubCommand(new TerminalSubCommandBuilder("<sell_item>")
-                    .WithMessage("[companyBuyingRateWarning]Requesting to sell specified items.\n\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
-                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for [sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
+                    .WithMessage("[companyBuyingRateWarning]Requesting to sell specified items.\n\nThe Company wants the follow items for a total of $[sellScrapActualTotal]:\n[companyBuyItemsCombo]")
+                    .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for $[sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
                     .WithConditions("landedAtCompany", "hasScrapItems", "hasMatchingScrapItems")
                     .WithInputMatch(@"^(\w+)$")
                     .WithPreAction(input =>
