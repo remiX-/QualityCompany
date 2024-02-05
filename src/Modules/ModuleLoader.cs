@@ -27,7 +27,6 @@ internal class ModuleLoader : MonoBehaviour
 
         yield return new WaitForSeconds(2.0f);
 
-        // scrap value item ui
         HUDExtensionModule.Spawn();
         ScanFixModule.Handle();
         MonitorModule.Spawn();

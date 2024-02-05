@@ -87,7 +87,7 @@ internal class PluginConfig
 
         MonitorInfoEnabled = configFile.Bind(
             "Monitor",
-            "Enabled",
+            "InfoEnabled",
             true,
             "[CLIENT] Turn on/off the info monitor in the ship."
         ).Value;

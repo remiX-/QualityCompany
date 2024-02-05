@@ -39,9 +39,8 @@ internal class MonitorModule : MonoBehaviour
     {
         hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
         hangerShipHeaderText = GameObject.Find("HeaderText");
-
-        // Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
-        // Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG (1)"));
+        Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
+        Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG (1)"));
 
         var currentMonitorIndex = 0;
         if (Plugin.Instance.PluginConfig.MonitorLootCreditsEnabled)
@@ -61,7 +60,7 @@ internal class MonitorModule : MonoBehaviour
     private void InitMonitor<T>(ref int currentMonitorIndex) where T : Component
     {
         _logger.LogDebug($"InitMonitor: index {currentMonitorIndex}");
-        var (position, rotation) = monitorLocations[currentMonitorIndex++];
+        var (position, rotation) = monitorLocations[currentMonitorIndex];
         var monitorGO = new GameObject($"qc_monitor_{currentMonitorIndex}")
         {
             transform =
@@ -78,82 +77,7 @@ internal class MonitorModule : MonoBehaviour
         monitorText.transform.localPosition = position;
         monitorText.transform.rotation = Quaternion.Euler(rotation);
         monitorText.AddComponent<T>();
+
+        currentMonitorIndex += 1;
     }
-
-    // private void InitLootCreditMonitor(ref int currentMonitorIndex)
-    // {
-    //     if (!Plugin.Instance.PluginConfig.MonitorLootCreditsEnabled) return;
-    //
-    //     var (position, rotation) = monitorLocations[currentMonitorIndex++];
-    //     var lootMonitor = new GameObject("lootMonitor")
-    //     {
-    //         name = "lootMonitorText",
-    //         transform =
-    //         {
-    //             parent = hangerShipMainContainer.transform,
-    //             position = hangerShipMainContainer.transform.position,
-    //             localPosition = hangerShipMainContainer.transform.localPosition,
-    //             localScale = Vector3.one,
-    //             rotation = Quaternion.Euler(Vector3.zero)
-    //         }
-    //     };
-    //     var lootMonitorText = Instantiate(hangerShipHeaderText, lootMonitor.transform);
-    //     lootMonitorText.name = "lootMonitorText";
-    //     // lootMonitorText.transform.localPosition = new Vector3(-95f, 450f, 220f);
-    //     // lootMonitorText.transform.rotation = Quaternion.Euler(new Vector3(-20f, 90f, 0f));
-    //     lootMonitorText.transform.localPosition = position;
-    //     lootMonitorText.transform.rotation = Quaternion.Euler(rotation);
-    //     lootMonitorText.AddComponent<LootMonitor>();
-    // }
-    //
-    // private void InitInfoMonitor(ref int currentMonitorIndex)
-    // {
-    //     if (!Plugin.Instance.PluginConfig.MonitorLootCreditsEnabled) return;
-    //
-    //     var (position, rotation) = monitorLocations[currentMonitorIndex++];
-    //     var lootMonitor = new GameObject("lootMonitor")
-    //     {
-    //         name = "lootMonitorText",
-    //         transform =
-    //         {
-    //             parent = hangerShipMainContainer.transform,
-    //             position = hangerShipMainContainer.transform.position,
-    //             localPosition = hangerShipMainContainer.transform.localPosition,
-    //             localScale = Vector3.one,
-    //             rotation = Quaternion.Euler(Vector3.zero)
-    //         }
-    //     };
-    //     var lootMonitorText = Instantiate(hangerShipHeaderText, lootMonitor.transform);
-    //     lootMonitorText.name = "lootMonitorText";
-    //     // lootMonitorText.transform.localPosition = new Vector3(-95f, 450f, 220f);
-    //     // lootMonitorText.transform.rotation = Quaternion.Euler(new Vector3(-20f, 90f, 0f));
-    //     lootMonitorText.transform.localPosition = position;
-    //     lootMonitorText.transform.rotation = Quaternion.Euler(rotation);
-    //     lootMonitorText.AddComponent<LootMonitor>();
-    // }
-    //
-    // private void InitTimeMonitor(ref int currentMonitorIndex)
-    // {
-    //     if (!Plugin.Instance.PluginConfig.MonitorLootCreditsEnabled) return;
-    //
-    //     var (position, rotation) = monitorLocations[currentMonitorIndex++];
-    //
-    //     var timeMonitor = new GameObject("timeMonitor")
-    //     {
-    //         transform =
-    //         {
-    //             parent = hangerShipMainContainer.transform,
-    //             position = hangerShipMainContainer.transform.position,
-    //             localPosition = hangerShipMainContainer.transform.localPosition,
-    //             localScale = Vector3.one,
-    //             rotation = Quaternion.Euler(Vector3.zero)
-    //         }
-    //     };
-    //     var timeMonitorText = Instantiate(hangerShipHeaderText, timeMonitor.transform);
-    //     timeMonitorText.name = "timeMonitorText";
-    //     timeMonitorText.transform.localPosition = position;
-    //     timeMonitorText.transform.rotation = Quaternion.Euler(rotation);
-    //     timeMonitorText.AddComponent<TimeMonitor>();
-    // }
 }
-

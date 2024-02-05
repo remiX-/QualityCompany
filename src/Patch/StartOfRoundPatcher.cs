@@ -1,9 +1,11 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using QualityCompany.Components;
 using QualityCompany.Modules;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
+using Newtonsoft.Json;
+using QualityCompany.Network;
 using TMPro;
 using UnityEngine;
 
@@ -52,6 +54,8 @@ internal class StartOfRoundPatcher
     {
         OvertimeMonitor.UpdateMonitor();
 
+        _logger.LogDebug(JsonConvert.SerializeObject(CompanyNetworkHandler.Instance.SaveData));
+        _logger.LogDebug(JsonConvert.SerializeObject(Plugin.Instance.PluginConfig));
     }
 
     [HarmonyPostfix]
