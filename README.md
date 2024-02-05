@@ -1,6 +1,6 @@
 # QualityCompany
 
-![logo](assets/logo.png)
+![logo](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/logo.png)
 
 ## Features
 
@@ -10,13 +10,13 @@
 
 The value of the held scrap is displayed above the item in the inventory. In addition a color palette on the values are used to indicate their worth more generally for quick decision making if you need to leave something behind.
 
-![ScrapValueUI](assets/ScrapValueUI.jpg)
+![ScrapValueUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ScrapValueUI.jpg)
 
 #### Shotgun ammo counter
 
 In addition to the scrap value of the shotgun, the inventory slot will in addition show the amount of ammo present in the shotgun.
 
-![ShotgunUI](assets/ShotgunUI.jpg)
+![ShotgunUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ShotgunUI.jpg)
 
 ### Terminal Commands
 
@@ -43,9 +43,9 @@ These commands use an approximation for finding a perfect match, it may not find
 
 - `target <amouunt>` will set target that is displayed on the monitor from the terminal. This target denotes the target amount of credits you want after selling and leaving the company. Additionally a "Needed" field appears on the monitor (second from the left) which will tell you how much you need to sell in order to reach your target. This needed value takes into account approximately how much overtime you will earn and how much current credits you have, so that when you leave the company building you will have the desired amount of credits if you at least meet the "needed" amount.
 
-![SetTarget](assets/SetTarget.jpg)
-![TargetDisplay](assets/TargetDisplay.jpg)
-![TargetDisplayUpdate](assets/TargetDisplayUpdate.jpg)
+![SetTarget](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/SetTarget.jpg)
+![TargetDisplay](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/TargetDisplay.jpg)
+![TargetDisplayUpdate](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/TargetDisplayUpdate.jpg)
 
 #### launch
 
