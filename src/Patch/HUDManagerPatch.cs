@@ -22,7 +22,7 @@ internal class HUDManagerPatch
     [HarmonyPatch("ApplyPenalty")]
     private static void ApplyPenalty()
     {
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -30,7 +30,7 @@ internal class HUDManagerPatch
     private static void DisplayCreditsEarning()
     {
         OvertimeMonitor.UpdateMonitor();
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]

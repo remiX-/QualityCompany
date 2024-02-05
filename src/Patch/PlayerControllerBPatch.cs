@@ -16,7 +16,7 @@ internal class PlayerControllerBPatch
     [HarmonyPatch("ConnectClientToPlayerObject")]
     private static void OnPlayerConnect()
     {
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -37,11 +37,10 @@ internal class PlayerControllerBPatch
         var componentInChildren = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
         if (componentInChildren.isInShipRoom || componentInChildren.isInElevator)
         {
-            LootMonitor.UpdateMonitor();
             OvertimeMonitor.UpdateMonitor();
         }
 
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -52,11 +51,10 @@ internal class PlayerControllerBPatch
 
         if (droppedInShipRoom || droppedInElevator)
         {
-            LootMonitor.UpdateMonitor();
             OvertimeMonitor.UpdateMonitor();
         }
 
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]

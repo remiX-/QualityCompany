@@ -23,7 +23,7 @@ internal class TimeOfDayPatch
             CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
         }
 
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]

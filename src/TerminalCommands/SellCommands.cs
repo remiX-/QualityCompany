@@ -16,6 +16,8 @@ internal class SellCommands : ITerminalSubscriber
 
     public void Run()
     {
+        if (!Plugin.Instance.PluginConfig.TerminalSellCommandsEnabled) return;
+
         AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("sell")
                 .WithDescription(">SELL [ALL|QUOTA|<AMOUNT>]\nTo sell items on the ship.")
@@ -52,7 +54,7 @@ internal class SellCommands : ITerminalSubscriber
                 .WithSubCommand(new TerminalSubCommandBuilder("target")
                     .WithMessage("[companyBuyingRateWarning]Requesting to sell scrap as close to current target ($[sellScrapTarget], needing $[sellScrapFor]) as possible...\nThe Company wants the follow items for a total of [sellScrapActualTotal]:\n[companyBuyItemsCombo]")
                     .EnableConfirmDeny(confirmMessage: "Transaction complete. Sold [shipTotalScrapCount] scrap for $[shipTotalScrapValue] credits.\n\nThe company is not responsible for any calculation errors.")
-                    .WithConditions("landedAtCompany", "hasScrapItems", "notEnoughScrap", "targetAlreadyMet")
+                    .WithConditions("targetCommandDisabled", "landedAtCompany", "hasScrapItems", "notEnoughScrap", "targetAlreadyMet")
                     .WithPreAction(() =>
                     {
                         sellScrapActualTarget = OvertimeMonitor.targetTotalCredits;
@@ -152,6 +154,7 @@ internal class SellCommands : ITerminalSubscriber
                 .WithCondition("notEnoughScrap", "Not enough scrap to meet [sellScrapFor] credits.\nTotal value: [shipTotalScrapValue].", () => sellScrapFor < ScrapUtils.GetShipTotalSellableScrapValue())
                 .WithCondition("quotaAlreadyMet", "Quota already met.", () => TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled > 0)
                 .WithCondition("hasMatchingScrapItems", "No matching items found for input.", () => recommendedScraps.Count > 0)
+                .WithCondition("targetCommandDisabled", "Target command has been disabled", () => Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled)
         );
     }
 }

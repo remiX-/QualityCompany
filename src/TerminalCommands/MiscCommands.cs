@@ -15,9 +15,10 @@ internal class MiscCommands : ITerminalSubscriber
 
     public void Run()
     {
+        if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return;
+
         AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("launch")
-                .WithText("asd")
                 .WithDescription(">LAUNCH\nTo launch or land the ship. Host needs to do the very first launch.")
                 // .EnableConfirmDeny("Are you sure you want to launch?", "Launch has been cancelled")
                 .WithCondition("inTransitLandedOrLeaving", "Unable to comply. The ship is landing or taking off.", () => StartOfRound.Instance.shipDoorsEnabled && !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
@@ -83,46 +84,6 @@ internal class MiscCommands : ITerminalSubscriber
         AdvancedTerminal.AddCommand(new TerminalCommandBuilder("time")
             .WithDescription(">TIME\nGet the current time whilst on a moon.")
             .WithAction(GetTime));
-
-        AdvancedTerminal.AddCommand(
-            new TerminalCommandBuilder("hack")
-                .WithDescription(">hack <count>\nSpawn some ez lewt.")
-                .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
-                .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
-                .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
-                .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
-                    .WithMessage("Hacked in [scrapCountToHack] items")
-                    .WithConditions("isHost")
-                    .WithInputMatch(@"(\d+$)$")
-                    .WithPreAction(input =>
-                    {
-                        scrapCountToHack = Convert.ToInt32(input);
-
-                        if (scrapCountToHack <= 0) return false;
-
-                        for (var i = 0; i < scrapCountToHack; i++)
-                        {
-                            var rand = new System.Random();
-                            var nextScrap = rand.Next(16, 68);
-                            var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
-                            scrap.GetComponent<GrabbableObject>().fallTime = 0f;
-                            var scrapValue = rand.Next(40, 120);
-                            scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
-                            scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
-                            scrap.GetComponent<NetworkObject>().Spawn();
-                            _logger.LogDebug($"Spawned in {scrap.name} for {scrapValue}");
-
-                            RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                            scrap.transform.parent = GameUtils.ShipGameObject.transform;
-                        }
-
-                        return true;
-                    })
-                    .WithAction(() =>
-                    {
-                    })
-                )
-        );
     }
 
     private string GetTime()

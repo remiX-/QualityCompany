@@ -30,6 +30,7 @@ internal class ModuleLoader : MonoBehaviour
         // scrap value item ui
         HUDExtensionModule.Spawn();
         ScanFixModule.Handle();
+        MonitorModule.Spawn();
 
         _logger.LogDebug("Internal modules loaded!");
     }

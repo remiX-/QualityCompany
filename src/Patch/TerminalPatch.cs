@@ -42,7 +42,7 @@ public class TerminalPatch
     [HarmonyPatch("SyncGroupCreditsClientRpc")]
     private static void RefreshMoney()
     {
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]

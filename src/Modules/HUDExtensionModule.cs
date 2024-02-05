@@ -9,8 +9,6 @@ namespace QualityCompany.Modules;
 
 internal class HUDExtensionModule : MonoBehaviour
 {
-    public static HUDExtensionModule Instance { get; private set; }
-
     private readonly ACLogger _logger = new(nameof(HUDExtensionModule));
 
     private static readonly Color TEXT_COLOR_ABOVE150 = new(255f / 255f, 128f / 255f, 0f / 255f, 1f); // Legendary orange??
@@ -31,26 +29,36 @@ internal class HUDExtensionModule : MonoBehaviour
     // Maybe some kind of [ModuleOnSpawn] attribute?
     public static void Spawn()
     {
+        // TODO split 'HUD' into segments
+        if (!Plugin.Instance.PluginConfig.HUDShowScrapUI && !Plugin.Instance.PluginConfig.HUDShowShotgunAmmoCounterUI) return;
+
         var scrapUI = new GameObject(nameof(HUDExtensionModule));
         scrapUI.AddComponent<HUDExtensionModule>();
     }
 
     private void Awake()
     {
-        Instance = this;
-
         transform.SetParent(HUDManager.Instance.HUDContainer.transform);
         transform.position = Vector3.zero;
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
 
-        var scrapFontSize = 6;
         totalItemSlots = HUDManager.Instance.itemSlotIconFrames.Length;
+
+        CreateScrapValueUI();
+        CreateShotgunUI();
+
+        Attach();
+    }
+
+    private void CreateScrapValueUI()
+    {
+        if (!Plugin.Instance.PluginConfig.HUDShowScrapUI) return;
 
         for (var i = 0; i < totalItemSlots; i++)
         {
             var iconFrame = HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform;
-            var rect = iconFrame.GetComponent<UnityEngine.RectTransform>();
+            var rect = iconFrame.GetComponent<RectTransform>();
             var rectSize = rect?.sizeDelta ?? new Vector2(36, 36);
             var rectEulerAngles = rect?.eulerAngles ?? Vector3.zero;
             var zRotation = rectEulerAngles.z;
@@ -66,14 +74,22 @@ internal class HUDExtensionModule : MonoBehaviour
                 >= 90 => new Vector2(rectSize.x / 2f, 0f),
                 _ => new Vector2(0f, rectSize.y / 2f)
             };
-            var text = CreateHudAndTextGameObject($"HUDScrapUI{i}", scrapFontSize, iconFrame, TextAnchor.MiddleCenter, scrapLocalPositionDelta);
-            var shotgunText = CreateHudAndTextGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform, Vector3.zero);
+            var text = CreateHudAndTextGameObject($"HUDScrapUI{i}", 6, iconFrame, TextAnchor.MiddleCenter, scrapLocalPositionDelta);
 
             scrapTexts.Add(text);
+        }
+    }
+
+    private void CreateShotgunUI()
+    {
+        if (!Plugin.Instance.PluginConfig.HUDShowShotgunAmmoCounterUI) return;
+
+        for (var i = 0; i < totalItemSlots; i++)
+        {
+            var shotgunText = CreateHudAndTextGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform, Vector3.zero);
+
             shotgunTexts.Add(shotgunText);
         }
-
-        Attach();
     }
 
     // Maybe some kind of [ModuleOnAttach] attribute?
@@ -116,13 +132,19 @@ internal class HUDExtensionModule : MonoBehaviour
         }
 
         // Always show scrap value amount text
-        ShowScrapValueText(instance.currentlyHeldObjectServer, instance.currentItemSlot);
-
-        // Show shotgun ammo counter UI if currently held item has a ShotgunItem component
-        var shotgunItem = instance.currentlyHeldObjectServer.GetComponent<ShotgunItem>();
-        if (shotgunItem is not null)
+        if (Plugin.Instance.PluginConfig.HUDShowScrapUI)
         {
-            ShowShotgunAmmoText(instance.currentItemSlot, shotgunItem.shellsLoaded);
+            ShowScrapValueText(instance.currentlyHeldObjectServer, instance.currentItemSlot);
+        }
+
+        if (Plugin.Instance.PluginConfig.HUDShowShotgunAmmoCounterUI)
+        {
+            // Show shotgun ammo counter UI if currently held item has a ShotgunItem component
+            var shotgunItem = instance.currentlyHeldObjectServer.GetComponent<ShotgunItem>();
+            if (shotgunItem is not null)
+            {
+                ShowShotgunAmmoText(instance.currentItemSlot, shotgunItem.shellsLoaded);
+            }
         }
     }
 
