@@ -1,10 +1,10 @@
-﻿using QualityCompany.Manager.ShipTerminal;
+﻿using QualityCompany.Components;
+using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Network;
 using QualityCompany.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using QualityCompany.Components;
 
 namespace QualityCompany.TerminalCommands;
 

@@ -11,8 +11,8 @@ internal class MonitorModule : MonoBehaviour
     private readonly (Vector3 Position, Vector3 Rotation)[] monitorLocations = {
         (new Vector3(-95f, 450f, 220f), new Vector3(-20f, 90f, 0f)),
         (new Vector3(-95f, 450f, -250f), new Vector3(-20f, 90f, 0f)),
-        (new Vector3(-413f, 450f, -1185f), new Vector3(-21f, 117f, 0f)),
         (new Vector3(-198f, 450f, -750f), new Vector3(-21f, 117f, 0f)),
+        (new Vector3(-413f, 450f, -1185f), new Vector3(-21f, 117f, 0f))
     };
 
     private GameObject hangerShipMainContainer;
@@ -38,7 +38,7 @@ internal class MonitorModule : MonoBehaviour
     private void InitializeMonitorCluster()
     {
         hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
-        hangerShipHeaderText = GameObject.Find("HeaderText");
+        hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
         Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
         Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG (1)"));
 

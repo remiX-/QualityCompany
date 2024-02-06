@@ -27,7 +27,8 @@ internal class ModuleLoader : MonoBehaviour
 
         yield return new WaitForSeconds(2.0f);
 
-        HUDExtensionModule.Spawn();
+        HUDScrapValueUIModule.Spawn();
+        HUDShotgunAmmoUIModule.Spawn();
         ScanFixModule.Handle();
         MonitorModule.Spawn();
 

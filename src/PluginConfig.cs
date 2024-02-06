@@ -1,6 +1,8 @@
 ﻿using BepInEx.Configuration;
 using Newtonsoft.Json;
+using QualityCompany.Service;
 using System;
+using System.ComponentModel;
 
 namespace QualityCompany;
 
@@ -16,6 +18,8 @@ internal class PluginConfig
     public bool TerminalTargetCommandsEnabled { get; set; }
 
     public bool TerminalDebugCommandsEnabled { get; set; }
+
+    public bool TerminalPatchFixScanEnabled { get; set; }
 
     [JsonIgnore]
     public bool MonitorLootCreditsEnabled { get; set; }
@@ -59,7 +63,7 @@ internal class PluginConfig
             "Terminal",
             "SellCommandsEnabled",
             true,
-            "[HOST] Turn on/off the additional 'sell <command>' terminal commands. This includes: all, quota, target, 2h, <amount>, <item>. NOTE: The 'target' sub command will be disabled if TerminalTargetCommandsEnabled is disabled."
+            "[HOST] Turn on/off the additional 'sell <command>' terminal commands. This includes: all, quota, target, 2h, <amount>, <item>.\nNOTE: The 'target' sub command will be disabled if TargetCommandsEnabled is disabled."
         ).Value;
 
         TerminalTargetCommandsEnabled = configFile.Bind(
@@ -73,7 +77,14 @@ internal class PluginConfig
             "Terminal",
             "DebugCommandsEnabled",
             true,
-            "[HOST] Turn on/off the additional 'hack' terminal command. This allows to spawn <amount> of items at your foot. NOTE: This is primary for mod testing purposes, but may come in use ;)"
+            "[HOST] Turn on/off the additional 'hack' terminal command. This allows to spawn <amount> of items at your foot.\nNOTE: This is primary for mod testing purposes, but may come in use ;)"
+        ).Value;
+
+        TerminalPatchFixScanEnabled = configFile.Bind(
+            "Terminal",
+            "PatchFixScanEnabled",
+            true,
+            "[HOST] Turn on/off patch fixing the games' 'scan' command where it occasionally does not work."
         ).Value;
         #endregion
 
@@ -116,7 +127,7 @@ internal class PluginConfig
         ).Value;
         #endregion
 
-        #region Terminal
+        #region Debug
         ShowDebugLogs = configFile.Bind(
             "Debug",
             "ShowDebugLogs",
@@ -124,5 +135,24 @@ internal class PluginConfig
             "[CLIENT] Turn on/off debug logs."
         ).Value;
         #endregion
+    }
+
+    public void ApplyHostConfig(PluginConfig hostConfig)
+    {
+        SellIgnoreList = hostConfig.SellIgnoreList;
+        TerminalMiscCommandsEnabled = hostConfig.TerminalMiscCommandsEnabled;
+        TerminalSellCommandsEnabled = hostConfig.TerminalSellCommandsEnabled;
+        TerminalTargetCommandsEnabled = hostConfig.TerminalTargetCommandsEnabled;
+        TerminalDebugCommandsEnabled = hostConfig.TerminalDebugCommandsEnabled;
+    }
+
+    public void DebugPrintConfig(ACLogger logger)
+    {
+        foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(this))
+        {
+            var name = descriptor.Name;
+            var value = descriptor.GetValue(this);
+            logger.LogDebug($"{name}={value}");
+        }
     }
 }

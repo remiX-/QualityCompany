@@ -1,8 +1,5 @@
 ﻿using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Service;
-using QualityCompany.Utils;
-using System;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace QualityCompany.TerminalCommands;

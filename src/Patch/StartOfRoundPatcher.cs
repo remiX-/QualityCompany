@@ -1,11 +1,11 @@
 using HarmonyLib;
+using Newtonsoft.Json;
 using QualityCompany.Components;
 using QualityCompany.Modules;
+using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
-using Newtonsoft.Json;
-using QualityCompany.Network;
 using TMPro;
 using UnityEngine;
 
@@ -55,7 +55,7 @@ internal class StartOfRoundPatcher
         OvertimeMonitor.UpdateMonitor();
 
         _logger.LogDebug(JsonConvert.SerializeObject(CompanyNetworkHandler.Instance.SaveData));
-        _logger.LogDebug(JsonConvert.SerializeObject(Plugin.Instance.PluginConfig));
+        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [HarmonyPostfix]
@@ -69,7 +69,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("SetMapScreenInfoToCurrentLevel")]
     private static void ColorWeather(ref TextMeshProUGUI ___screenLevelDescription, ref SelectableLevel ___currentLevel)
     {
-        //IL_002b: Unknown result type (might be due to invalid IL or missing references)
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("Orbiting: " + ___currentLevel.PlanetName + "\n");
         stringBuilder.Append("Weather: " + FormatWeather(___currentLevel.currentWeather) + "\n");
