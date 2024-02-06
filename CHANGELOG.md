@@ -12,6 +12,7 @@
     - Update for a case where `groupCredits > set target` which would just show `0` needed (but need to sell actual quota still...)
     - Added saving of target set (host)
 - v1.2.0:
+  - Fixed README image links to work for Thunderstore page
   - Combined Loot & Credit monitors into 1
   - Updated ScrapValue Inventory UI to a TextMeshProUGUI with base game font
   - Added config options for various different features
