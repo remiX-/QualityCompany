@@ -24,7 +24,7 @@ internal class HUDScrapValueUIModule : MonoBehaviour
     // Maybe some kind of [ModuleOnSpawn] attribute?
     public static void Spawn()
     {
-        if (!Plugin.Instance.PluginConfig.HUDShowScrapUI) return;
+        if (!Plugin.Instance.PluginConfig.InventoryShowScrapUI) return;
 
         var scrapUI = new GameObject(nameof(HUDScrapValueUIModule));
         scrapUI.AddComponent<HUDScrapValueUIModule>();
@@ -68,7 +68,7 @@ internal class HUDScrapValueUIModule : MonoBehaviour
 
     private void Start()
     {
-        Destroy(this);
+        Destroy(gameObject);
     }
 
     // Maybe some kind of [ModuleOnAttach] attribute?
@@ -95,6 +95,12 @@ internal class HUDScrapValueUIModule : MonoBehaviour
 
     private void UpdateUI(PlayerControllerB instance)
     {
+        if (Plugin.Instance.PluginConfig.InventoryForceUpdateAllSlotsOnDiscard)
+        {
+            ForceUpdateAllSlots(instance);
+            return;
+        }
+
         if (instance != GameNetworkManager.Instance.localPlayerController) return;
 
         if (instance.currentlyHeldObjectServer is null)
@@ -107,9 +113,27 @@ internal class HUDScrapValueUIModule : MonoBehaviour
         ShowScrapValueText(instance.currentlyHeldObjectServer, instance.currentItemSlot);
     }
 
+    private void ForceUpdateAllSlots(PlayerControllerB instance)
+    {
+        for (var i = 0; i < totalItemSlots; i++)
+        {
+            if (instance.ItemSlots[i] is null)
+            {
+                Hide(i);
+                continue;
+            }
+
+            ShowScrapValueText(instance.ItemSlots[i], i);
+        }
+    }
+
     private void ShowScrapValueText(GrabbableObject currentHeldItem, int currentItemSlotIndex)
     {
-        if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0) return;
+        if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0)
+        {
+            Hide(currentItemSlotIndex);
+            return;
+        }
 
         var text = texts[currentItemSlotIndex];
 
@@ -141,7 +165,7 @@ internal class HUDScrapValueUIModule : MonoBehaviour
         }
     }
 
-    private static TextMeshProUGUI CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent, Vector3 localPositionDelta)
+    private TextMeshProUGUI CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent, Vector3 localPositionDelta)
     {
         var hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
         var textObject = Instantiate(hangerShipHeaderText, parent);

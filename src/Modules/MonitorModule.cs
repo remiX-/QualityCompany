@@ -59,7 +59,6 @@ internal class MonitorModule : MonoBehaviour
 
     private void InitMonitor<T>(ref int currentMonitorIndex) where T : Component
     {
-        _logger.LogDebug($"InitMonitor: index {currentMonitorIndex}");
         var (position, rotation) = monitorLocations[currentMonitorIndex];
         var monitorGO = new GameObject($"qc_monitor_{currentMonitorIndex}")
         {

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using QualityCompany.Service;
 using System;
 using System.ComponentModel;
+using UnityEngine;
 
 namespace QualityCompany;
 
@@ -31,10 +32,16 @@ internal class PluginConfig
     public bool MonitorTimeEnabled { get; set; }
 
     [JsonIgnore]
-    public bool HUDShowScrapUI { get; set; }
+    public bool InventoryShowScrapUI { get; set; }
 
     [JsonIgnore]
-    public bool HUDShowShotgunAmmoCounterUI { get; set; }
+    public bool InventoryShowShotgunAmmoCounterUI { get; set; }
+
+    [JsonIgnore]
+    public bool InventoryForceUpdateAllSlotsOnDiscard { get; set; }
+
+    [JsonIgnore]
+    public float InventoryStartupDelay { get; set; }
 
     [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
@@ -111,19 +118,33 @@ internal class PluginConfig
         ).Value;
         #endregion
 
-        #region HUD
-        HUDShowScrapUI = configFile.Bind(
+        #region Inventory
+        InventoryShowScrapUI = configFile.Bind(
             "HUD",
             "ShowScrapUI",
             true,
             "[CLIENT] Turn on/off scrap value on the item slots UI."
         ).Value;
 
-        HUDShowShotgunAmmoCounterUI = configFile.Bind(
+        InventoryShowShotgunAmmoCounterUI = configFile.Bind(
             "HUD",
             "ShowShotgunAmmoCounterUI",
             true,
             "[CLIENT] Turn on/off shotgun ammo counter on the item slots UI."
+        ).Value;
+
+        InventoryForceUpdateAllSlotsOnDiscard = configFile.Bind(
+            "HUD",
+            "ForceUpdateAllSlotsOnDiscard",
+            false,
+            "[CLIENT] Turn on/off force updating all item slots scrap & shotgun ui on discarding of a held item."
+        ).Value;
+
+        InventoryStartupDelay = configFile.Bind(
+            "HUD",
+            "StartupDelay",
+            4.5f,
+            "[CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\nNOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)"
         ).Value;
         #endregion
 
@@ -144,6 +165,7 @@ internal class PluginConfig
         TerminalSellCommandsEnabled = hostConfig.TerminalSellCommandsEnabled;
         TerminalTargetCommandsEnabled = hostConfig.TerminalTargetCommandsEnabled;
         TerminalDebugCommandsEnabled = hostConfig.TerminalDebugCommandsEnabled;
+        TerminalPatchFixScanEnabled = hostConfig.TerminalPatchFixScanEnabled;
     }
 
     public void DebugPrintConfig(ACLogger logger)

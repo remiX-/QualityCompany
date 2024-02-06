@@ -18,3 +18,7 @@
   - Added config options for various different features
   - (Hopefully) fixed Host vs Client mod config syncing
   - Moved 'hack' terminal command to its' own 'debug' category
+- v1.2.1:
+  - Improved inventory mod compatibility ui updates
+  - Introduced new config for force updating all inventory ui values (disabled by default)
+  - Introduced new config inventory startup delay (default: 4.5 seconds)

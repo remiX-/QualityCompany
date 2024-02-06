@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using QualityCompany.Service;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static QualityCompany.Service.GameEvents;
@@ -15,14 +16,14 @@ internal class HUDShotgunAmmoUIModule : MonoBehaviour
     private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f);
     private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
 
-    private readonly List<Text> texts = new();
+    private readonly List<TextMeshProUGUI> texts = new();
 
     private int totalItemSlots = 4; // game default
 
     // Maybe some kind of [ModuleOnSpawn] attribute?
     public static void Spawn()
     {
-        if (!Plugin.Instance.PluginConfig.HUDShowShotgunAmmoCounterUI) return;
+        if (!Plugin.Instance.PluginConfig.InventoryShowShotgunAmmoCounterUI) return;
 
         var scrapUI = new GameObject(nameof(HUDShotgunAmmoUIModule));
         scrapUI.AddComponent<HUDShotgunAmmoUIModule>();
@@ -39,7 +40,7 @@ internal class HUDShotgunAmmoUIModule : MonoBehaviour
 
         for (var i = 0; i < totalItemSlots; i++)
         {
-            var shotgunText = CreateHudAndTextGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform, Vector3.zero);
+            var shotgunText = CreateHudAndTextGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform);
 
             texts.Add(shotgunText);
         }
@@ -49,7 +50,7 @@ internal class HUDShotgunAmmoUIModule : MonoBehaviour
 
     private void Start()
     {
-        Destroy(this);
+        Destroy(gameObject);
     }
 
     // Maybe some kind of [ModuleOnAttach] attribute?
@@ -80,6 +81,12 @@ internal class HUDShotgunAmmoUIModule : MonoBehaviour
 
     private void UpdateUI(PlayerControllerB instance)
     {
+        if (Plugin.Instance.PluginConfig.InventoryForceUpdateAllSlotsOnDiscard)
+        {
+            ForceUpdateAllSlots(instance);
+            return;
+        }
+
         if (instance != GameNetworkManager.Instance.localPlayerController) return;
 
         if (instance.currentlyHeldObjectServer is null)
@@ -93,6 +100,24 @@ internal class HUDShotgunAmmoUIModule : MonoBehaviour
         if (shotgunItem is not null)
         {
             ShowShotgunAmmoText(instance.currentItemSlot, shotgunItem.shellsLoaded);
+        }
+    }
+
+    private void ForceUpdateAllSlots(PlayerControllerB instance)
+    {
+        for (var i = 0; i < totalItemSlots; i++)
+        {
+            if (instance.ItemSlots[i] is null)
+            {
+                Hide(i);
+                continue;
+            }
+
+            var shotgunItem = instance.ItemSlots[i].GetComponent<ShotgunItem>();
+            if (shotgunItem is not null)
+            {
+                ShowShotgunAmmoText(i, shotgunItem.shellsLoaded);
+            }
         }
     }
 
@@ -125,19 +150,19 @@ internal class HUDShotgunAmmoUIModule : MonoBehaviour
         }
     }
 
-    private static Text CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent, Vector3 localPositionDelta)
+    private TextMeshProUGUI CreateHudAndTextGameObject(string gameObjectName, int fontSize, Transform parent)
     {
-        var textGameObject = new GameObject(gameObjectName);
-        var text = textGameObject.AddComponent<Text>();
+        var hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
+        var textObject = Instantiate(hangerShipHeaderText, parent);
+        textObject.name = gameObjectName;
+        textObject.transform.position = Vector3.zero;
+        textObject.transform.localPosition = Vector3.zero;
+        textObject.transform.localScale = Vector3.one;
+        textObject.transform.rotation = Quaternion.Euler(Vector3.zero);
+        var text = textObject.GetComponent<TextMeshProUGUI>();
         text.fontSize = fontSize;
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.fontStyle = FontStyle.Normal;
-        text.alignment = TextAnchor.MiddleCenter;
+        text.alignment = TextAlignmentOptions.Center;
         text.enabled = false;
-        textGameObject.transform.SetParent(parent);
-        textGameObject.transform.position = Vector3.zero;
-        textGameObject.transform.localPosition = Vector3.zero + localPositionDelta;
-        textGameObject.transform.localScale = Vector3.one;
 
         return text;
     }

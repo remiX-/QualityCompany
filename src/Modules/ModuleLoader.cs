@@ -1,4 +1,5 @@
-﻿using QualityCompany.Service;
+﻿using System;
+using QualityCompany.Service;
 using System.Collections;
 using UnityEngine;
 
@@ -23,14 +24,16 @@ internal class ModuleLoader : MonoBehaviour
 
     private IEnumerator LoadScrapValueUIModulesCoroutine()
     {
-        _logger.LogDebug("Loading up internal modules with a 2 second delay...");
+        var delay = Math.Max(3.0f, Plugin.Instance.PluginConfig.InventoryStartupDelay);
+        _logger.LogDebug($"Loading up internal modules with a {delay} seconds delay...");
 
-        yield return new WaitForSeconds(2.0f);
+        ScanFixModule.Handle();
+        MonitorModule.Spawn();
+
+        yield return new WaitForSeconds(delay);
 
         HUDScrapValueUIModule.Spawn();
         HUDShotgunAmmoUIModule.Spawn();
-        ScanFixModule.Handle();
-        MonitorModule.Spawn();
 
         _logger.LogDebug("Internal modules loaded!");
     }

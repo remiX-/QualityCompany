@@ -116,3 +116,4 @@ An example plugin will be made for reference use. For now, you can look at `Sell
 - Scrap selling animation
 - scan <item> in ship
 - character health hud display
+- update readme... again
