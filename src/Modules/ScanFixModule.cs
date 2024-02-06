@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using QualityCompany.Manager.ShipTerminal;
+﻿using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Linq;
@@ -11,8 +10,13 @@ internal class ScanFixModule
 {
     private static readonly ACLogger _logger = new(nameof(ScanFixModule));
 
+    private static bool hasInit;
+
     internal static void Handle()
     {
+        if (!Plugin.Instance.PluginConfig.TerminalPatchFixScanEnabled || hasInit) return;
+        hasInit = true;
+
         var list = AdvancedTerminal.Terminal.terminalNodes.allKeywords.ToList();
         var scanKeyword = list.Find(keyword => keyword.word == "scan");
         if (scanKeyword is null)

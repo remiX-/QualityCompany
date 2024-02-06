@@ -4,5 +4,5 @@ public class PluginMetadata
 {
     public const string PLUGIN_GUID = "umno.QualityCompany";
     public const string PLUGIN_NAME = "QualityCompany";
-    public const string PLUGIN_VERSION = "1.1.0";
+    public const string PLUGIN_VERSION = "1.2.0";
 }

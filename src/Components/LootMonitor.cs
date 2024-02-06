@@ -1,4 +1,5 @@
-﻿using QualityCompany.Service;
+﻿using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Service;
 using QualityCompany.Utils;
 
 namespace QualityCompany.Components;
@@ -23,6 +24,6 @@ internal class LootMonitor : BaseMonitor
             return;
         }
 
-        Instance?.UpdateMonitorText("LOOT", ScrapUtils.GetShipSettledTotalRawScrapValue());
+        Instance?.UpdateMonitorText($"LOOT:\n${ScrapUtils.GetShipSettledTotalRawScrapValue()}\nCREDITS:\n${AdvancedTerminal.Terminal.groupCredits}");
     }
 }

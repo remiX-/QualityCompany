@@ -11,6 +11,8 @@ internal class TargetCommands : ITerminalSubscriber
 
     public void Run()
     {
+        if (!Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled) return;
+
         AdvancedTerminal.AddCommand(
             new TerminalCommandBuilder("target")
                 .WithDescription(">TARGET <AMOUNT>\nSet a target sell requirement for the target monitor.")

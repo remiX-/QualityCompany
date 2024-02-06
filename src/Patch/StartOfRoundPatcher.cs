@@ -1,6 +1,8 @@
-﻿using HarmonyLib;
+using HarmonyLib;
+using Newtonsoft.Json;
 using QualityCompany.Components;
 using QualityCompany.Modules;
+using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
@@ -19,7 +21,6 @@ internal class StartOfRoundPatcher
     private static void Initialize()
     {
         GameUtils.Init();
-        InitializeMonitorCluster();
 
         // TODO see if better place?
         var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
@@ -31,7 +32,6 @@ internal class StartOfRoundPatcher
     private static void PlayerHasRevivedServerRpc()
     {
         LootMonitor.UpdateMonitor();
-        CreditMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -45,7 +45,7 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("ChangeLevelClientRpc")]
     private static void SwitchPlanets()
     {
-        CreditMonitor.UpdateMonitor();
+        LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
@@ -53,6 +53,9 @@ internal class StartOfRoundPatcher
     private static void StartGame()
     {
         OvertimeMonitor.UpdateMonitor();
+
+        _logger.LogDebug(JsonConvert.SerializeObject(CompanyNetworkHandler.Instance.SaveData));
+        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [HarmonyPostfix]
@@ -66,7 +69,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("SetMapScreenInfoToCurrentLevel")]
     private static void ColorWeather(ref TextMeshProUGUI ___screenLevelDescription, ref SelectableLevel ___currentLevel)
     {
-        //IL_002b: Unknown result type (might be due to invalid IL or missing references)
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("Orbiting: " + ___currentLevel.PlanetName + "\n");
         stringBuilder.Append("Weather: " + FormatWeather(___currentLevel.currentWeather) + "\n");
@@ -89,86 +91,5 @@ internal class StartOfRoundPatcher
         };
 
         return $"<color=#{colour}>{currentWeather}</color>";
-    }
-
-    private static void InitializeMonitorCluster()
-    {
-        var hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
-        var hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
-        Object.Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
-        Object.Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG (1)"));
-
-        // LootMonitor
-        var lootMonitor = new GameObject("lootMonitor")
-        {
-            name = "lootMonitorText",
-            transform =
-            {
-                parent = hangerShipMainContainer.transform,
-                position = hangerShipMainContainer.transform.position,
-                localPosition = hangerShipMainContainer.transform.localPosition,
-                localScale = Vector3.one,
-                rotation = Quaternion.Euler(Vector3.zero)
-            }
-        };
-        var lootMonitorText = Object.Instantiate(hangerShipHeaderText, lootMonitor.transform);
-        lootMonitorText.name = "lootMonitorText";
-        lootMonitorText.transform.localPosition = new Vector3(-95f, 450f, 220f);
-        lootMonitorText.transform.rotation = Quaternion.Euler(new Vector3(-20f, 90f, 0f));
-        lootMonitorText.AddComponent<LootMonitor>();
-
-        // OvertimeMonitor
-        var overtimeMonitor = new GameObject("overtimeMonitor")
-        {
-            transform =
-            {
-                parent = hangerShipMainContainer.transform,
-                position = hangerShipMainContainer.transform.position,
-                localPosition = hangerShipMainContainer.transform.localPosition,
-                localScale = Vector3.one,
-                rotation = Quaternion.Euler(Vector3.zero)
-            }
-        };
-        var overtimeMonitorText = Object.Instantiate(hangerShipHeaderText, overtimeMonitor.transform);
-        overtimeMonitorText.name = "overtimeMonitorText";
-        overtimeMonitorText.transform.localPosition = new Vector3(-95f, 450f, -250f);
-        overtimeMonitorText.transform.rotation = Quaternion.Euler(new Vector3(-20f, 90f, 0f));
-        overtimeMonitorText.AddComponent<OvertimeMonitor>();
-
-        // TimeMonitor
-        var timeMonitor = new GameObject("timeMonitor")
-        {
-            transform =
-            {
-                parent = hangerShipMainContainer.transform,
-                position = hangerShipMainContainer.transform.position,
-                localPosition = hangerShipMainContainer.transform.localPosition,
-                localScale = Vector3.one,
-                rotation = Quaternion.Euler(Vector3.zero)
-            }
-        };
-        var timeMonitorText = Object.Instantiate(hangerShipHeaderText, timeMonitor.transform);
-        timeMonitorText.name = "timeMonitorText";
-        timeMonitorText.transform.localPosition = new Vector3(-413f, 450f, -1185f);
-        timeMonitorText.transform.rotation = Quaternion.Euler(new Vector3(-21f, 117f, 0f));
-        timeMonitorText.AddComponent<TimeMonitor>();
-
-        // CreditMonitor
-        var creditMonitor = new GameObject("creditMonitor")
-        {
-            transform =
-            {
-                parent = hangerShipMainContainer.transform,
-                position = hangerShipMainContainer.transform.position,
-                localPosition = hangerShipMainContainer.transform.localPosition,
-                localScale = Vector3.one,
-                rotation = Quaternion.Euler(Vector3.zero)
-            }
-        };
-        var creditMonitorText = Object.Instantiate(hangerShipHeaderText, creditMonitor.transform);
-        creditMonitorText.name = "creditMonitorText";
-        creditMonitorText.transform.localPosition = new Vector3(-198f, 450f, -750f);
-        creditMonitorText.transform.rotation = Quaternion.Euler(new Vector3(-21f, 117f, 0f));
-        creditMonitorText.AddComponent<CreditMonitor>();
     }
 }

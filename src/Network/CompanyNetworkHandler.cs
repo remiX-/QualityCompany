@@ -76,7 +76,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
         if (cfg != null && !IsHost && !IsServer)
         {
             _logger.LogDebug("Config received, deserializing and constructing...");
-            Plugin.Instance.PluginConfig = cfg;
+            Plugin.Instance.PluginConfig.ApplyHostConfig(cfg);
             retrievedCfg = true;
         }
 
