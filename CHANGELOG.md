@@ -11,3 +11,9 @@
   - OvertimeMonitor:
     - Update for a case where `groupCredits > set target` which would just show `0` needed (but need to sell actual quota still...)
     - Added saving of target set (host)
+- v1.2.0:
+  - Combined Loot & Credit monitors into 1
+  - Updated ScrapValue Inventory UI to a TextMeshProUGUI with base game font
+  - Added config options for various different features
+  - (Hopefully) fixed Host vs Client mod config syncing
+  - Moved 'hack' terminal command to its' own 'debug' category

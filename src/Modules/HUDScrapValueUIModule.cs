@@ -68,7 +68,7 @@ internal class HUDScrapValueUIModule : MonoBehaviour
 
     private void Start()
     {
-        // Destroy(this);
+        Destroy(this);
     }
 
     // Maybe some kind of [ModuleOnAttach] attribute?
