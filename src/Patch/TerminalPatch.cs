@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(Terminal))]
-public class TerminalPatch
+internal class TerminalPatch
 {
     private static readonly ACLogger _logger = new(nameof(TerminalPatch));
 
@@ -21,8 +21,9 @@ public class TerminalPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
-    public static void Awake(Terminal __instance)
+    private static void Awake(Terminal __instance)
     {
+        _logger.LogDebug("TERMINAL AWAKE");
         if (patchedTerminal)
         {
             return;

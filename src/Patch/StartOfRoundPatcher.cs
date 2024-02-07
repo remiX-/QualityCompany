@@ -1,8 +1,6 @@
 using HarmonyLib;
-using Newtonsoft.Json;
 using QualityCompany.Components;
-using QualityCompany.Modules;
-using QualityCompany.Network;
+using QualityCompany.Modules.Core;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
@@ -53,9 +51,6 @@ internal class StartOfRoundPatcher
     private static void StartGame()
     {
         OvertimeMonitor.UpdateMonitor();
-
-        _logger.LogDebug(JsonConvert.SerializeObject(CompanyNetworkHandler.Instance.SaveData));
-        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [HarmonyPostfix]

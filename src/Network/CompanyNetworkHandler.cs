@@ -115,6 +115,9 @@ public class CompanyNetworkHandler : NetworkBehaviour
         SaveData = JsonConvert.DeserializeObject<SaveData>(json);
 
         OvertimeMonitor.UpdateMonitor();
+
+        _logger.LogDebug(JsonConvert.SerializeObject(SaveData));
+        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -1,6 +1,6 @@
 ﻿namespace QualityCompany.Service;
 
-internal class ACLogger
+public class ACLogger
 {
     private readonly string _moduleName;
 

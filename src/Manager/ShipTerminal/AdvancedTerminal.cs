@@ -15,18 +15,12 @@ public class AdvancedTerminal
     private static readonly ACLogger Logger = new(nameof(AdvancedTerminal));
     public static Terminal Terminal;
 
-    private static readonly List<ITerminalSubscriber> Subscribers = new();
     private static TerminalKeyword terminalConfirmKeyword;
     private static TerminalKeyword terminalDenyKeyword;
     private static TerminalNode otherCategoryTerminalNode;
     private static TerminalNode helpTerminalNode;
 
     public static string EndOfMessage => "\n\n\n";
-
-    public static void Sub(ITerminalSubscriber sub)
-    {
-        Subscribers.Add(sub);
-    }
 
     public static void AddGlobalTextReplacement(string text, Func<string> func)
     {
@@ -36,20 +30,33 @@ public class AdvancedTerminal
     public static void AddCommand(TerminalCommandBuilder builder)
     {
         Commands.Add(builder);
+
+        // if (Terminal is null) return;
+        //
+        // otherCategoryTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Other").specialKeywordResult;
+        // helpTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
+        //
+        // var keywords = builder.Build(terminalConfirmKeyword, terminalDenyKeyword);
+        // Terminal.terminalNodes.allKeywords = Terminal.terminalNodes.allKeywords.AddRangeToArray(keywords);
+        //
+        // if (builder.description.IsNullOrWhiteSpace()) return;
+        //
+        // helpTerminalNode.displayText = helpTerminalNode.displayText[..^1] + $"{builder.description}";
+        // otherCategoryTerminalNode.displayText = otherCategoryTerminalNode.displayText.Substring(0, otherCategoryTerminalNode.displayText.Length - 1) + $"{builder.description}";
     }
 
     internal static void ApplyToTerminal(Terminal terminal)
     {
         Terminal = terminal;
 
-        Terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
+        Terminal.terminalNodes.allKeywords = Terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
         {
             name = "QualityCompany",
-            word = "advcomp",
+            word = "qc",
             specialKeywordResult = new TerminalNode
             {
                 clearPreviousText = true,
-                displayText = "> ADVANCED COMPANY\n\n\t:)"
+                displayText = "> QUALITY COMPANY\n\n\t:)"
             }
         });
         terminalConfirmKeyword = Terminal.terminalNodes.allKeywords.First(kw => kw.name == "Confirm");
@@ -57,11 +64,12 @@ public class AdvancedTerminal
         otherCategoryTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Other").specialKeywordResult;
         helpTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
 
-        foreach (var sub in Subscribers)
+        foreach (var cmd in AdvancedTerminalRegistry.Commands)
         {
-            Logger.LogDebug($"Running terminal subscribe: {sub.GetType()}");
+            var res = cmd.Run.Invoke(null, null);
+            if (res is null) continue;
 
-            sub.Run();
+            Commands.Add((TerminalCommandBuilder)res);
         }
 
         foreach (var cmdBuilder in Commands)
@@ -75,9 +83,9 @@ public class AdvancedTerminal
             otherCategoryTerminalNode.displayText = otherCategoryTerminalNode.displayText.Substring(0, otherCategoryTerminalNode.displayText.Length - 1) + $"{cmdBuilder.description}";
         }
 
-        // foreach (var kw in Terminal.terminalNodes.allKeywords)
-        // {
-        //     Logger.LogDebug($"{kw.name} | {kw.word}");
-        // }
+        foreach (var kw in Terminal.terminalNodes.allKeywords)
+        {
+            Logger.LogDebug($"{kw.name} | {kw.word}");
+        }
     }
 }

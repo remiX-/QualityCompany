@@ -10,10 +10,12 @@ public class GameEvents
     public delegate void HUDEvent(HUDManager instance);
 
     public delegate void PlayerControllerEvent(PlayerControllerB instance);
+    public delegate void PlayerControllerRpcEvent(PlayerControllerB instance, bool isLocalPlayerInstance);
     // Player rpc actions
-    public static event PlayerControllerEvent PlayerGrabObjectClientRpc;
-    public static event PlayerControllerEvent PlayerSwitchToItemSlot;
-    public static event PlayerControllerEvent PlayerThrowObjectClientRpc;
+    public static event PlayerControllerRpcEvent PlayerGrabObjectClientRpc;
+    public static event PlayerControllerRpcEvent PlayerSwitchToItemSlot; // seems this is actually is a Rpc call in the background
+    public static event PlayerControllerRpcEvent PlayerThrowObjectClientRpc;
+    // Player non-rpc actions (triggers on local client only) - well hopefully
     public static event PlayerControllerEvent PlayerDropAllHeldItems;
     public static event PlayerControllerEvent PlayerDiscardHeldObject;
 
@@ -37,19 +39,19 @@ public class GameEvents
     public static void OnPlayerGrabObjectClientRpc(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerGrabObjectClientRpc");
-        PlayerGrabObjectClientRpc?.Invoke(instance);
+        PlayerGrabObjectClientRpc?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
     public static void OnPlayerSwitchToItemSlot(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerSwitchToItemSlot");
-        PlayerSwitchToItemSlot?.Invoke(instance);
+        PlayerSwitchToItemSlot?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
     public static void OnPlayerThrowObjectClientRpc(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerDiscardHeldObject");
-        PlayerThrowObjectClientRpc?.Invoke(instance);
+        PlayerThrowObjectClientRpc?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
     public static void OnPlayerDropAllHeldItems(PlayerControllerB instance)

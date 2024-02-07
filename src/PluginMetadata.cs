@@ -1,6 +1,6 @@
 ﻿namespace QualityCompany;
 
-public class PluginMetadata
+internal class PluginMetadata
 {
     public const string PLUGIN_GUID = "umno.QualityCompany";
     public const string PLUGIN_NAME = "QualityCompany";

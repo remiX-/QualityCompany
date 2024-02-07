@@ -1,46 +1,29 @@
 ﻿using QualityCompany.Components;
-using QualityCompany.Service;
+using QualityCompany.Modules.Core;
 using UnityEngine;
 
-namespace QualityCompany.Modules;
+namespace QualityCompany.Modules.Ship;
 
-internal class MonitorModule : MonoBehaviour
+[Module]
+internal class MonitorModule
 {
-    private readonly ACLogger _logger = new(nameof(MonitorModule));
-
-    private readonly (Vector3 Position, Vector3 Rotation)[] monitorLocations = {
+    private static readonly (Vector3 Position, Vector3 Rotation)[] monitorLocations = {
         (new Vector3(-95f, 450f, 220f), new Vector3(-20f, 90f, 0f)),
         (new Vector3(-95f, 450f, -250f), new Vector3(-20f, 90f, 0f)),
         (new Vector3(-198f, 450f, -750f), new Vector3(-21f, 117f, 0f)),
         (new Vector3(-413f, 450f, -1185f), new Vector3(-21f, 117f, 0f))
     };
 
-    private GameObject hangerShipMainContainer;
-    private GameObject hangerShipHeaderText;
+    private static GameObject hangerShipMainContainer;
+    private static GameObject hangerShipHeaderText;
 
-    // Maybe some kind of [ModuleOnSpawn] attribute?
-    public static void Spawn()
-    {
-        var scrapUI = new GameObject(nameof(MonitorModule));
-        scrapUI.AddComponent<MonitorModule>();
-    }
-
-    private void Awake()
-    {
-        InitializeMonitorCluster();
-    }
-
-    private void Start()
-    {
-        // Destroy(this);
-    }
-
-    private void InitializeMonitorCluster()
+    [ModuleOnStart]
+    private static void Handle()
     {
         hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
         hangerShipHeaderText = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
-        Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
-        Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG (1)"));
+        Object.Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG"));
+        Object.Destroy(GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/BG (1)"));
 
         var currentMonitorIndex = 0;
         if (Plugin.Instance.PluginConfig.MonitorLootCreditsEnabled)
@@ -55,9 +38,15 @@ internal class MonitorModule : MonoBehaviour
         {
             InitMonitor<TimeMonitor>(ref currentMonitorIndex);
         }
+        // var scrapUI = new GameObject(nameof(MonitorModule));
+        // return scrapUI.AddComponent<MonitorModule>();
     }
 
-    private void InitMonitor<T>(ref int currentMonitorIndex) where T : Component
+    private void Awake()
+    {
+    }
+
+    private static void InitMonitor<T>(ref int currentMonitorIndex) where T : Component
     {
         var (position, rotation) = monitorLocations[currentMonitorIndex];
         var monitorGO = new GameObject($"qc_monitor_{currentMonitorIndex}")
@@ -71,7 +60,7 @@ internal class MonitorModule : MonoBehaviour
                 rotation = Quaternion.Euler(Vector3.zero)
             }
         };
-        var monitorText = Instantiate(hangerShipHeaderText, monitorGO.transform);
+        var monitorText = Object.Instantiate(hangerShipHeaderText, monitorGO.transform);
         monitorText.name = $"qc_monitor_{currentMonitorIndex}Text";
         monitorText.transform.localPosition = position;
         monitorText.transform.rotation = Quaternion.Euler(rotation);

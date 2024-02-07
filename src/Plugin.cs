@@ -2,7 +2,7 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using QualityCompany.Manager.ShipTerminal;
-using QualityCompany.TerminalCommands;
+using QualityCompany.Modules.Core;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -26,10 +26,6 @@ public class Plugin : BaseUnityPlugin
         Instance = this;
         ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
 
-        // Plugin patch logic
-        NetcodePatcher();
-        Patch();
-
         // Asset Bundles
         var dllFolderPath = Path.GetDirectoryName(Info.Location);
         CustomAssets = AssetBundle.LoadFromFile(Path.Combine(dllFolderPath!, "modnetworkhandlerbundle"));
@@ -42,15 +38,18 @@ public class Plugin : BaseUnityPlugin
         PluginConfig = new PluginConfig();
         PluginConfig.Bind(Config);
 
+        // Plugin patch logic
+        NetcodePatcher();
+        Patch();
+
         // Loaded
         ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} is loaded!");
     }
 
     private void Patch()
     {
-        AdvancedTerminal.Sub(new SellCommands());
-        AdvancedTerminal.Sub(new MiscCommands());
-        AdvancedTerminal.Sub(new TargetCommands());
+        AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly());
+        ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 
         harmony.PatchAll(Assembly.GetExecutingAssembly());
     }

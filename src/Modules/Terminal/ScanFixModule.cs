@@ -1,18 +1,18 @@
 ﻿using QualityCompany.Manager.ShipTerminal;
-using QualityCompany.Service;
+using QualityCompany.Modules.Core;
 using QualityCompany.Utils;
 using System.Linq;
 using UnityEngine;
 
-namespace QualityCompany.Modules;
+namespace QualityCompany.Modules.Terminal;
 
+[Module]
 internal class ScanFixModule
 {
-    private static readonly ACLogger _logger = new(nameof(ScanFixModule));
-
     private static bool hasInit;
 
-    internal static void Handle()
+    [ModuleOnStart]
+    private static void Handle()
     {
         if (!Plugin.Instance.PluginConfig.TerminalPatchFixScanEnabled || hasInit) return;
         hasInit = true;
@@ -21,7 +21,7 @@ internal class ScanFixModule
         var scanKeyword = list.Find(keyword => keyword.word == "scan");
         if (scanKeyword is null)
         {
-            _logger.LogError("Failed to find can terminal keyword.");
+            // _logger.LogError("Failed to find can terminal keyword.");
             return;
         }
 
@@ -49,7 +49,7 @@ internal class ScanFixModule
             return $"There are {allInShip.Count} objects inside the ship, totalling at an exact value of {allInShipTotalScrapValue}.";
         });
 
-        _logger.LogDebug("Loaded");
+        // _logger.LogDebug("Loaded");
     }
 }
 
