@@ -22,6 +22,9 @@ internal class PluginConfig
     public bool TerminalPatchFixScanEnabled { get; set; }
 
     [JsonIgnore]
+    public bool NetworkingEnabled { get; set; }
+
+    [JsonIgnore]
     public bool MonitorLootCreditsEnabled { get; set; }
 
     [JsonIgnore]
@@ -144,6 +147,15 @@ internal class PluginConfig
             "StartupDelay",
             4.5f,
             "[CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\nNOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)"
+        ).Value;
+        #endregion
+
+        #region Networking
+        NetworkingEnabled = configFile.Bind(
+            "Networking",
+            "NetworkingEnabled",
+            false,
+            "[CLIENT] Turn on/off networking capabilities.\nNOTE: This will MOST LIKELY cause desync issues with a couple of things, primarily for non-host clients."
         ).Value;
         #endregion
 

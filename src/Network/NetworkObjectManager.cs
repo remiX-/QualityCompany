@@ -18,6 +18,8 @@ internal class NetworkObjectManager
     [HarmonyPatch(typeof(GameNetworkManager), "Start")]
     public static void Init()
     {
+        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
+
         if (networkPrefab != null || hasInit)
         {
             return;
@@ -36,6 +38,7 @@ internal class NetworkObjectManager
     [HarmonyPatch(typeof(StartOfRound), "Awake")]
     public static void SpawnNetworkHandlerObject()
     {
+        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
         if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer) return;
 
         var networkHandlerHost = Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
