@@ -25,9 +25,9 @@ internal class OvertimeMonitor : BaseMonitor
         _textMesh.fontSize *= 0.65f;
         _terminal = FindFirstObjectByType<Terminal>();
 
-        UpdateMonitor();
-
         targetTotalCredits = CompanyNetworkHandler.Instance.SaveData.TargetForSelling;
+
+        UpdateMonitor();
     }
 
     public static void UpdateMonitor()

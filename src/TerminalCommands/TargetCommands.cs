@@ -24,8 +24,7 @@ internal class TargetCommands
                 {
                     if (!int.TryParse(input, out var amount)) return false;
 
-                    NetworkHandler.Instance.UpdateSellTargetServerRpc(amount,
-                        GameNetworkManager.Instance.localPlayerController.playerUsername);
+                    NetworkHandler.Instance.UpdateSellTargetServerRpc(amount, GameNetworkManager.Instance.localPlayerController.playerUsername);
 
                     return true;
                 })

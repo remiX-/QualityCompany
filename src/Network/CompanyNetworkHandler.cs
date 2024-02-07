@@ -22,7 +22,6 @@ public class CompanyNetworkHandler : NetworkBehaviour
     private void Start()
     {
         Instance = this;
-        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
 
         if (NetworkManager.IsHost)
         {
