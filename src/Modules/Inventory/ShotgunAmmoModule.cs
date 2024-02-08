@@ -32,7 +32,7 @@ internal class ShotgunAmmoModule : InventoryBaseUI
 
         for (var i = 0; i < totalItemSlots; i++)
         {
-            CreateInventoryGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform);
+            texts.Add(CreateInventoryGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform));
         }
     }
 

@@ -1,4 +1,6 @@
-﻿using QualityCompany.Modules.Core;
+﻿using GameNetcodeStuff;
+using QualityCompany.Modules.Core;
+using TMPro;
 using UnityEngine;
 using static QualityCompany.Service.GameEvents;
 
@@ -12,6 +14,9 @@ internal class ScrapValueModule : InventoryBaseUI
     private static readonly Color TEXT_COLOR_69 = new(0f, 112f / 255f, 221f / 255f, 0.75f); // Crrtz?
     private static readonly Color TEXT_COLOR_ABOVE50 = new(30f / 255f, 1f, 0f, 0.75f); // green
     private static readonly Color TEXT_COLOR_NOOBS = new(1f, 1f, 1f, 0.75f);
+
+    private TextMeshProUGUI totalScrapValueText;
+    private int totalScrapValue;
 
     public ScrapValueModule() : base(nameof(ScrapValueModule))
     { }
@@ -56,7 +61,12 @@ internal class ScrapValueModule : InventoryBaseUI
                 _ => new Vector2(0f, rectSize.y / 2f)
             };
 
-            CreateInventoryGameObject($"HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta);
+            texts.Add(CreateInventoryGameObject($"HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
+
+            if (i == totalItemSlots)
+            {
+                totalScrapValueText = CreateInventoryGameObject("HudScrapUITotal", 15, iconFrame, new Vector3(scrapLocalPositionDelta.y, scrapLocalPositionDelta.x));
+            }
         }
     }
 
@@ -84,6 +94,8 @@ internal class ScrapValueModule : InventoryBaseUI
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
     {
+        UpdateTotalScrapValue();
+
         if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0)
         {
             Hide(currentItemSlotIndex);
@@ -102,6 +114,21 @@ internal class ScrapValueModule : InventoryBaseUI
             > 50 => TEXT_COLOR_ABOVE50,
             _ => TEXT_COLOR_NOOBS
         };
+    }
+
+    protected void UpdateTotalScrapValue()
+    {
+        totalScrapValue = 0;
+        for (var i = 0; i < totalItemSlots; i++)
+        {
+            if (GameNetworkManager.Instance.localPlayerController.ItemSlots[i] is null)
+            {
+                continue;
+            }
+
+            totalScrapValue += GameNetworkManager.Instance.localPlayerController.ItemSlots[i].scrapValue;
+            totalScrapValueText.text = "$" + totalScrapValue;
+        }
     }
 }
 

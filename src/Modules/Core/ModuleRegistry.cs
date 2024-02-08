@@ -5,12 +5,21 @@ using System.Reflection;
 
 namespace QualityCompany.Modules.Core;
 
-public static class ModuleRegistry
+/// <summary>
+/// <para>The Module Registry allows for registration of static and instanced-based classes that do specific kind of logic.<br />
+/// This may not suit everyone's need but helps abide to the Single Responsibility Principle.</para>
+/// <para>Examples include: any sort of HUD improvements, leveling system, etc.<br />See the ModuleExamplePlugin in the samples directory for a basic HUD example.</para>
+/// </summary>
+public class ModuleRegistry
 {
     internal static List<InternalModule> Modules { get; } = new();
 
     private static readonly ACLogger _logger = new(nameof(ModuleRegistry));
 
+    /// <summary>
+    /// Call this with your current assembly with <see cref="Assembly.GetExecutingAssembly" />
+    /// </summary>
+    /// <param name="assembly">The assembly to register <see cref="Module" /> attributes.</param>
     public static void Register(Assembly assembly)
     {
         var assemblyName = assembly.GetName().Name;

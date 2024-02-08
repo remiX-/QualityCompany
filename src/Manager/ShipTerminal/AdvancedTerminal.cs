@@ -27,24 +27,6 @@ public class AdvancedTerminal
         GlobalTextReplacements.Add(text, func);
     }
 
-    public static void AddCommand(TerminalCommandBuilder builder)
-    {
-        Commands.Add(builder);
-
-        // if (Terminal is null) return;
-        //
-        // otherCategoryTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Other").specialKeywordResult;
-        // helpTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
-        //
-        // var keywords = builder.Build(terminalConfirmKeyword, terminalDenyKeyword);
-        // Terminal.terminalNodes.allKeywords = Terminal.terminalNodes.allKeywords.AddRangeToArray(keywords);
-        //
-        // if (builder.description.IsNullOrWhiteSpace()) return;
-        //
-        // helpTerminalNode.displayText = helpTerminalNode.displayText[..^1] + $"{builder.description}";
-        // otherCategoryTerminalNode.displayText = otherCategoryTerminalNode.displayText.Substring(0, otherCategoryTerminalNode.displayText.Length - 1) + $"{builder.description}";
-    }
-
     internal static void ApplyToTerminal(Terminal terminal)
     {
         Terminal = terminal;

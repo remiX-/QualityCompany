@@ -62,7 +62,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
     }
 
     #region UI
-    protected void CreateInventoryGameObject(string gameObjectName, int fontSize, Transform parent, Vector3? localPositionDelta = null)
+    protected TextMeshProUGUI CreateInventoryGameObject(string gameObjectName, int fontSize, Transform parent, Vector3? localPositionDelta = null)
     {
         var textObject = Instantiate(baseTextToCopyGameObject, parent);
         textObject.name = gameObjectName;
@@ -75,7 +75,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         text.alignment = TextAlignmentOptions.Center;
         text.enabled = false;
 
-        texts.Add(text);
+        return text;
     }
 
     protected void ForceUpdateAllSlots(PlayerControllerB instance)

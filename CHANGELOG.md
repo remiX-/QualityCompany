@@ -2,7 +2,7 @@
 
 - Improved dev & mod api quality of life
   - Terminal commands can be setup via a `[TerminalCommand]` attribute
-  - Modules can be easily added in a Static or Instance manner via the `[Module]` attribute
+  - Modules can be easily added in a static or instance manner via the `[Module]` attribute
   - see the example plugins under `samples/`
 
 # v1.2.1: Improved Mod Compatibility, force inventory UI refresh

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace QualityCompany.Manager.ShipTerminal;
 
-internal class AdvancedTerminalRegistry
+public class AdvancedTerminalRegistry
 {
     internal static List<InternalCommand> Commands { get; } = new();
 
@@ -18,7 +18,6 @@ internal class AdvancedTerminalRegistry
 
         foreach (var type in assembly.GetTypes())
         {
-            _logger.LogDebug($" > {type.Name}");
             var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
             foreach (var method in methods)
             {
