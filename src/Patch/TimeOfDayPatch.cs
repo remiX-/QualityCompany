@@ -3,6 +3,7 @@ using QualityCompany.Components;
 using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
+using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Patch;
 
@@ -31,6 +32,7 @@ internal class TimeOfDayPatch
     private static void MoveTimeOfDayPatch()
     {
         TimeMonitor.UpdateMonitor();
+        OnGameTimeUpdate();
     }
 
     [HarmonyPostfix]

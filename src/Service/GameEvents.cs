@@ -9,6 +9,9 @@ public class GameEvents
     public static event HUDEvent HudManagerStart;
     public delegate void HUDEvent(HUDManager instance);
 
+    public static event TimeUpdateEvent GameTimeUpdate;
+    public delegate void TimeUpdateEvent();
+
     public delegate void PlayerControllerEvent(PlayerControllerB instance);
     public delegate void PlayerControllerRpcEvent(PlayerControllerB instance, bool isLocalPlayerInstance);
     // Player rpc actions
@@ -88,6 +91,11 @@ public class GameEvents
     {
         _logger.LogDebug("OnDisconnected");
         Disconnected?.Invoke(instance);
+    }
+
+    public static void OnGameTimeUpdate()
+    {
+        GameTimeUpdate?.Invoke();
     }
 }
 

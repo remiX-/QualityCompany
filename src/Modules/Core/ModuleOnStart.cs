@@ -2,20 +2,32 @@
 
 namespace QualityCompany.Modules.Core;
 
+/// <summary>
+/// Test
+/// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-internal class Module : Attribute
+public class Module : Attribute
 {
     public bool Delayed { get; set; }
 }
 
+/// <summary>
+/// ModuleOnStart
+/// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-internal class ModuleOnStart : Attribute
+public class ModuleOnStart : Attribute
 { }
 
+/// <summary>
+/// ModuleOnAttach
+/// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-internal class ModuleOnAttach : Attribute
+public class ModuleOnAttach : Attribute
 { }
 
+/// <summary>
+/// ModuleOnDetach
+/// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-internal class ModuleOnDetach : Attribute
+public class ModuleOnDetach : Attribute
 { }

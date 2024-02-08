@@ -27,9 +27,6 @@ internal class ModuleLoader : MonoBehaviour
         var delay = Math.Max(3.0f, Plugin.Instance.PluginConfig.InventoryStartupDelay);
         _logger.LogDebug($"Loading up internal modules with a {delay} seconds delay...");
 
-        // ScanFixModule.Handle();
-        // MonitorModule.Spawn();
-
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => !x.DelayedStart))
         {
             _logger.LogDebug($"Starting up {internalModule.Name}");

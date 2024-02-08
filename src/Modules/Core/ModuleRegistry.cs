@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace QualityCompany.Modules.Core;
 
-internal class ModuleRegistry
+public static class ModuleRegistry
 {
     internal static List<InternalModule> Modules { get; } = new();
 

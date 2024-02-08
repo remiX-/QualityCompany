@@ -43,11 +43,12 @@ public class Plugin : BaseUnityPlugin
         Patch();
 
         // Loaded
-        ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} is loaded!");
+        ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");
     }
 
     private void Patch()
     {
+        ACLogger.LogMessage($"Loading modules");
         AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly());
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 

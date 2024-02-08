@@ -1,8 +1,8 @@
 {
   "name": "QualityCompany",
-  "version_number": "1.2.1",
+  "version_number": "1.2.2",
   "website_url": "https://github.com/remiX-/QualityCompany",
-  "description": "QualityCompany adds many quality of life aspects into the game, such as HUD improvements, a Terminal API to make simple & complex commands (Sell scrap from terminal). Has Networking capabilities. Shows current shotgun ammo.",
+  "description": "QualityCompany adds many quality of life aspects into the game such as inventory scrap values & shotgun ammo counter, custom terminal commands for various auto-sell capabilities, calculating overtime (which integrate into the auto-sell commands) and fully network sync capable\nThis mod also features a builder pattern Terminal API to make simple & complex commands very easy to make.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100"
   ]
