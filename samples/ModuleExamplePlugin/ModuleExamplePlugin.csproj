@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<AssemblyName>ModuleExamplePlugin</AssemblyName>
+		<Version>1.2.2</Version>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+	
+	<Import Project="../CommonBuildProperties.proj" />
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
+		<PackageReference Include="UnityEngine.Modules" Version="2023.2.8" IncludeAssets="compile" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="QualityCompany">
+			<HintPath>../../src/bin/Debug/netstandard2.1/QualityCompany.dll</HintPath>
+		</Reference>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="BepInEx">
+			<HintPath>$(BepInExDirectory)\core\BepInEx.dll</HintPath>
+		</Reference>
+		<Reference Include="0Harmony">
+			<HintPath>$(BepInExDirectory)\core\0Harmony.dll</HintPath>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Newtonsoft.Json.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.Netcode.Runtime">
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+</Project>
