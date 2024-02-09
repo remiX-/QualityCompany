@@ -90,9 +90,15 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
             OnUpdate(instance.ItemSlots[i], i);
         }
+        OnUpdateSpecial();
     }
 
     protected abstract void OnUpdate(GrabbableObject go, int index);
+
+    protected virtual void OnUpdateSpecial()
+    {
+        // Do nothing for now I guess...
+    }
 
     protected void UpdateItemSlotText(int index, string text, Color color)
     {
@@ -102,7 +108,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         textComponent.color = color;
     }
 
-    protected void Hide(int currentItemSlotIndex)
+    protected virtual void Hide(int currentItemSlotIndex)
     {
         texts[currentItemSlotIndex].text = string.Empty;
         texts[currentItemSlotIndex].enabled = false;
