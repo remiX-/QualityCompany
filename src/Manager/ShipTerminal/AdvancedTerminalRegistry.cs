@@ -18,7 +18,7 @@ public class AdvancedTerminalRegistry
 
         foreach (var type in assembly.GetTypes())
         {
-            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
             foreach (var method in methods)
             {
                 var attribute = FindMethodInfoFor<TerminalCommand>(method);

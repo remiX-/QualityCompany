@@ -10,7 +10,7 @@ internal class TargetCommands
     private static readonly ACLogger _logger = new(nameof(TargetCommands));
 
     [TerminalCommand]
-    public static TerminalCommandBuilder CreateTargetCommand()
+    private static TerminalCommandBuilder CreateTargetCommand()
     {
         if (!Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled) return null;
 

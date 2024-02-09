@@ -65,7 +65,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
             if (i == totalItemSlots)
             {
-                totalScrapValueText = CreateInventoryGameObject("HudScrapUITotal", 15, iconFrame, new Vector3(scrapLocalPositionDelta.y, scrapLocalPositionDelta.x));
+                // totalScrapValueText = CreateInventoryGameObject("HudScrapUITotal", 15, iconFrame, new Vector3(scrapLocalPositionDelta.y, scrapLocalPositionDelta.x));
             }
         }
     }
@@ -94,7 +94,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
     {
-        UpdateTotalScrapValue();
+        // UpdateTotalScrapValue();
 
         if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0)
         {
