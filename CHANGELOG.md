@@ -4,6 +4,7 @@
   - Terminal commands can be setup via a `[TerminalCommand]` attribute
   - Modules can be easily added in a static or instance manner via the `[Module]` attribute
   - see the example plugins under `samples/`
+  - Add total scrap tally to first item slot
 
 # v1.2.1: Improved Mod Compatibility, force inventory UI refresh
 

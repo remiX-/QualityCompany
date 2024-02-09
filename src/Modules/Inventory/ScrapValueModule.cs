@@ -1,5 +1,6 @@
 ﻿using GameNetcodeStuff;
 using QualityCompany.Modules.Core;
+using QualityCompany.Service;
 using TMPro;
 using UnityEngine;
 using static QualityCompany.Service.GameEvents;
@@ -10,13 +11,13 @@ namespace QualityCompany.Modules.Inventory;
 internal class ScrapValueModule : InventoryBaseUI
 {
     private static readonly Color TEXT_COLOR_ABOVE150 = new(255f / 255f, 128f / 255f, 0f / 255f, 1f); // Legendary orange??
-    private static readonly Color TEXT_COLOR_ABOVE100 = new(163f / 255f, 53f / 255f, 238f / 255f, 0.75f); // Epic
+    private static readonly Color TEXT_COLOR_ABOVE100 = new(1f, 128f / 255f, 237f / 255f, 0.75f); // Epic
     private static readonly Color TEXT_COLOR_69 = new(0f, 112f / 255f, 221f / 255f, 0.75f); // Crrtz?
     private static readonly Color TEXT_COLOR_ABOVE50 = new(30f / 255f, 1f, 0f, 0.75f); // green
     private static readonly Color TEXT_COLOR_NOOBS = new(1f, 1f, 1f, 0.75f);
 
     private TextMeshProUGUI totalScrapValueText;
-    private int totalScrapValue;
+    int totalScrapValue;
 
     public ScrapValueModule() : base(nameof(ScrapValueModule))
     { }
@@ -48,24 +49,14 @@ internal class ScrapValueModule : InventoryBaseUI
             var rectSize = rect?.sizeDelta ?? new Vector2(36, 36);
             var rectEulerAngles = rect?.eulerAngles ?? Vector3.zero;
             var zRotation = rectEulerAngles.z;
-            // Z - Rotation mapping for moving text "up"
-            // 0    -> ++y
-            // 90   -> ++x
-            // 180  -> --y
-            // 270  -> --x
-            var scrapLocalPositionDelta = zRotation switch
-            {
-                >= 270 => new Vector2(-rectSize.x / 2f, 0f),
-                >= 180 => new Vector2(0f, -rectSize.y / 2f),
-                >= 90 => new Vector2(rectSize.x / 2f, 0f),
-                _ => new Vector2(0f, rectSize.y / 2f)
-            };
+            var scrapLocalPositionDelta = getLocalPositionDelta(zRotation, rectSize.x, rectSize.y);
 
             texts.Add(CreateInventoryGameObject($"HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
-
-            if (i == totalItemSlots)
+            
+            if (i == 0)
             {
-                // totalScrapValueText = CreateInventoryGameObject("HudScrapUITotal", 15, iconFrame, new Vector3(scrapLocalPositionDelta.y, scrapLocalPositionDelta.x));
+                // Invert positiioning on the first slot to be 90 degrees opposite to the current item value
+                totalScrapValueText = CreateInventoryGameObject("HudScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));
             }
         }
     }
@@ -94,7 +85,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
     {
-        // UpdateTotalScrapValue();
+        UpdateTotalScrapValue();
 
         if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0)
         {
@@ -106,18 +97,25 @@ internal class ScrapValueModule : InventoryBaseUI
 
         text.enabled = true;
         text.text = "$" + currentHeldItem.scrapValue;
-        text.color = currentHeldItem.scrapValue switch
-        {
-            > 150 => TEXT_COLOR_ABOVE150,
-            > 100 => TEXT_COLOR_ABOVE100,
-            69 => TEXT_COLOR_69,
-            > 50 => TEXT_COLOR_ABOVE50,
-            _ => TEXT_COLOR_NOOBS
-        };
+        text.color = getColorForValue(currentHeldItem.scrapValue);
+    }
+
+    protected override void Hide(int currentItemSlotIndex)
+    {
+        base.Hide(currentItemSlotIndex);
+        UpdateTotalScrapValue();
+    }
+
+    protected override void OnUpdateSpecial()
+    {
+        base.OnUpdateSpecial();
+        UpdateTotalScrapValue();
     }
 
     protected void UpdateTotalScrapValue()
     {
+        if (totalScrapValueText is null)
+            return;
         totalScrapValue = 0;
         for (var i = 0; i < totalItemSlots; i++)
         {
@@ -127,8 +125,38 @@ internal class ScrapValueModule : InventoryBaseUI
             }
 
             totalScrapValue += GameNetworkManager.Instance.localPlayerController.ItemSlots[i].scrapValue;
-            totalScrapValueText.text = "$" + totalScrapValue;
+            totalScrapValueText.text = "Total: $" + totalScrapValue;
         }
+        totalScrapValueText.enabled = totalScrapValue > 0;
+        totalScrapValueText.color = getColorForValue(totalScrapValue);
+    }
+
+    internal static Color getColorForValue(int value)
+    {
+        return value switch
+        {
+            > 150 => TEXT_COLOR_ABOVE150,
+            > 100 => TEXT_COLOR_ABOVE100,
+            69 => TEXT_COLOR_69,
+            > 50 => TEXT_COLOR_ABOVE50,
+            _ => TEXT_COLOR_NOOBS
+        };
+    }
+
+    internal static Vector2 getLocalPositionDelta(float parentRotationZ, float parentSizeX, float parentSizeY)
+    {
+        // Z - Rotation mapping for moving text "up"
+        // 0    -> ++y
+        // 90   -> ++x
+        // 180  -> --y
+        // 270  -> --x
+        return parentRotationZ switch
+        {
+            >= 270 => new Vector2(-parentSizeX / 2f, 0f),
+            >= 180 => new Vector2(0f, -parentSizeY / 2f),
+            >= 90 => new Vector2(parentSizeX / 2f, 0f),
+            _ => new Vector2(0f, parentSizeY / 2f)
+        };
     }
 }
 
