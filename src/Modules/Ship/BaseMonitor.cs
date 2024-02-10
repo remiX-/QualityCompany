@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace QualityCompany.Components;
+namespace QualityCompany.Modules.Ship;
 
 internal abstract class BaseMonitor : MonoBehaviour
 {

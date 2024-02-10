@@ -15,7 +15,6 @@ public class AdvancedTerminal
     private static readonly ACLogger Logger = new(nameof(AdvancedTerminal));
     public static Terminal Terminal;
 
-    private static readonly List<ITerminalSubscriber> Subscribers = new();
     private static TerminalKeyword terminalConfirmKeyword;
     private static TerminalKeyword terminalDenyKeyword;
     private static TerminalNode otherCategoryTerminalNode;
@@ -23,33 +22,23 @@ public class AdvancedTerminal
 
     public static string EndOfMessage => "\n\n\n";
 
-    public static void Sub(ITerminalSubscriber sub)
-    {
-        Subscribers.Add(sub);
-    }
-
     public static void AddGlobalTextReplacement(string text, Func<string> func)
     {
         GlobalTextReplacements.Add(text, func);
-    }
-
-    public static void AddCommand(TerminalCommandBuilder builder)
-    {
-        Commands.Add(builder);
     }
 
     internal static void ApplyToTerminal(Terminal terminal)
     {
         Terminal = terminal;
 
-        Terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
+        Terminal.terminalNodes.allKeywords = Terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
         {
             name = "QualityCompany",
-            word = "advcomp",
+            word = "qc",
             specialKeywordResult = new TerminalNode
             {
                 clearPreviousText = true,
-                displayText = "> ADVANCED COMPANY\n\n\t:)"
+                displayText = "> QUALITY COMPANY\n\n\t:)"
             }
         });
         terminalConfirmKeyword = Terminal.terminalNodes.allKeywords.First(kw => kw.name == "Confirm");
@@ -57,11 +46,12 @@ public class AdvancedTerminal
         otherCategoryTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Other").specialKeywordResult;
         helpTerminalNode = Terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
 
-        foreach (var sub in Subscribers)
+        foreach (var cmd in AdvancedTerminalRegistry.Commands)
         {
-            Logger.LogDebug($"Running terminal subscribe: {sub.GetType()}");
+            var res = cmd.Run.Invoke(null, null);
+            if (res is not TerminalCommandBuilder builder) continue;
 
-            sub.Run();
+            Commands.Add(builder);
         }
 
         foreach (var cmdBuilder in Commands)

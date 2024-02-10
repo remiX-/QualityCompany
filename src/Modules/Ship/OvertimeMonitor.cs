@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace QualityCompany.Components;
+namespace QualityCompany.Modules.Ship;
 
 internal class OvertimeMonitor : BaseMonitor
 {
@@ -25,12 +25,12 @@ internal class OvertimeMonitor : BaseMonitor
         _textMesh.fontSize *= 0.65f;
         _terminal = FindFirstObjectByType<Terminal>();
 
-        UpdateMonitor();
-
         targetTotalCredits = CompanyNetworkHandler.Instance.SaveData.TargetForSelling;
+
+        UpdateMonitor();
     }
 
-    public static void UpdateMonitor()
+    internal static void UpdateMonitor()
     {
         if (Instance is null) return;
 
@@ -43,7 +43,6 @@ internal class OvertimeMonitor : BaseMonitor
 
             return;
         }
-        _depositDesk = GameObject.Find("/DepositCounter/DoorAndHookAnim/InteractCube");
 
         targetNeeded = CalculateSellNeeded();
         var overtime = CalculateOvertime();
@@ -51,7 +50,7 @@ internal class OvertimeMonitor : BaseMonitor
         Instance.UpdateMonitorText($"TARGET:${targetTotalCredits}\nNEEDED:${targetNeeded}\nOVERTIME:${overtime}\nDESK:${CalculateSumOnDepositDesk()}");
     }
 
-    public static string GetText()
+    internal static string GetText()
     {
         if (Instance is null) return string.Empty;
 
@@ -94,6 +93,7 @@ internal class OvertimeMonitor : BaseMonitor
 
     private static int CalculateSumOnDepositDesk()
     {
+        _depositDesk = GameObject.Find("/DepositCounter/DoorAndHookAnim/InteractCube");
         if (_depositDesk == null)
         {
             return 0;

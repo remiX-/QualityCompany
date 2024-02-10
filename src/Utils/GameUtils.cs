@@ -20,16 +20,22 @@ public static class GameUtils
 
     public static void Reset()
     {
+        TimeOfDay = null;
+        StartOfRound = null;
         ShipGameObject = null;
     }
 
     public static string CurrentLevel()
     {
+        if (TimeOfDay is null) return "";
+
         return TimeOfDay.currentLevel.name;
     }
 
     public static string CurrentPlanet()
     {
+        if (TimeOfDay is null) return "";
+
         return TimeOfDay.currentLevel?.PlanetName;
     }
 
@@ -40,6 +46,8 @@ public static class GameUtils
 
     public static bool IsLandedOnCompany()
     {
+        if (StartOfRound is null) return false;
+
         return IsOnCompany() && !StartOfRound.inShipPhase;
     }
 }

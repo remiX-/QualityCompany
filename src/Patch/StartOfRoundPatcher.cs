@@ -1,7 +1,6 @@
 using HarmonyLib;
-using Newtonsoft.Json;
-using QualityCompany.Components;
-using QualityCompany.Modules;
+using QualityCompany.Modules.Core;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
@@ -34,6 +33,18 @@ internal class StartOfRoundPatcher
         LootMonitor.UpdateMonitor();
     }
 
+    [HarmonyPrefix]
+    [HarmonyPatch("playersFiredGameOver")]
+    private static void PlayersFiredGameOverPatch(StartOfRound __instance)
+    {
+        CompanyNetworkHandler.Instance.SaveData.ResetGameState();
+
+        if (__instance.NetworkManager.IsHost || __instance.NetworkManager.IsServer)
+        {
+            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+        }
+    }
+
     [HarmonyPostfix]
     [HarmonyPatch("SyncShipUnlockablesClientRpc")]
     private static void RefreshLootForClientOnStart()
@@ -53,9 +64,6 @@ internal class StartOfRoundPatcher
     private static void StartGame()
     {
         OvertimeMonitor.UpdateMonitor();
-
-        _logger.LogDebug(JsonConvert.SerializeObject(CompanyNetworkHandler.Instance.SaveData));
-        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [HarmonyPostfix]

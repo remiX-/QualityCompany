@@ -1,6 +1,6 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using QualityCompany.Components;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using Unity.Netcode;
 using static QualityCompany.Service.GameEvents;
@@ -78,6 +78,7 @@ internal class PlayerControllerBPatch
     [HarmonyPatch(nameof(PlayerControllerB.DropAllHeldItems))]
     private static void DropAllHeldItemsPatch(PlayerControllerB __instance)
     {
+        _logger.LogDebug($"DropAllHeldItemsPatch: isLocal? {__instance == GameNetworkManager.Instance.localPlayerController} | isOwner? {__instance.IsOwner}");
         OnPlayerDropAllHeldItems(__instance);
     }
 }

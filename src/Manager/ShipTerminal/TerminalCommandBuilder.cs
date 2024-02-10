@@ -27,6 +27,7 @@ public class TerminalCommandBuilder
         CommandText = name;
         node.name = name;
         node.clearPreviousText = true;
+        node.displayText = $"{name} is empty";
         nodeKeyword = new TerminalKeyword
         {
             name = name,

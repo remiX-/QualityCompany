@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using QualityCompany.Service;
 using System;
 using System.ComponentModel;
-using UnityEngine;
 
 namespace QualityCompany;
 
@@ -21,6 +20,9 @@ internal class PluginConfig
     public bool TerminalDebugCommandsEnabled { get; set; }
 
     public bool TerminalPatchFixScanEnabled { get; set; }
+
+    [JsonIgnore]
+    public bool NetworkingEnabled { get; set; }
 
     [JsonIgnore]
     public bool MonitorLootCreditsEnabled { get; set; }
@@ -45,6 +47,9 @@ internal class PluginConfig
 
     [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
+
+    [JsonIgnore]
+    public bool ExperimentalFeaturesEnabled { get; set; }
 
     public PluginConfig()
     { }
@@ -148,12 +153,28 @@ internal class PluginConfig
         ).Value;
         #endregion
 
+        #region Networking
+        NetworkingEnabled = configFile.Bind(
+            "Networking",
+            "NetworkingEnabled",
+            true,
+            "[EXPERIMENTAL!!!] [CLIENT] Turn on/off networking capabilities.\nNOTE: This will MOST LIKELY cause de-sync issues with a couple of things, primarily for non-host clients."
+        ).Value;
+        #endregion
+
         #region Debug
         ShowDebugLogs = configFile.Bind(
             "Debug",
             "ShowDebugLogs",
             false,
             "[CLIENT] Turn on/off debug logs."
+        ).Value;
+
+        ExperimentalFeaturesEnabled = configFile.Bind(
+            "Debug",
+            "ExperimentalFeaturesEnabled",
+            false,
+            "[CLIENT] Turn on/off experimental features."
         ).Value;
         #endregion
     }

@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using QualityCompany.Components;
 using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using System;
 using System.Linq;
@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(Terminal))]
-public class TerminalPatch
+internal class TerminalPatch
 {
     private static readonly ACLogger _logger = new(nameof(TerminalPatch));
 
@@ -21,7 +21,7 @@ public class TerminalPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
-    public static void Awake(Terminal __instance)
+    private static void Awake(Terminal __instance)
     {
         if (patchedTerminal)
         {

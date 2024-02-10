@@ -2,22 +2,18 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
-		<AssemblyName>QualityCompany</AssemblyName>
+		<AssemblyName>TerminalExamplePlugin</AssemblyName>
 		<Version>1.2.2</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	</PropertyGroup>
 	
-	<Import Project="CommonBuildProperties.proj" />
+	<Import Project="../CommonBuildProperties.proj" />
 
 	<ItemGroup>
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
-		<!-- <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" /> -->
 		<PackageReference Include="UnityEngine.Modules" Version="2023.2.8" IncludeAssets="compile" />
-		<!-- <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" /> -->
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -25,6 +21,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Reference Include="QualityCompany">
+			<HintPath>../../src/bin/Debug/netstandard2.1/QualityCompany.dll</HintPath>
+		</Reference>
 		<Reference Include="Assembly-CSharp">
 			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\Assembly-CSharp.dll</HintPath>
 		</Reference>
@@ -50,30 +49,4 @@
 			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath>
 		</Reference>
 	</ItemGroup>
-
-	<!-- Bundle copying -->
-	<ItemGroup>
-		<None Update="Assets\modnetworkhandlerbundle">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
-	<Target Name="NetcodePatch" AfterTargets="Build">
-		<Message Text="NetcodePatch task" Importance="High" />
-
-		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
-	</Target>
-
-	<Target Name="Copy To Dist" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
-		<Message Text="Building dist directory" Importance="High" />
-
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="Assets\modnetworkhandlerbundle" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\CHANGELOG.md" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\README.md" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\manifest.json" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\assets\icon.png" DestinationFolder="$(SolutionDir)\dist" />
-
-		<Message Text="Finished!" Importance="High" />
-	</Target>
 </Project>

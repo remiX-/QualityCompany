@@ -7,52 +7,51 @@ using UnityEngine;
 
 namespace QualityCompany.TerminalCommands;
 
-internal class DebugCommands : ITerminalSubscriber
+internal class DebugCommands
 {
     private static readonly ACLogger _logger = new(nameof(DebugCommands));
 
-    private int scrapCountToHack;
+    private static int scrapCountToHack;
 
-    public void Run()
+    [TerminalCommand]
+    private static TerminalCommandBuilder Run()
     {
-        if (!Plugin.Instance.PluginConfig.TerminalDebugCommandsEnabled) return;
+        if (!Plugin.Instance.PluginConfig.TerminalDebugCommandsEnabled) return null;
 
-        AdvancedTerminal.AddCommand(
-            new TerminalCommandBuilder("hack")
-                .WithDescription(">hack <count>\nSpawn some ez lewt.")
-                .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
-                .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
-                .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
-                .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
-                    .WithMessage("Hacked in [scrapCountToHack] items")
-                    .WithConditions("isHost")
-                    .WithInputMatch(@"(\d+$)$")
-                    .WithPreAction(input =>
+        return new TerminalCommandBuilder("hack")
+            .WithDescription(">hack <count>\nSpawn some ez lewt.")
+            .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
+            .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
+            .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
+            .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
+                .WithMessage("Hacked in [scrapCountToHack] items")
+                .WithConditions("isHost")
+                .WithInputMatch(@"(\d+$)$")
+                .WithPreAction(input =>
+                {
+                    scrapCountToHack = Convert.ToInt32(input);
+
+                    if (scrapCountToHack <= 0) return false;
+
+                    for (var i = 0; i < scrapCountToHack; i++)
                     {
-                        scrapCountToHack = Convert.ToInt32(input);
+                        var rand = new System.Random();
+                        var nextScrap = rand.Next(16, 68);
+                        var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
+                        scrap.GetComponent<GrabbableObject>().fallTime = 0f;
+                        var scrapValue = rand.Next(40, 120);
+                        scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
+                        scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
+                        scrap.GetComponent<NetworkObject>().Spawn();
+                        _logger.LogDebug($"Spawned in {scrap.name} for {scrapValue}");
 
-                        if (scrapCountToHack <= 0) return false;
+                        RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
+                        scrap.transform.parent = GameUtils.ShipGameObject.transform;
+                    }
 
-                        for (var i = 0; i < scrapCountToHack; i++)
-                        {
-                            var rand = new System.Random();
-                            var nextScrap = rand.Next(16, 68);
-                            var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
-                            scrap.GetComponent<GrabbableObject>().fallTime = 0f;
-                            var scrapValue = rand.Next(40, 120);
-                            scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
-                            scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
-                            scrap.GetComponent<NetworkObject>().Spawn();
-                            _logger.LogDebug($"Spawned in {scrap.name} for {scrapValue}");
-
-                            RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                            scrap.transform.parent = GameUtils.ShipGameObject.transform;
-                        }
-
-                        return true;
-                    })
-                )
-        );
+                    return true;
+                })
+            );
     }
 
     private string GetTime()
