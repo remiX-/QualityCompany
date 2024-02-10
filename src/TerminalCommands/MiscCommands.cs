@@ -1,5 +1,10 @@
-﻿using QualityCompany.Manager.ShipTerminal;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Network;
 using QualityCompany.Service;
+using QualityCompany.Utils;
 using UnityEngine;
 
 namespace QualityCompany.TerminalCommands;
@@ -99,12 +104,81 @@ internal class MiscCommands
         return new TerminalCommandBuilder("time")
             .WithDescription(">TIME\nGet the current time whilst on a moon.")
             .WithAction(GetTime);
+
+        static string GetTime()
+        {
+            return !StartOfRound.Instance.currentLevel.planetHasTime || !StartOfRound.Instance.shipDoorsEnabled ? "You're not on a moon. There is no time here.\n" : $"The time is currently {HUDManager.Instance.clockNumber.text.Replace('\n', ' ')}.\n";
+        }
     }
 
-    private static string GetTime()
+    [TerminalCommand]
+    private static TerminalCommandBuilder QuickSwitchCommand()
     {
-        return !StartOfRound.Instance.currentLevel.planetHasTime || !StartOfRound.Instance.shipDoorsEnabled ?
-            "You're not on a moon. There is no time here.\n" :
-            $"The time is currently {HUDManager.Instance.clockNumber.text.Replace('\n', ' ')}.\n";
+        if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
+
+        return new TerminalCommandBuilder("vs")
+            .WithDescription(">vs\nExecute 'switch' but easier.")
+            .WithAction(() =>
+            {
+                var switchObject = GameObject.Find("CameraMonitorSwitchButton");
+                if (switchObject is null) return "ERROR: Failed to find CameraMonitorSwitchButton :/";
+
+                var trigger = switchObject.GetComponentInChildren<InteractTrigger>();
+                if (trigger is null) return "ERROR: Failed to find CameraMonitorSwitchButton InteractTrigger";
+
+                if (!trigger.interactable) return "Teleporter is on cooldown!";
+
+                trigger.onInteract.Invoke(GameNetworkManager.Instance.localPlayerController);
+                return $"Switched to {GameUtils.StartOfRound.mapScreenPlayerName}!";
+            });
+    }
+
+    private static string playerSwitchName;
+    private static int playerSwitchIndex = -1;
+    [TerminalCommand]
+    private static TerminalCommandBuilder Command()
+    {
+        if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
+
+        return new TerminalCommandBuilder("view")
+            .WithDescription(">view <player>\nExecute 'switch' to a player but easier.")
+            .WithSubCommand(new TerminalSubCommandBuilder("<player>")
+                .WithMessage("Switched to [playerSwitchName]")
+                .WithConditions("validPlayer")
+                .WithInputMatch(@"^(\w+)$")
+                .WithPreAction(input =>
+                {
+                    // Reset some vars
+                    input = input.ToLower();
+                    playerSwitchName = null;
+                    playerSwitchIndex = -1;
+
+                    var playerNames = new List<string>();
+                    for (var i = 0; i < GameUtils.StartOfRound.mapScreen.radarTargets.Count; i++)
+                    {
+                        var playerName = GameUtils.StartOfRound.mapScreen.radarTargets[i].name;
+                        _logger.LogDebug($"view cmd: player {i}: {playerName}");
+                        playerNames.Add(playerName.ToLower());
+                    }
+
+                    for (var i = 0; i < playerNames.Count; i++)
+                    {
+                        if (playerNames[i] != input && !playerNames[i].StartsWith(input)) continue;
+
+                        playerSwitchName = playerNames[i];
+                        playerSwitchIndex = i;
+                        break;
+                    }
+
+                    return playerSwitchName is not null;
+                })
+                .WithAction(() =>
+                {
+                    _logger.LogDebug($"view command: {playerSwitchName} @ {playerSwitchIndex}");
+                    GameUtils.StartOfRound.mapScreen.SwitchRadarTargetAndSync(playerSwitchIndex);
+                })
+            )
+            .AddTextReplacement("[playerSwitchName]", () => playerSwitchName)
+            .WithCondition("validPlayer", "Invalid player: [playerSwitchName]", () => playerSwitchIndex >= 0);
     }
 }

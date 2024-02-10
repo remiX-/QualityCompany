@@ -49,7 +49,7 @@ internal class TimeHudModule : MonoBehaviour
 
     private void UpdateTime()
     {
-        ModuleExamplePlugin.Log.LogDebug($"UpdateTime {_timeMesh.text}");
+        //ModuleExamplePlugin.Log.LogDebug($"UpdateTime {_timeMesh.text}");
         text.text = _timeMesh.text;
     }
 }

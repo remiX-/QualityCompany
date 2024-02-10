@@ -48,6 +48,9 @@ internal class PluginConfig
     [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
 
+    [JsonIgnore]
+    public bool ExperimentalFeaturesEnabled { get; set; }
+
     public PluginConfig()
     { }
 
@@ -165,6 +168,13 @@ internal class PluginConfig
             "ShowDebugLogs",
             false,
             "[CLIENT] Turn on/off debug logs."
+        ).Value;
+
+        ExperimentalFeaturesEnabled = configFile.Bind(
+            "Debug",
+            "ExperimentalFeaturesEnabled",
+            false,
+            "[CLIENT] Turn on/off experimental features."
         ).Value;
         #endregion
     }
