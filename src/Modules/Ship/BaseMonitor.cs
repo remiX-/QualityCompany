@@ -9,7 +9,7 @@ internal abstract class BaseMonitor : MonoBehaviour
     protected ACLogger _logger;
     protected TextMeshProUGUI _textMesh;
 
-    public void Start()
+    private void Start()
     {
         _textMesh = GetComponent<TextMeshProUGUI>();
         ResetMonitor();
