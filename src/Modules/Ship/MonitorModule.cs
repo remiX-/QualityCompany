@@ -1,5 +1,4 @@
-﻿using QualityCompany.Components;
-using QualityCompany.Modules.Core;
+﻿using QualityCompany.Modules.Core;
 using UnityEngine;
 
 namespace QualityCompany.Modules.Ship;
@@ -17,7 +16,7 @@ internal class MonitorModule
     private static GameObject hangerShipMainContainer;
     private static GameObject hangerShipHeaderText;
 
-    [ModuleOnStart]
+    [ModuleOnLoad]
     private static void Handle()
     {
         hangerShipMainContainer = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer");
@@ -38,12 +37,6 @@ internal class MonitorModule
         {
             InitMonitor<TimeMonitor>(ref currentMonitorIndex);
         }
-        // var scrapUI = new GameObject(nameof(MonitorModule));
-        // return scrapUI.AddComponent<MonitorModule>();
-    }
-
-    private void Awake()
-    {
     }
 
     private static void InitMonitor<T>(ref int currentMonitorIndex) where T : Component

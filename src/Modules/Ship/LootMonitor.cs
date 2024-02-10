@@ -2,7 +2,7 @@
 using QualityCompany.Service;
 using QualityCompany.Utils;
 
-namespace QualityCompany.Components;
+namespace QualityCompany.Modules.Ship;
 
 internal class LootMonitor : BaseMonitor
 {
@@ -16,7 +16,7 @@ internal class LootMonitor : BaseMonitor
         UpdateMonitor();
     }
 
-    public static void UpdateMonitor()
+    internal static void UpdateMonitor()
     {
         if (GameUtils.ShipGameObject == null)
         {

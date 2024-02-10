@@ -14,7 +14,7 @@ internal class ShotgunAmmoModule : InventoryBaseUI
     public ShotgunAmmoModule() : base(nameof(ShotgunAmmoModule))
     { }
 
-    [ModuleOnStart]
+    [ModuleOnLoad]
     private static ShotgunAmmoModule Spawn()
     {
         if (!Plugin.Instance.PluginConfig.InventoryShowShotgunAmmoCounterUI) return null;
@@ -32,7 +32,7 @@ internal class ShotgunAmmoModule : InventoryBaseUI
 
         for (var i = 0; i < totalItemSlots; i++)
         {
-            texts.Add(CreateInventoryGameObject($"HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform));
+            texts.Add(CreateInventoryGameObject($"qc_HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform));
         }
     }
 
@@ -47,19 +47,6 @@ internal class ShotgunAmmoModule : InventoryBaseUI
         PlayerDeath += HideAll;
         PlayerShotgunShoot += OnUpdate;
         PlayerShotgunReload += OnUpdate;
-    }
-
-    [ModuleOnDetach]
-    private void Detach()
-    {
-        _logger.LogDebug($"Detaching {nameof(ShotgunAmmoModule)}");
-        PlayerGrabObjectClientRpc -= OnRpcUpdate;
-        PlayerThrowObjectClientRpc -= OnRpcUpdate;
-        PlayerDiscardHeldObject -= OnUpdate;
-        PlayerDropAllHeldItems -= HideAll;
-        PlayerDeath -= HideAll;
-        PlayerShotgunShoot -= OnUpdate;
-        PlayerShotgunReload -= OnUpdate;
     }
 
     protected override void OnUpdate(GrabbableObject item, int index)

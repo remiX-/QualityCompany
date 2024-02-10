@@ -4,14 +4,14 @@ using QualityCompany.Utils;
 using System.Linq;
 using UnityEngine;
 
-namespace QualityCompany.Modules.Terminal;
+namespace QualityCompany.Modules.ShipTerminal;
 
 [Module]
 internal class ScanFixModule
 {
     private static bool hasInit;
 
-    [ModuleOnStart]
+    [ModuleOnLoad]
     private static void Handle()
     {
         if (!Plugin.Instance.PluginConfig.TerminalPatchFixScanEnabled || hasInit) return;

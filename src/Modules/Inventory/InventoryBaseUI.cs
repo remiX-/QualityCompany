@@ -114,14 +114,19 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         texts[currentItemSlotIndex].enabled = false;
     }
 
-    protected void HideAll(PlayerControllerB _)
+    protected void HideAll(PlayerControllerB instance, bool isLocalPlayer)
     {
-        // if (instance != GameNetworkManager.Instance.localPlayerController) return;
+        if (!isLocalPlayer) return;
 
         for (var itemIndex = 0; itemIndex < totalItemSlots; itemIndex++)
         {
             Hide(itemIndex);
         }
+    }
+
+    protected void HideAll(PlayerControllerB instance)
+    {
+        HideAll(instance, true);
     }
     #endregion
 }

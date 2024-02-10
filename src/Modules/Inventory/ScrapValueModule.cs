@@ -17,12 +17,12 @@ internal class ScrapValueModule : InventoryBaseUI
     private static readonly Color TEXT_COLOR_NOOBS = new(1f, 1f, 1f, 0.75f);
 
     private TextMeshProUGUI totalScrapValueText;
-    int totalScrapValue;
+    private int totalScrapValue;
 
     public ScrapValueModule() : base(nameof(ScrapValueModule))
     { }
 
-    [ModuleOnStart]
+    [ModuleOnLoad]
     private static ScrapValueModule Spawn()
     {
         if (!Plugin.Instance.PluginConfig.InventoryShowScrapUI) return null;
@@ -51,12 +51,12 @@ internal class ScrapValueModule : InventoryBaseUI
             var zRotation = rectEulerAngles.z;
             var scrapLocalPositionDelta = getLocalPositionDelta(zRotation, rectSize.x, rectSize.y);
 
-            texts.Add(CreateInventoryGameObject($"HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
-            
+            texts.Add(CreateInventoryGameObject($"qc_HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
+
             if (i == 0)
             {
-                // Invert positiioning on the first slot to be 90 degrees opposite to the current item value
-                totalScrapValueText = CreateInventoryGameObject("HudScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));
+                // Invert positioning on the first slot to be 90 degrees opposite to the current item value
+                totalScrapValueText = CreateInventoryGameObject("qc_HUDScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));
             }
         }
     }
@@ -67,20 +67,10 @@ internal class ScrapValueModule : InventoryBaseUI
         _logger.LogDebug($"Attach {nameof(ScrapValueModule)}");
         PlayerGrabObjectClientRpc += OnRpcUpdate;
         PlayerThrowObjectClientRpc += OnRpcUpdate;
+        PlayerSwitchToItemSlot += (instance, playerInstance) => _logger.LogDebug("ScrapValueModule -> PlayerSwitchToItemSlot");
         PlayerDiscardHeldObject += OnUpdate;
         PlayerDropAllHeldItems += HideAll;
         PlayerDeath += HideAll;
-    }
-
-    [ModuleOnDetach]
-    private void Detach()
-    {
-        _logger.LogDebug($"Detach {nameof(ScrapValueModule)}");
-        PlayerGrabObjectClientRpc -= OnRpcUpdate;
-        PlayerThrowObjectClientRpc -= OnRpcUpdate;
-        PlayerDiscardHeldObject -= OnUpdate;
-        PlayerDropAllHeldItems -= HideAll;
-        PlayerDeath -= HideAll;
     }
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
@@ -114,19 +104,18 @@ internal class ScrapValueModule : InventoryBaseUI
 
     protected void UpdateTotalScrapValue()
     {
-        if (totalScrapValueText is null)
-            return;
+        if (totalScrapValueText is null) return;
+
         totalScrapValue = 0;
         for (var i = 0; i < totalItemSlots; i++)
         {
-            if (GameNetworkManager.Instance.localPlayerController.ItemSlots[i] is null)
-            {
-                continue;
-            }
+            var slotScrap = GameNetworkManager.Instance.localPlayerController.ItemSlots[i];
+            if (slotScrap is null || !slotScrap.itemProperties.isScrap || slotScrap.scrapValue <= 0) continue;
 
-            totalScrapValue += GameNetworkManager.Instance.localPlayerController.ItemSlots[i].scrapValue;
-            totalScrapValueText.text = "Total: $" + totalScrapValue;
+            totalScrapValue += slotScrap.scrapValue;
         }
+
+        totalScrapValueText.text = "Total: $" + totalScrapValue;
         totalScrapValueText.enabled = totalScrapValue > 0;
         totalScrapValueText.color = getColorForValue(totalScrapValue);
     }

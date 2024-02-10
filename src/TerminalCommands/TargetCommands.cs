@@ -1,5 +1,5 @@
-﻿using QualityCompany.Components;
-using QualityCompany.Manager.ShipTerminal;
+﻿using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Network;
 using QualityCompany.Service;
 

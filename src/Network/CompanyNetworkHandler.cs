@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using QualityCompany.Components;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using System.Collections;
 using System.IO;
@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace QualityCompany.Network;
 
-public class CompanyNetworkHandler : NetworkBehaviour
+internal class CompanyNetworkHandler : NetworkBehaviour
 {
     public static CompanyNetworkHandler Instance { get; private set; }
 
@@ -47,7 +47,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = true)]
-    public void ServerSaveFileServerRpc()
+    internal void ServerSaveFileServerRpc()
     {
         var saveNum = GameNetworkManager.Instance.saveFileNum.ToString();
         var filePath = Path.Combine(Application.persistentDataPath, $"{PluginMetadata.PLUGIN_NAME}_{saveNum}.json");
@@ -56,7 +56,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SendConfigServerRpc()
+    internal void SendConfigServerRpc()
     {
         _logger.LogDebug("SendConfigServerRpc > from client");
         var json = JsonConvert.SerializeObject(Plugin.Instance.PluginConfig);
@@ -94,14 +94,14 @@ public class CompanyNetworkHandler : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ShareSaveServerRpc()
+    private void ShareSaveServerRpc()
     {
         var json = JsonConvert.SerializeObject(SaveData);
         ShareSaveClientRpc(json);
     }
 
     [ClientRpc]
-    public void ShareSaveClientRpc(string json)
+    private void ShareSaveClientRpc(string json)
     {
         if (retrievedSave)
         {
@@ -110,18 +110,22 @@ public class CompanyNetworkHandler : NetworkBehaviour
         }
 
         retrievedSave = true;
-        _logger.LogDebug("Save file received, registering.");
 
-        SaveData = JsonConvert.DeserializeObject<SaveData>(json);
+        if (!IsHost && !IsServer)
+        {
+            _logger.LogDebug("Save file received, registering.");
 
-        OvertimeMonitor.UpdateMonitor();
+            SaveData = JsonConvert.DeserializeObject<SaveData>(json);
+
+            OvertimeMonitor.UpdateMonitor();
+        }
 
         _logger.LogDebug(JsonConvert.SerializeObject(SaveData));
         Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SyncDepositDeskTotalValueServerRpc()
+    internal void SyncDepositDeskTotalValueServerRpc()
     {
         _logger.LogDebug("UpdateSellTargetServerRpc");
 
@@ -129,7 +133,7 @@ public class CompanyNetworkHandler : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void SyncDepositDeskTotalValueClientRpc()
+    private void SyncDepositDeskTotalValueClientRpc()
     {
         _logger.LogDebug("SyncDepositDeskTotalValueClientRpc");
 

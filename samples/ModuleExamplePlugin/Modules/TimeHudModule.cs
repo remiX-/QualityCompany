@@ -27,7 +27,7 @@ internal class TimeHudModule : MonoBehaviour
         text.enabled = true;
     }
 
-    [ModuleOnStart]
+    [ModuleOnLoad]
     private static TimeHudModule Spawn()
     {
         var go = new GameObject(nameof(TimeHudModule));
@@ -45,7 +45,6 @@ internal class TimeHudModule : MonoBehaviour
     private void Detach()
     {
         ModuleExamplePlugin.Log.LogDebug($"Detach");
-        GameTimeUpdate -= UpdateTime;
     }
 
     private void UpdateTime()

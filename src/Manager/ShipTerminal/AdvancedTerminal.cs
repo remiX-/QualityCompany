@@ -49,9 +49,9 @@ public class AdvancedTerminal
         foreach (var cmd in AdvancedTerminalRegistry.Commands)
         {
             var res = cmd.Run.Invoke(null, null);
-            if (res is null) continue;
+            if (res is not TerminalCommandBuilder builder) continue;
 
-            Commands.Add((TerminalCommandBuilder)res);
+            Commands.Add(builder);
         }
 
         foreach (var cmdBuilder in Commands)
@@ -65,9 +65,9 @@ public class AdvancedTerminal
             otherCategoryTerminalNode.displayText = otherCategoryTerminalNode.displayText.Substring(0, otherCategoryTerminalNode.displayText.Length - 1) + $"{cmdBuilder.description}";
         }
 
-        foreach (var kw in Terminal.terminalNodes.allKeywords)
-        {
-            Logger.LogDebug($"{kw.name} | {kw.word}");
-        }
+        // foreach (var kw in Terminal.terminalNodes.allKeywords)
+        // {
+        //     Logger.LogDebug($"{kw.name} | {kw.word}");
+        // }
     }
 }

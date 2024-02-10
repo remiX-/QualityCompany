@@ -17,12 +17,12 @@ internal class ModuleLoader : MonoBehaviour
         transform.localPosition = Vector3.zero;
         transform.localScale = Vector3.one;
 
-        StartCoroutine(LoadScrapValueUIModulesCoroutine());
+        StartCoroutine(LoadModulesCoroutine());
 
         Disconnected += DetachAllModules;
     }
 
-    private IEnumerator LoadScrapValueUIModulesCoroutine()
+    private IEnumerator LoadModulesCoroutine()
     {
         var delay = Math.Max(3.0f, Plugin.Instance.PluginConfig.InventoryStartupDelay);
         _logger.LogDebug($"Loading up internal modules with a {delay} seconds delay...");
@@ -30,7 +30,7 @@ internal class ModuleLoader : MonoBehaviour
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => !x.DelayedStart))
         {
             _logger.LogDebug($"Starting up {internalModule.Name}");
-            var instance = internalModule.OnStart?.Invoke(null, null);
+            var instance = internalModule.OnLoad?.Invoke(null, null);
             if (instance is null) continue;
 
             internalModule.Instance = instance;
@@ -42,7 +42,7 @@ internal class ModuleLoader : MonoBehaviour
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => x.DelayedStart))
         {
             _logger.LogDebug($"Starting up {internalModule.Name}");
-            var instance = internalModule.OnStart?.Invoke(null, null);
+            var instance = internalModule.OnLoad?.Invoke(null, null);
             if (instance is null) continue;
 
             internalModule.Instance = instance;
@@ -60,10 +60,10 @@ internal class ModuleLoader : MonoBehaviour
             if (internalModule.Instance is null) continue;
 
             _logger.LogDebug($"Detaching {internalModule.Name}");
-            internalModule.OnDetach?.Invoke(internalModule.Instance, null);
+            // internalModule.OnDetach?.Invoke(internalModule.Instance, null);
             internalModule.Instance = null;
         }
 
-        Disconnected -= DetachAllModules;
+        // Disconnected -= DetachAllModules;
     }
 }

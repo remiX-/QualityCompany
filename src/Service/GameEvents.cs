@@ -18,8 +18,8 @@ public class GameEvents
     public static event PlayerControllerRpcEvent PlayerGrabObjectClientRpc;
     public static event PlayerControllerRpcEvent PlayerSwitchToItemSlot; // seems this is actually is a Rpc call in the background
     public static event PlayerControllerRpcEvent PlayerThrowObjectClientRpc;
+    public static event PlayerControllerRpcEvent PlayerDropAllHeldItems; // seems this is actually is a Rpc call in the background
     // Player non-rpc actions (triggers on local client only) - well hopefully
-    public static event PlayerControllerEvent PlayerDropAllHeldItems;
     public static event PlayerControllerEvent PlayerDiscardHeldObject;
 
     // Player life? actions
@@ -33,67 +33,85 @@ public class GameEvents
     public delegate void DisconnectEvent(GameNetworkManager instance);
 
 
-    public static void OnHudManagerStart(HUDManager instance)
+    internal static void OnHudManagerStart(HUDManager instance)
     {
         _logger.LogDebug("OnHudManagerStart");
         HudManagerStart?.Invoke(instance);
     }
 
-    public static void OnPlayerGrabObjectClientRpc(PlayerControllerB instance)
+    internal static void OnPlayerGrabObjectClientRpc(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerGrabObjectClientRpc");
         PlayerGrabObjectClientRpc?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
-    public static void OnPlayerSwitchToItemSlot(PlayerControllerB instance)
+    internal static void OnPlayerSwitchToItemSlot(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerSwitchToItemSlot");
         PlayerSwitchToItemSlot?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
-    public static void OnPlayerThrowObjectClientRpc(PlayerControllerB instance)
+    internal static void OnPlayerThrowObjectClientRpc(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerDiscardHeldObject");
         PlayerThrowObjectClientRpc?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
-    public static void OnPlayerDropAllHeldItems(PlayerControllerB instance)
+    internal static void OnPlayerDropAllHeldItems(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerDropAllHeldItems");
-        PlayerDropAllHeldItems?.Invoke(instance);
+        PlayerDropAllHeldItems?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
     }
 
-    public static void OnPlayerDiscardHeldObject(PlayerControllerB instance)
+    internal static void OnPlayerDiscardHeldObject(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerDiscardHeldObject");
         PlayerDiscardHeldObject?.Invoke(instance);
     }
 
-    public static void OnPlayerShotgunShoot(PlayerControllerB instance)
+    internal static void OnPlayerShotgunShoot(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerShootShotgun");
         PlayerShotgunShoot?.Invoke(instance);
     }
 
-    public static void OnPlayerDeath(PlayerControllerB instance)
+    internal static void OnPlayerDeath(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerDeath");
         PlayerDeath?.Invoke(instance);
     }
 
-    public static void OnPlayerShotgunReload(PlayerControllerB instance)
+    internal static void OnPlayerShotgunReload(PlayerControllerB instance)
     {
         _logger.LogDebug("OnPlayerShotgunReload");
         PlayerShotgunReload?.Invoke(instance);
     }
 
-    public static void OnDisconnected(GameNetworkManager instance)
+    internal static void OnDisconnected(GameNetworkManager instance)
     {
         _logger.LogDebug("OnDisconnected");
         Disconnected?.Invoke(instance);
+
+        // HUD
+        HudManagerStart = null;
+        GameTimeUpdate = null;
+
+        // Player
+        PlayerGrabObjectClientRpc = null;
+        PlayerSwitchToItemSlot = null;
+        PlayerThrowObjectClientRpc = null;
+        PlayerDropAllHeldItems = null;
+        PlayerDiscardHeldObject = null;
+        PlayerDeath = null;
+
+        PlayerShotgunShoot = null;
+        PlayerShotgunReload = null;
+
+        // Game
+        Disconnected = null;
     }
 
-    public static void OnGameTimeUpdate()
+    internal static void OnGameTimeUpdate()
     {
         GameTimeUpdate?.Invoke();
     }

@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using QualityCompany.Components;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Network;
 using QualityCompany.Service;
 using static QualityCompany.Service.GameEvents;

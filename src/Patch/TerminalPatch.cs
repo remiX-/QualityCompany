@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using QualityCompany.Components;
 using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using System;
 using System.Linq;
@@ -23,7 +23,6 @@ internal class TerminalPatch
     [HarmonyPatch("Awake")]
     private static void Awake(Terminal __instance)
     {
-        _logger.LogDebug("TERMINAL AWAKE");
         if (patchedTerminal)
         {
             return;

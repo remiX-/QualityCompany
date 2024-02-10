@@ -1,4 +1,4 @@
-﻿using QualityCompany.Components;
+﻿using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace QualityCompany.Network;
 
-public class NetworkHandler : NetworkBehaviour
+internal class NetworkHandler : NetworkBehaviour
 {
     public static NetworkHandler Instance { get; private set; }
 

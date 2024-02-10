@@ -1,11 +1,12 @@
 using HarmonyLib;
-using QualityCompany.Components;
 using QualityCompany.Modules.Core;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
+using QualityCompany.Network;
 using TMPro;
 using UnityEngine;
+using QualityCompany.Modules.Ship;
 
 namespace QualityCompany.Patch;
 
@@ -30,6 +31,18 @@ internal class StartOfRoundPatcher
     private static void PlayerHasRevivedServerRpc()
     {
         LootMonitor.UpdateMonitor();
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch("playersFiredGameOver")]
+    private static void PlayersFiredGameOverPatch(StartOfRound __instance)
+    {
+        CompanyNetworkHandler.Instance.SaveData.ResetGameState();
+
+        if (__instance.NetworkManager.IsHost || __instance.NetworkManager.IsServer)
+        {
+            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+        }
     }
 
     [HarmonyPostfix]

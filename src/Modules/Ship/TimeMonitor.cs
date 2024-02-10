@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace QualityCompany.Components;
+namespace QualityCompany.Modules.Ship;
 
 internal class TimeMonitor : BaseMonitor
 {
@@ -19,7 +19,7 @@ internal class TimeMonitor : BaseMonitor
         _textMesh.text = "TIME:\n7:30\nAM";
     }
 
-    public static void UpdateMonitor()
+    internal static void UpdateMonitor()
     {
         Instance?.UpdateMonitorText($"TIME:\n{_timeMesh.text}");
     }
