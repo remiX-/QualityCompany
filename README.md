@@ -9,13 +9,13 @@
 
 The value of the held scrap is displayed above the item in the inventory. In addition a color palette on the values are used to indicate their worth more generally for quick decision making if you need to leave something behind.
 
-![ScrapValueUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ScrapValueUI.jpg)
+![ScrapValueUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ScrapValueUI.png)
 
 ### Shotgun ammo counter
 
 In addition to the scrap value of the shotgun, the inventory slot will in addition show the amount of ammo present in the shotgun.
 
-![ShotgunUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ShotgunUI.jpg)
+![ShotgunUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ShotgunUI.png)
 
 ## Terminal Commands
 
