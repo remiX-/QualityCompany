@@ -32,15 +32,8 @@ internal class ScrapValueModule : InventoryBaseUI
     private new void Awake()
     {
         base.Awake();
-        _logger.LogDebug("Module.Awake");
-        transform.SetParent(HUDManager.Instance.HUDContainer.transform);
-        transform.position = Vector3.zero;
-        transform.localPosition = Vector3.zero;
-        transform.localScale = Vector3.one;
 
-        totalItemSlots = HUDManager.Instance.itemSlotIconFrames.Length;
-
-        for (var i = 0; i < totalItemSlots; i++)
+        for (var i = 0; i < GameNetworkManager.Instance.localPlayerController.ItemSlots.Length; i++)
         {
             var iconFrame = HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform;
             var rect = iconFrame.GetComponent<RectTransform>();
@@ -62,10 +55,8 @@ internal class ScrapValueModule : InventoryBaseUI
     [ModuleOnAttach]
     private void Attach()
     {
-        _logger.LogDebug($"Attach {nameof(ScrapValueModule)}");
         PlayerGrabObjectClientRpc += OnRpcUpdate;
         PlayerThrowObjectClientRpc += OnRpcUpdate;
-        PlayerSwitchToItemSlot += (instance, playerInstance) => _logger.LogDebug("ScrapValueModule -> PlayerSwitchToItemSlot");
         PlayerDiscardHeldObject += OnUpdate;
         PlayerDropAllHeldItems += HideAll;
         PlayerDeath += HideAll;
@@ -73,6 +64,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
     {
+        _logger.LogDebug($"ItemSlots: {GameNetworkManager.Instance.localPlayerController.ItemSlots.Length}");
         UpdateTotalScrapValue();
 
         if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0)
@@ -105,9 +97,8 @@ internal class ScrapValueModule : InventoryBaseUI
         if (totalScrapValueText is null) return;
 
         totalScrapValue = 0;
-        for (var i = 0; i < totalItemSlots; i++)
+        foreach (var slotScrap in GameNetworkManager.Instance.localPlayerController.ItemSlots)
         {
-            var slotScrap = GameNetworkManager.Instance.localPlayerController.ItemSlots[i];
             if (slotScrap is null || !slotScrap.itemProperties.isScrap || slotScrap.scrapValue <= 0) continue;
 
             totalScrapValue += slotScrap.scrapValue;

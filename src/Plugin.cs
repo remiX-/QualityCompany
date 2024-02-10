@@ -5,6 +5,7 @@ using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Core;
 using System.IO;
 using System.Reflection;
+using QualityCompany.Patch;
 using UnityEngine;
 
 namespace QualityCompany;
@@ -53,6 +54,7 @@ public class Plugin : BaseUnityPlugin
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 
         harmony.PatchAll(Assembly.GetExecutingAssembly());
+        harmony.PatchAll(typeof(MenuPatch));
     }
 
     private static void NetcodePatcher()

@@ -25,7 +25,7 @@ internal class ModuleLoader : MonoBehaviour
     private IEnumerator LoadModulesCoroutine()
     {
         var delay = Math.Max(3.0f, Plugin.Instance.PluginConfig.InventoryStartupDelay);
-        _logger.LogDebug($"Loading up internal modules with a {delay} seconds delay...");
+        _logger.LogDebug($"Loading up modules with a {delay} seconds delay...");
 
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => !x.DelayedStart))
         {
@@ -55,15 +55,14 @@ internal class ModuleLoader : MonoBehaviour
     private void DetachAllModules(GameNetworkManager _)
     {
         _logger.LogDebug("DetachAllModules");
+
         foreach (var internalModule in ModuleRegistry.Modules)
         {
             if (internalModule.Instance is null) continue;
 
             _logger.LogDebug($"Detaching {internalModule.Name}");
-            // internalModule.OnDetach?.Invoke(internalModule.Instance, null);
+            internalModule.OnDetach?.Invoke(internalModule.Instance, null);
             internalModule.Instance = null;
         }
-
-        // Disconnected -= DetachAllModules;
     }
 }

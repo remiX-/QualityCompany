@@ -1,6 +1,6 @@
 {
   "name": "QualityCompany",
-  "version_number": "1.2.2",
+  "version_number": "1.2.3",
   "website_url": "https://github.com/remiX-/QualityCompany",
   "description": "QualityCompany adds many features: inventory scrap values & shotgun ammo counter, terminal commands for various auto-sell operations, calculating overtime (which integrate into the auto-sell commands) and fully network sync capable.",
   "dependencies": [

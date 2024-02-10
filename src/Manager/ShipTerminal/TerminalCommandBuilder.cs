@@ -89,13 +89,6 @@ public class TerminalCommandBuilder
         return this;
     }
 
-    public TerminalCommandBuilder SetConfirmMessage(string message)
-    {
-        ConfirmMessage = message;
-
-        return this;
-    }
-
     public TerminalCommandBuilder AddTextReplacement(string replacementKey, Func<string> action)
     {
         textProcessPlaceholders.Add(replacementKey, action);
@@ -176,7 +169,7 @@ public class TerminalCommandBuilder
         }
 
         return new List<TerminalKeyword> { nodeKeyword }
-            .Concat(SubCommands.Select(x => x.Keyword))
+            .Concat(SubCommands.Where(x => !x.IsVariableCommand).Select(x => x.Keyword))
             .ToArray();
     }
 }

@@ -1,3 +1,8 @@
+# v1.2.3: Mod Compatibility & Experimental fixes
+
+- Fixed an issue where Scrap UI will have a null reference if the HUD `iconFrames` changes in size after initializing
+- Fixed an issue with `view` experimental command overriding `view monitor` command
+
 # v1.2.2: Dev & mod quality of life, scrap total, experimental features
 
 - Improved dev & mod api quality of life
