@@ -155,7 +155,7 @@ internal class SellCommands
             .WithCondition("quotaAlreadyMet", "Quota already met.", () => TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled > 0)
             .WithCondition("hasMatchingScrapItems", "No matching items found for input.", () => recommendedScraps.Count > 0)
             .WithCondition("targetCommandDisabled", "Target command has been disabled", () => Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled);
-        
+
     }
 }
 

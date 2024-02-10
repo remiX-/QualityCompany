@@ -1,12 +1,12 @@
 using HarmonyLib;
 using QualityCompany.Modules.Core;
+using QualityCompany.Modules.Ship;
+using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
-using QualityCompany.Network;
 using TMPro;
 using UnityEngine;
-using QualityCompany.Modules.Ship;
 
 namespace QualityCompany.Patch;
 
