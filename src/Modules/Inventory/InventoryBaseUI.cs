@@ -10,7 +10,6 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 {
     protected readonly ACLogger _logger;
 
-    protected int totalItemSlots = 4; // game default
     protected readonly List<TextMeshProUGUI> texts = new();
 
     private GameObject baseTextToCopyGameObject;
@@ -80,7 +79,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
     protected void ForceUpdateAllSlots(PlayerControllerB instance)
     {
-        for (var i = 0; i < totalItemSlots; i++)
+        for (var i = 0; i < GameNetworkManager.Instance.localPlayerController.ItemSlots.Length; i++)
         {
             if (instance.ItemSlots[i] is null)
             {
@@ -118,7 +117,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
     {
         if (!isLocalPlayer) return;
 
-        for (var itemIndex = 0; itemIndex < totalItemSlots; itemIndex++)
+        for (var itemIndex = 0; itemIndex < GameNetworkManager.Instance.localPlayerController.ItemSlots.Length; itemIndex++)
         {
             Hide(itemIndex);
         }

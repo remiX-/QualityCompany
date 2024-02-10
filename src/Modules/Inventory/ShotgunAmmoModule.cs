@@ -26,11 +26,8 @@ internal class ShotgunAmmoModule : InventoryBaseUI
     private new void Awake()
     {
         base.Awake();
-        _logger.LogDebug("Module.Awake");
 
-        totalItemSlots = HUDManager.Instance.itemSlotIconFrames.Length;
-
-        for (var i = 0; i < totalItemSlots; i++)
+        for (var i = 0; i < GameNetworkManager.Instance.localPlayerController.ItemSlots.Length; i++)
         {
             texts.Add(CreateInventoryGameObject($"qc_HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform));
         }
