@@ -120,7 +120,7 @@ internal class MiscCommands
                 var switchObject = GameObject.Find("CameraMonitorSwitchButton");
                 if (switchObject is null) return "ERROR: Failed to find CameraMonitorSwitchButton :/";
 
-                var trigger = switchObject.GetComponentInChildren<InteractTrigger>();
+                var trigger = switchObject.transform.GetChild(0).GetComponent<InteractTrigger>();
                 if (trigger is null) return "ERROR: Failed to find CameraMonitorSwitchButton InteractTrigger";
 
                 if (!trigger.interactable) return "Teleporter is on cooldown!";
@@ -137,7 +137,7 @@ internal class MiscCommands
     {
         if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
 
-        return new TerminalCommandBuilder("view")
+        return new TerminalCommandBuilder("vw")
             .WithDescription(">view <player>\nExecute 'switch' to a player but easier.")
             .WithSubCommand(new TerminalSubCommandBuilder("<player>")
                 .WithMessage("Switched to [playerSwitchName]")
