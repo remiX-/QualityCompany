@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using QualityCompany.Manager.ShipTerminal;
-using QualityCompany.Network;
+﻿using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Service;
 using QualityCompany.Utils;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace QualityCompany.TerminalCommands;

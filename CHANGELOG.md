@@ -1,10 +1,11 @@
-# v1.2.2: Dev & mod quality of life
+# v1.2.2: Dev & mod quality of life, scrap total, experimental features
 
 - Improved dev & mod api quality of life
   - Terminal commands can be setup via a `[TerminalCommand]` attribute
   - Modules can be easily added in a static or instance manner via the `[Module]` attribute
   - see the example plugins under `samples/`
-  - Add total scrap tally to first item slot
+- Scrap UI: Add total scrap tally to first item slot
+- Added 2 **experimental** commands: vs, view. This is disabled by default.
 
 # v1.2.1: Improved Mod Compatibility, force inventory UI refresh
 
