@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
@@ -67,12 +67,7 @@
 	<Target Name="Copy To Dist" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
 		<Message Text="Building dist directory" Importance="High" />
 
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="Assets\modnetworkhandlerbundle" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\CHANGELOG.md" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\README.md" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\manifest.json" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\assets\icon.png" DestinationFolder="$(SolutionDir)\dist" />
+		<Exec Command="powershell $(SolutionDir)release.ps1" />
 
 		<Message Text="Finished!" Importance="High" />
 	</Target>
