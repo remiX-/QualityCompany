@@ -58,7 +58,7 @@ internal class PingModule : MonoBehaviour
         UpdatePositionAndAlignment();
 
         // StartCoroutine(PingCheck());
-        PingCheck();
+        InitialLatencyCheck();
     }
 
     private void UpdatePositionAndAlignment()
@@ -89,32 +89,21 @@ internal class PingModule : MonoBehaviour
     }
 
     // ReSharper disable once FunctionRecursiveOnAllPaths
-    private void PingCheck()
+    private void InitialLatencyCheck()
     {
         _logger.LogDebug("Checking ping with host...");
 
         pingTime = DateTime.Now;
         LatencyHandler.Instance.PingServerRpc();
-        // yield return new WaitForSeconds(1f);
-
-        // var serverClientId = NetworkManager.Singleton.NetworkConfig.NetworkTransport.ServerClientId;
-        // _logger.LogDebug($"Checking ping with host... {serverClientId} | {NetworkManager.Singleton.LocalClientId} | {NetworkManager.Singleton.ConnectedHostname}");
-        // var result = NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(serverClientId);
-        // _logger.LogDebug($"Time? {result}ms");
-        // _text.text = $"{result}ms";
-        // _text.color = GetColorForPing(result);
-
-        // yield return new WaitForSeconds(Plugin.Instance.PluginConfig.HudPingUpdateInterval - 1f);
-
-        // StartCoroutine(PingCheck());
     }
 
-    private IEnumerator DeferredPingCheck(float delta)
+    private IEnumerator DeferredLatencyCheck(float delta)
     {
         var waitDelta = Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta;
+        waitDelta = waitDelta <= 0.2f ? 1f : waitDelta;
         _logger.LogDebug($"Checking ping with host in {waitDelta}s  ...");
 
-        yield return new WaitForSeconds(Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta);
+        yield return new WaitForSeconds(waitDelta);
 
         pingTime = DateTime.Now;
         LatencyHandler.Instance.PingServerRpc();
@@ -129,7 +118,7 @@ internal class PingModule : MonoBehaviour
         _text.text = $"{pingAverage}ms";
         _text.color = GetColorForPing(pingAverage);
 
-        StartCoroutine(DeferredPingCheck((float)pingDelta));
+        StartCoroutine(DeferredLatencyCheck((float)pingDelta));
     }
 
     private static Color GetColorForPing(double ping)
