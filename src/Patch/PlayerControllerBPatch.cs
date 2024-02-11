@@ -30,12 +30,12 @@ internal class PlayerControllerBPatch
     [HarmonyPatch("GrabObjectClientRpc")]
     private static void RefreshLootOnPickupClient(PlayerControllerB __instance, ref NetworkObjectReference grabbedObject)
     {
-        OnPlayerGrabObjectClientRpc(__instance);
-
         if (!grabbedObject.TryGet(out var networkObject)) return;
 
-        var componentInChildren = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
-        if (componentInChildren.isInShipRoom || componentInChildren.isInElevator)
+
+        var grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
+        OnPlayerGrabObjectClientRpc(__instance, grabbableObject);
+        if (grabbableObject.isInShipRoom || grabbableObject.isInElevator)
         {
             OvertimeMonitor.UpdateMonitor();
         }

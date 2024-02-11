@@ -22,14 +22,16 @@ public class Plugin : BaseUnityPlugin
 
     internal PluginConfig PluginConfig;
 
+    internal string PluginPath;
+
     private void Awake()
     {
         Instance = this;
         ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
 
         // Asset Bundles
-        var dllFolderPath = Path.GetDirectoryName(Info.Location);
-        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(dllFolderPath!, "modnetworkhandlerbundle"));
+        PluginPath = Path.GetDirectoryName(Info.Location);
+        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(PluginPath, "modnetworkhandlerbundle"));
         if (CustomAssets is null)
         {
             ACLogger.LogError("Failed to load custom assets!");

@@ -56,6 +56,12 @@
 		<None Update="Assets\modnetworkhandlerbundle">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Assets\test.mp3">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\yippee-come-back.mp3">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<Target Name="NetcodePatch" AfterTargets="Build">
