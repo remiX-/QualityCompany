@@ -82,11 +82,11 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         if (IsHost || IsServer)
         {
-            StartCoroutine(WaitALittleToShareTheFile());
+            StartCoroutine(WaitAndGetSaveFile());
         }
     }
 
-    private IEnumerator WaitALittleToShareTheFile()
+    private IEnumerator WaitAndGetSaveFile()
     {
         yield return new WaitForSeconds(0.5f);
         _logger.LogDebug("Now sharing save file with clients...");

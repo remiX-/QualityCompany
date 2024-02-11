@@ -16,7 +16,7 @@ internal class LatencyModule : MonoBehaviour
 {
     public static LatencyModule Instance { get; private set; }
 
-    private readonly ACLogger _logger = new(nameof(LatencyModule));
+    private static readonly ACLogger _logger = new(nameof(LatencyModule));
 
     private static readonly Color TEXT_COLOR_ABOVE200 = new(1f, 0f, 0f, 0.8f);
     private static readonly Color TEXT_COLOR_ABOVE130 = new(1f, 128f / 255f, 237f / 255f, 0.8f);
@@ -31,9 +31,15 @@ internal class LatencyModule : MonoBehaviour
     [ModuleOnLoad]
     private static LatencyModule Spawn()
     {
-        if (!Plugin.Instance.PluginConfig.HudPingEnabled || NetworkManager.Singleton.IsHost) return null;
+        if (!Plugin.Instance.PluginConfig.HudLatencyEnabled || NetworkManager.Singleton.IsHost) return null;
 
         var hudTimeNumber = GameObject.Find("Systems/UI/Canvas/IngamePlayerHUD/ProfitQuota/Container/Box/TimeNumber");
+        if (hudTimeNumber is null)
+        {
+            _logger.LogWarning("Failed to get game HUD time ui for init, skipping.");
+            return null;
+        }
+
         var ui = Instantiate(hudTimeNumber, HUDManager.Instance.HUDContainer.transform);
         ui.name = "qc_latency";
         ui.transform.position = Vector3.zero;
@@ -63,9 +69,9 @@ internal class LatencyModule : MonoBehaviour
 
     private void UpdatePositionAndAlignment()
     {
-        var anchor = Plugin.Instance.PluginConfig.HudPingAnchor.ToLower();
-        var paddingX = Plugin.Instance.PluginConfig.HudPingHorizontalPadding;
-        var paddingY = Plugin.Instance.PluginConfig.HudPingVerticalPadding;
+        var anchor = Plugin.Instance.PluginConfig.HudLatencyAnchor.ToLower();
+        var paddingX = Plugin.Instance.PluginConfig.HudLatencyHorizontalPadding;
+        var paddingY = Plugin.Instance.PluginConfig.HudLatencyVerticalPadding;
 
         if (!ValidAnchors.Contains(anchor))
         {
@@ -97,7 +103,7 @@ internal class LatencyModule : MonoBehaviour
 
     private IEnumerator DeferredLatencyCheck(float delta)
     {
-        var waitDelta = Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta / 1000f;
+        var waitDelta = Plugin.Instance.PluginConfig.HudLatencyUpdateInterval - delta / 1000f;
         waitDelta = waitDelta <= 1f ? 1f : waitDelta;
 
         yield return new WaitForSeconds(waitDelta);

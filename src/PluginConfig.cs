@@ -46,19 +46,19 @@ internal class PluginConfig
     public float InventoryStartupDelay { get; set; }
 
     [JsonIgnore]
-    public bool HudPingEnabled { get; set; }
+    public bool HudLatencyEnabled { get; set; }
 
     [JsonIgnore]
-    public float HudPingUpdateInterval { get; set; }
+    public float HudLatencyUpdateInterval { get; set; }
 
     [JsonIgnore]
-    public string HudPingAnchor { get; set; }
+    public string HudLatencyAnchor { get; set; }
 
     [JsonIgnore]
-    public float HudPingHorizontalPadding { get; set; }
+    public float HudLatencyHorizontalPadding { get; set; }
 
     [JsonIgnore]
-    public float HudPingVerticalPadding { get; set; }
+    public float HudLatencyVerticalPadding { get; set; }
 
     [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
@@ -169,39 +169,39 @@ internal class PluginConfig
         #endregion
 
         #region HUD
-        HudPingEnabled = configFile.Bind(
+        HudLatencyEnabled = configFile.Bind(
             "HUD",
-            "Show ping to host",
+            "Show latency to host",
             true,
-            "[CLIENT] Whether to show the ping hud or not."
+            "[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default."
         ).Value;
 
-        HudPingUpdateInterval = configFile.Bind(
+        HudLatencyUpdateInterval = configFile.Bind(
             "HUD",
-            "Ping Update Interval",
-            3f,
-            "[CLIENT] How often to do ping update checks."
+            "Latency Update Interval",
+            5f,
+            "[CLIENT] How often to do latency update checks."
         ).Value;
 
-        HudPingAnchor = configFile.Bind(
+        HudLatencyAnchor = configFile.Bind(
             "HUD",
-            "Ping Anchor Position",
+            "Latency Anchor Position",
             "BottomLeft",
-            "[CLIENT] Anchor position to place the ping display."
+            "[CLIENT] Anchor position to place the latency display.\nPossible values: TopLeft, TopRight, BottomLeft, BottomRight"
         ).Value;
 
-        HudPingHorizontalPadding = configFile.Bind(
+        HudLatencyHorizontalPadding = configFile.Bind(
             "HUD",
-            "Ping Horizontal Padding",
+            "Latency Horizontal Padding",
             5,
-            "[CLIENT] Horizontal padding for the ping hud display away from the horizontal (left/right) edge of the screen."
+            "[CLIENT] Horizontal padding for the latency hud display away from the horizontal (left/right) edge of the screen."
         ).Value;
 
-        HudPingVerticalPadding = configFile.Bind(
+        HudLatencyVerticalPadding = configFile.Bind(
             "HUD",
-            "Ping Vertical Padding",
+            "Latency Vertical Padding",
             5,
-            "[CLIENT] Vertical padding for the ping hud display away from the vertical (top/bottom) edge of the screen."
+            "[CLIENT] Vertical padding for the latency hud display away from the vertical (top/bottom) edge of the screen."
         ).Value;
         #endregion
 

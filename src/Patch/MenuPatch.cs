@@ -9,7 +9,6 @@ internal class MenuPatch
     private static void Start_Initialize(InitializeGame __instance)
     {
 #if DEBUG
-        Plugin.Instance.ACLogger.LogWarning("InitializeGame.Start");
         __instance.runBootUpScreen = false;
 #endif
     }
@@ -19,7 +18,6 @@ internal class MenuPatch
     private static bool SkipToFinalSetting(PreInitSceneScript __instance)
     {
 #if DEBUG
-        Plugin.Instance.ACLogger.LogWarning("Automatically launching ONLINE mode");
         __instance.ChooseLaunchOption(true);
         __instance.launchSettingsPanelsContainer.SetActive(false);
 
