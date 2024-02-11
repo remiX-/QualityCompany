@@ -3,9 +3,9 @@ using BepInEx.Logging;
 using HarmonyLib;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Core;
+using QualityCompany.Patch;
 using System.IO;
 using System.Reflection;
-using QualityCompany.Patch;
 using UnityEngine;
 
 namespace QualityCompany;

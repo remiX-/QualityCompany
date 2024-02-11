@@ -1,9 +1,10 @@
 ﻿using QualityCompany.Modules.Core;
+using QualityCompany.Network;
 using QualityCompany.Service;
+using System;
 using System.Collections;
 using System.Linq;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 // ReSharper disable StringLiteralTypo
 
@@ -12,6 +13,8 @@ namespace QualityCompany.Modules.HUD;
 [Module]
 internal class PingModule : MonoBehaviour
 {
+    public static PingModule Instance { get; private set; }
+
     private readonly ACLogger _logger = new(nameof(PingModule));
 
     private static readonly Color TEXT_COLOR_ABOVE200 = new(1f, 0f, 0f, 0.8f);
@@ -22,6 +25,7 @@ internal class PingModule : MonoBehaviour
     private static readonly string[] ValidAnchors = { "topleft", "topright", "bottomleft", "bottomright" };
 
     private TextMeshProUGUI _text;
+    private DateTime pingTime;
 
     [ModuleOnLoad]
     private static PingModule Spawn()
@@ -39,6 +43,8 @@ internal class PingModule : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         var rectT = GetComponent<RectTransform>();
         var parentSize = rectT.GetParentSize();
         rectT.sizeDelta = parentSize;
@@ -51,24 +57,8 @@ internal class PingModule : MonoBehaviour
 
         UpdatePositionAndAlignment();
 
-        StartCoroutine(PingCheck());
-    }
-
-    // ReSharper disable once FunctionRecursiveOnAllPaths
-    private IEnumerator PingCheck()
-    {
-        yield return new WaitForSeconds(1f);
-
-        _logger.LogDebug("Checking ping with host...");
-        var serverClientId = NetworkManager.Singleton.NetworkConfig.NetworkTransport.ServerClientId;
-        var result = NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(serverClientId);
-        _logger.LogDebug($"Time? {result}ms");
-        _text.text = $"{result}ms";
-        _text.color = GetColorForPing(result);
-
-        yield return new WaitForSeconds(Plugin.Instance.PluginConfig.HudPingUpdateInterval - 1f);
-
-        StartCoroutine(PingCheck());
+        // StartCoroutine(PingCheck());
+        PingCheck();
     }
 
     private void UpdatePositionAndAlignment()
@@ -98,7 +88,51 @@ internal class PingModule : MonoBehaviour
         };
     }
 
-    private static Color GetColorForPing(ulong ping)
+    // ReSharper disable once FunctionRecursiveOnAllPaths
+    private void PingCheck()
+    {
+        _logger.LogDebug("Checking ping with host...");
+
+        pingTime = DateTime.Now;
+        LatencyHandler.Instance.PingServerRpc();
+        // yield return new WaitForSeconds(1f);
+
+        // var serverClientId = NetworkManager.Singleton.NetworkConfig.NetworkTransport.ServerClientId;
+        // _logger.LogDebug($"Checking ping with host... {serverClientId} | {NetworkManager.Singleton.LocalClientId} | {NetworkManager.Singleton.ConnectedHostname}");
+        // var result = NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(serverClientId);
+        // _logger.LogDebug($"Time? {result}ms");
+        // _text.text = $"{result}ms";
+        // _text.color = GetColorForPing(result);
+
+        // yield return new WaitForSeconds(Plugin.Instance.PluginConfig.HudPingUpdateInterval - 1f);
+
+        // StartCoroutine(PingCheck());
+    }
+
+    private IEnumerator DeferredPingCheck(float delta)
+    {
+        var waitDelta = Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta;
+        _logger.LogDebug($"Checking ping with host in {waitDelta}s  ...");
+
+        yield return new WaitForSeconds(Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta);
+
+        pingTime = DateTime.Now;
+        LatencyHandler.Instance.PingServerRpc();
+    }
+
+    internal void UpdateLatency()
+    {
+        var pingDelta = (DateTime.Now - pingTime).TotalMilliseconds;
+        var pingAverage = pingDelta / 2;
+
+        _logger.LogDebug($" latency? {pingDelta} / 2 = {pingAverage}ms");
+        _text.text = $"{pingAverage}ms";
+        _text.color = GetColorForPing(pingAverage);
+
+        StartCoroutine(DeferredPingCheck((float)pingDelta));
+    }
+
+    private static Color GetColorForPing(double ping)
     {
         return ping switch
         {
