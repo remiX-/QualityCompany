@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using QualityCompany.Service;
 using System;
 using System.ComponentModel;
-using UnityEngine;
 
 namespace QualityCompany;
 
@@ -56,7 +55,10 @@ internal class PluginConfig
     public string HudPingAnchor { get; set; }
 
     [JsonIgnore]
-    public Vector2 HudPingAnchorPadding { get; set; }
+    public float HudPingHorizontalPadding { get; set; }
+
+    [JsonIgnore]
+    public float HudPingVerticalPadding { get; set; }
 
     [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
@@ -188,11 +190,18 @@ internal class PluginConfig
             "[CLIENT] Anchor position to place the ping display."
         ).Value;
 
-        HudPingAnchorPadding = configFile.Bind(
+        HudPingHorizontalPadding = configFile.Bind(
             "HUD",
-            "Ping Anchor Position Padding",
-            new Vector2(10, 10),
-            "[CLIENT] Padding for the ping hud display away from the edge of the screen."
+            "Ping Horizontal Padding",
+            5,
+            "[CLIENT] Horizontal padding for the ping hud display away from the horizontal (left/right) edge of the screen."
+        ).Value;
+
+        HudPingVerticalPadding = configFile.Bind(
+            "HUD",
+            "Ping Vertical Padding",
+            5,
+            "[CLIENT] Vertical padding for the ping hud display away from the vertical (top/bottom) edge of the screen."
         ).Value;
         #endregion
 

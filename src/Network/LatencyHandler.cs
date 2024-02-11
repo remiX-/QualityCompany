@@ -1,6 +1,4 @@
 ﻿using QualityCompany.Modules.HUD;
-using QualityCompany.Service;
-using System;
 using Unity.Netcode;
 
 namespace QualityCompany.Network;
@@ -9,22 +7,19 @@ internal class LatencyHandler : NetworkBehaviour
 {
     public static LatencyHandler Instance { get; private set; }
 
-    private readonly ACLogger _logger = new(nameof(LatencyHandler));
-
     [ServerRpc(RequireOwnership = false)]
-    internal void PingServerRpc()
+    internal void PingServerRpc(ulong playerClientId)
     {
-        _logger.LogDebug($"PingServerRpc: {DateTime.Now:HH:mm:ss.fff}");
-        PingClientRpc();
+        PingClientRpc(playerClientId);
     }
 
     [ClientRpc]
-    private void PingClientRpc()
+    private void PingClientRpc(ulong playerClientId)
     {
         if (NetworkManager.IsHost) return;
+        if (GameNetworkManager.Instance.localPlayerController.playerClientId != playerClientId) return;
 
-        _logger.LogDebug($"PingClientRpc: {DateTime.Now:HH:mm:ss.fff}");
-        PingModule.Instance.UpdateLatency();
+        LatencyModule.Instance.UpdateLatency();
     }
 
     public override void OnNetworkSpawn()

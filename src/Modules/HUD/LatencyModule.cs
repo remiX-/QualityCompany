@@ -5,17 +5,18 @@ using System;
 using System.Collections;
 using System.Linq;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 // ReSharper disable StringLiteralTypo
 
 namespace QualityCompany.Modules.HUD;
 
 [Module(Delayed = true)]
-internal class PingModule : MonoBehaviour
+internal class LatencyModule : MonoBehaviour
 {
-    public static PingModule Instance { get; private set; }
+    public static LatencyModule Instance { get; private set; }
 
-    private readonly ACLogger _logger = new(nameof(PingModule));
+    private readonly ACLogger _logger = new(nameof(LatencyModule));
 
     private static readonly Color TEXT_COLOR_ABOVE200 = new(1f, 0f, 0f, 0.8f);
     private static readonly Color TEXT_COLOR_ABOVE130 = new(1f, 128f / 255f, 237f / 255f, 0.8f);
@@ -25,20 +26,20 @@ internal class PingModule : MonoBehaviour
     private static readonly string[] ValidAnchors = { "topleft", "topright", "bottomleft", "bottomright" };
 
     private TextMeshProUGUI _text;
-    private DateTime pingTime;
+    private DateTime _latencyTime;
 
     [ModuleOnLoad]
-    private static PingModule Spawn()
+    private static LatencyModule Spawn()
     {
-        if (!Plugin.Instance.PluginConfig.HudPingEnabled) return null;
+        if (!Plugin.Instance.PluginConfig.HudPingEnabled || NetworkManager.Singleton.IsHost) return null;
 
         var hudTimeNumber = GameObject.Find("Systems/UI/Canvas/IngamePlayerHUD/ProfitQuota/Container/Box/TimeNumber");
         var ui = Instantiate(hudTimeNumber, HUDManager.Instance.HUDContainer.transform);
-        ui.name = "qc_ping";
+        ui.name = "qc_latency";
         ui.transform.position = Vector3.zero;
         ui.transform.localPosition = Vector3.zero;
         ui.transform.localScale = Vector3.one;
-        return ui.AddComponent<PingModule>();
+        return ui.AddComponent<LatencyModule>();
     }
 
     private void Awake()
@@ -55,9 +56,6 @@ internal class PingModule : MonoBehaviour
         _text.fontSize = 10f;
         _text.text = "";
 
-        var pc = GameNetworkManager.Instance.localPlayerController;
-        _logger.LogDebug($"IDs: {pc.playerSteamId} | {pc.actualClientId} | {pc.playerClientId}");
-
         UpdatePositionAndAlignment();
 
         InitialLatencyCheck();
@@ -65,8 +63,9 @@ internal class PingModule : MonoBehaviour
 
     private void UpdatePositionAndAlignment()
     {
-        var anchor = Plugin.Instance.PluginConfig.HudPingAnchor;
-        var padding = Plugin.Instance.PluginConfig.HudPingAnchorPadding;
+        var anchor = Plugin.Instance.PluginConfig.HudPingAnchor.ToLower();
+        var paddingX = Plugin.Instance.PluginConfig.HudPingHorizontalPadding;
+        var paddingY = Plugin.Instance.PluginConfig.HudPingVerticalPadding;
 
         if (!ValidAnchors.Contains(anchor))
         {
@@ -83,39 +82,34 @@ internal class PingModule : MonoBehaviour
 
         transform.localPosition = anchor switch
         {
-            "topleft" => new Vector2(padding.x, -padding.y),
-            "topright" => new Vector2(-padding.x, -padding.y),
-            "bottomright" => new Vector2(-padding.x, padding.y),
-            _ => new Vector2(padding.x, padding.y)
+            "topleft" => new Vector2(paddingX, -paddingY),
+            "topright" => new Vector2(-paddingX, -paddingY),
+            "bottomright" => new Vector2(-paddingX, paddingY),
+            _ => new Vector2(paddingX, paddingY)
         };
     }
 
-    // ReSharper disable once FunctionRecursiveOnAllPaths
     private void InitialLatencyCheck()
     {
-        _logger.LogDebug("Checking ping with host...");
-
-        pingTime = DateTime.Now;
-        LatencyHandler.Instance.PingServerRpc();
+        _latencyTime = DateTime.Now;
+        LatencyHandler.Instance.PingServerRpc(GameNetworkManager.Instance.localPlayerController.playerClientId);
     }
 
     private IEnumerator DeferredLatencyCheck(float delta)
     {
-        var waitDelta = Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta;
-        waitDelta = waitDelta <= 0.2f ? 1f : waitDelta;
-        _logger.LogDebug($"Checking ping with host in {waitDelta}s  ...");
+        var waitDelta = Plugin.Instance.PluginConfig.HudPingUpdateInterval - delta / 1000f;
+        waitDelta = waitDelta <= 1f ? 1f : waitDelta;
 
         yield return new WaitForSeconds(waitDelta);
 
-        pingTime = DateTime.Now;
-        LatencyHandler.Instance.PingServerRpc();
+        _latencyTime = DateTime.Now;
+        LatencyHandler.Instance.PingServerRpc(GameNetworkManager.Instance.localPlayerController.playerClientId);
     }
 
     internal void UpdateLatency()
     {
-        var latency = (DateTime.Now - pingTime).TotalMilliseconds;
+        var latency = (DateTime.Now - _latencyTime).TotalMilliseconds;
         var latencyRoundedUp = (int)Math.Ceiling(latency);
-        _logger.LogDebug($" latency? {latencyRoundedUp}ms");
         _text.text = $"{latencyRoundedUp}ms";
         _text.color = GetColorForPing(latencyRoundedUp);
 
