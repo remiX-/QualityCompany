@@ -1,3 +1,7 @@
+# v1.3.0: Networking
+
+- Add a ping hud display
+
 # v1.2.3: Mod Compatibility & Experimental fixes
 
 - Fixed an issue where Scrap UI will have a null reference if the HUD `iconFrames` changes in size after initializing

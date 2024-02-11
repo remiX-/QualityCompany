@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using QualityCompany.Service;
 using System;
 using System.ComponentModel;
+using UnityEngine;
 
 namespace QualityCompany;
 
@@ -44,6 +45,18 @@ internal class PluginConfig
 
     [JsonIgnore]
     public float InventoryStartupDelay { get; set; }
+
+    [JsonIgnore]
+    public bool HudPingEnabled { get; set; }
+
+    [JsonIgnore]
+    public float HudPingUpdateInterval { get; set; }
+
+    [JsonIgnore]
+    public string HudPingAnchor { get; set; }
+
+    [JsonIgnore]
+    public Vector2 HudPingAnchorPadding { get; set; }
 
     [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
@@ -150,6 +163,36 @@ internal class PluginConfig
             "StartupDelay",
             4.5f,
             "[CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\nNOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)"
+        ).Value;
+        #endregion
+
+        #region HUD
+        HudPingEnabled = configFile.Bind(
+            "HUD",
+            "Show ping to host",
+            true,
+            "[CLIENT] Whether to show the ping hud or not."
+        ).Value;
+
+        HudPingUpdateInterval = configFile.Bind(
+            "HUD",
+            "Ping Update Interval",
+            3f,
+            "[CLIENT] How often to do ping update checks."
+        ).Value;
+
+        HudPingAnchor = configFile.Bind(
+            "HUD",
+            "Ping Anchor Position",
+            "BottomLeft",
+            "[CLIENT] Anchor position to place the ping display."
+        ).Value;
+
+        HudPingAnchorPadding = configFile.Bind(
+            "HUD",
+            "Ping Anchor Position Padding",
+            new Vector2(10, 10),
+            "[CLIENT] Padding for the ping hud display away from the edge of the screen."
         ).Value;
         #endregion
 
