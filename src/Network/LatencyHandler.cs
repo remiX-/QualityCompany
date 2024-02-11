@@ -11,28 +11,19 @@ internal class LatencyHandler : NetworkBehaviour
 
     private readonly ACLogger _logger = new(nameof(LatencyHandler));
 
-    private void Start()
-    {
-        Instance = this;
-
-        var pc = GameNetworkManager.Instance.localPlayerController;
-        _logger.LogDebug($"IDs: {pc.playerSteamId} | {pc.actualClientId} | {pc.playerClientId}");
-
-        // if (NetworkManager.IsHost) return;
-        // PingServerRpc();
-    }
-
     [ServerRpc(RequireOwnership = false)]
     internal void PingServerRpc()
     {
-        _logger.LogDebug($"PingServerRpc: {DateTime.Now:HH:mm:ss.zzz}");
+        _logger.LogDebug($"PingServerRpc: {DateTime.Now:HH:mm:ss.fff}");
         PingClientRpc();
     }
 
     [ClientRpc]
     private void PingClientRpc()
     {
-        _logger.LogDebug($"PingClientRpc: {DateTime.Now:HH:mm:ss.zzz}");
+        if (NetworkManager.IsHost) return;
+
+        _logger.LogDebug($"PingClientRpc: {DateTime.Now:HH:mm:ss.fff}");
         PingModule.Instance.UpdateLatency();
     }
 

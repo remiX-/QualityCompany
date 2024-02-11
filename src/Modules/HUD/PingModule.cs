@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace QualityCompany.Modules.HUD;
 
-[Module]
+[Module(Delayed = true)]
 internal class PingModule : MonoBehaviour
 {
     public static PingModule Instance { get; private set; }
@@ -55,9 +55,11 @@ internal class PingModule : MonoBehaviour
         _text.fontSize = 10f;
         _text.text = "";
 
+        var pc = GameNetworkManager.Instance.localPlayerController;
+        _logger.LogDebug($"IDs: {pc.playerSteamId} | {pc.actualClientId} | {pc.playerClientId}");
+
         UpdatePositionAndAlignment();
 
-        // StartCoroutine(PingCheck());
         InitialLatencyCheck();
     }
 
@@ -111,23 +113,22 @@ internal class PingModule : MonoBehaviour
 
     internal void UpdateLatency()
     {
-        var pingDelta = (DateTime.Now - pingTime).TotalMilliseconds;
-        var pingAverage = pingDelta / 2;
+        var latency = (DateTime.Now - pingTime).TotalMilliseconds;
+        var latencyRoundedUp = (int)Math.Ceiling(latency);
+        _logger.LogDebug($" latency? {latencyRoundedUp}ms");
+        _text.text = $"{latencyRoundedUp}ms";
+        _text.color = GetColorForPing(latencyRoundedUp);
 
-        _logger.LogDebug($" latency? {pingDelta} / 2 = {pingAverage}ms");
-        _text.text = $"{pingAverage}ms";
-        _text.color = GetColorForPing(pingAverage);
-
-        StartCoroutine(DeferredLatencyCheck((float)pingDelta));
+        StartCoroutine(DeferredLatencyCheck((float)latency));
     }
 
-    private static Color GetColorForPing(double ping)
+    private static Color GetColorForPing(int ping)
     {
         return ping switch
         {
-            > 200 => TEXT_COLOR_ABOVE200,
-            > 130 => TEXT_COLOR_ABOVE130,
-            > 80 => TEXT_COLOR_ABOVE80,
+            >= 200 => TEXT_COLOR_ABOVE200,
+            >= 130 => TEXT_COLOR_ABOVE130,
+            >= 80 => TEXT_COLOR_ABOVE80,
             _ => TEXT_COLOR_GOOD
         };
     }
