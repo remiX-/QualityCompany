@@ -31,12 +31,8 @@ public class GameEvents
     public static event PlayerControllerEvent PlayerShotgunShoot;
     public static event PlayerControllerEvent PlayerShotgunReload;
 
-    public delegate void GrabbableObjectEvent(GrabbableObject instance);
-    public static event GrabbableObjectEvent ItemActivate;
-
     public static event DisconnectEvent Disconnected;
     public delegate void DisconnectEvent(GameNetworkManager instance);
-
 
     internal static void OnHudManagerStart(HUDManager instance)
     {
@@ -121,11 +117,4 @@ public class GameEvents
     {
         GameTimeUpdate?.Invoke();
     }
-
-    internal static void OnItemActivate(GrabbableObject instance)
-    {
-        _logger.LogDebug($"OnItemActivate -> {instance.name}");
-        ItemActivate?.Invoke(instance);
-    }
 }
-
