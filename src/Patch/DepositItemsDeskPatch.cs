@@ -14,6 +14,8 @@ internal class DepositItemsDeskPatch
     [HarmonyPatch("PlaceItemOnCounter")]
     private static void PlaceItemOnCounterPatch()
     {
+        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
+
         CompanyNetworkHandler.Instance.SyncDepositDeskTotalValueServerRpc();
     }
 

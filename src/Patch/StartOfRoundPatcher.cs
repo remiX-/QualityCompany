@@ -39,7 +39,12 @@ internal class StartOfRoundPatcher
     {
         CompanyNetworkHandler.Instance.SaveData.ResetGameState();
 
-        if (__instance.NetworkManager.IsHost || __instance.NetworkManager.IsServer)
+        if (!__instance.NetworkManager.IsHost && !__instance.NetworkManager.IsServer)
+        {
+            return;
+        }
+
+        if (Plugin.Instance.PluginConfig.NetworkingEnabled)
         {
             CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
         }

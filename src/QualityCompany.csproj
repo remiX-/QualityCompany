@@ -71,10 +71,10 @@
 	</Target>
 
 	<Target Name="Copy To Dist" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
-		<Message Text="Building dist directory" Importance="High" />
+		<Message Text="Configured for release, running release script." Importance="High" />
 
 		<Exec Command="powershell $(SolutionDir)release.ps1" />
 
-		<Message Text="Finished!" Importance="High" />
+		<Message Text="Release complete!" Importance="High" />
 	</Target>
 </Project>

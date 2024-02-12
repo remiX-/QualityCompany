@@ -1,6 +1,6 @@
-﻿using QualityCompany.Manager.ShipTerminal;
+﻿using QualityCompany.Manager;
+using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Network;
 using QualityCompany.Service;
 
 namespace QualityCompany.TerminalCommands;
@@ -24,7 +24,7 @@ internal class TargetCommands
                 {
                     if (!int.TryParse(input, out var amount)) return false;
 
-                    NetworkHandler.Instance.UpdateSellTargetServerRpc(amount, GameNetworkManager.Instance.localPlayerController.playerUsername);
+                    TargetManager.UpdateTarget(amount, GameNetworkManager.Instance.localPlayerController.playerUsername);
 
                     return true;
                 })

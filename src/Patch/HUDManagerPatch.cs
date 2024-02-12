@@ -39,11 +39,14 @@ internal class HUDManagerPatch
     {
         _logger.LogDebug("DisplayDaysLeft");
 
-        CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota++;
-
-        if (__instance.IsHost)
+        if (Plugin.Instance.PluginConfig.NetworkingEnabled)
         {
-            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+            CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota++;
+
+            if (__instance.IsHost)
+            {
+                CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+            }
         }
 
         OvertimeMonitor.UpdateMonitor();

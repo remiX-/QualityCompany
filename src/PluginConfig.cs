@@ -173,14 +173,14 @@ internal class PluginConfig
             "HUD",
             "Show latency to host",
             true,
-            "[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default."
+            "[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default. Requires networking."
         ).Value;
 
         HudLatencyUpdateInterval = configFile.Bind(
             "HUD",
             "Latency Update Interval",
             5f,
-            "[CLIENT] How often to do latency update checks."
+            "[CLIENT] How often to do latency update checks. Will be set to a minimum of 2 seconds."
         ).Value;
 
         HudLatencyAnchor = configFile.Bind(

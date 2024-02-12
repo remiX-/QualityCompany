@@ -10,7 +10,7 @@ internal class GameNetworkManagerPatch
 {
     [HarmonyPostfix]
     [HarmonyPatch("Disconnect")]
-    private static void Disconnect(GameNetworkManager __instance)
+    private static void DisconnectPatch(GameNetworkManager __instance)
     {
         GameUtils.Reset();
 
@@ -19,8 +19,9 @@ internal class GameNetworkManagerPatch
 
     [HarmonyPrefix]
     [HarmonyPatch("SaveGame")]
-    private static void SaveGame(GameNetworkManager __instance)
+    private static void SaveGamePatch(GameNetworkManager __instance)
     {
+        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
         if (!__instance.isHostingGame) return;
 
         CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();

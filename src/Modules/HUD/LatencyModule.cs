@@ -31,6 +31,7 @@ internal class LatencyModule : MonoBehaviour
     [ModuleOnLoad]
     private static LatencyModule Spawn()
     {
+        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return null;
         if (!Plugin.Instance.PluginConfig.HudLatencyEnabled || NetworkManager.Singleton.IsHost) return null;
 
         var hudTimeNumber = GameObject.Find("Systems/UI/Canvas/IngamePlayerHUD/ProfitQuota/Container/Box/TimeNumber");
@@ -104,7 +105,7 @@ internal class LatencyModule : MonoBehaviour
     private IEnumerator DeferredLatencyCheck(float delta)
     {
         var waitDelta = Plugin.Instance.PluginConfig.HudLatencyUpdateInterval - delta / 1000f;
-        waitDelta = waitDelta <= 1f ? 1f : waitDelta;
+        waitDelta = waitDelta <= 2f ? 2f : waitDelta;
 
         yield return new WaitForSeconds(waitDelta);
 

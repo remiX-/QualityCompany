@@ -56,7 +56,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    internal void SendConfigServerRpc()
+    private void SendConfigServerRpc()
     {
         _logger.LogDebug("SendConfigServerRpc > from client");
         var json = JsonConvert.SerializeObject(Plugin.Instance.PluginConfig);

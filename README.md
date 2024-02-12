@@ -17,6 +17,14 @@ In addition to the scrap value of the shotgun, the inventory slot will in additi
 
 ![ShotgunUI](https://raw.githubusercontent.com/remiX-/QualityCompany/master/assets/ShotgunUI.png)
 
+### Latency (ping) display
+
+This is a bit experimental but *appears to work* from some testing.
+
+A latency display will show on your HUD (default BottomLeft) with your latency to the host. It will not show for the host.
+
+You can configure it to be in either of the 4 corners, including increasing the padding away from the reletive edge.
+
 ## Terminal Commands
 
 ### sell
@@ -110,6 +118,31 @@ You can find a showcase of this [here](https://github.com/remiX-/QualityCompany/
 [CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\
 NOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)\
 **DEFAULT:** `4.5f`
+
+### **Show latency to host**
+
+[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default. Requires networking.\
+**DEFAULT:** `true`
+
+### **Latency Update Interval**
+
+[CLIENT] How often to do latency update checks. Will be set to a minimum of `2 seconds`.\
+**DEFAULT:** `5 seconds`
+
+### **Latency Anchor Position**
+
+[CLIENT] Anchor position to place the latency display.\nPossible values: TopLeft, TopRight, BottomLeft, BottomRight\
+**DEFAULT:** `BottomLeft`
+
+### **Latency Horizontal Padding**
+
+[CLIENT] Horizontal padding for the latency hud display away from the horizontal (left/right) edge of the screen.\
+**DEFAULT:** `5`
+
+### **Latency Horizontal Padding**
+
+[CLIENT] Vertical padding for the latency hud display away from the vertical (top/bottom) edge of the screen.\
+**DEFAULT:** `5`
 
 ## Monitor
 
