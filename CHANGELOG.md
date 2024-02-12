@@ -1,3 +1,13 @@
+# v1.3.0: Networking
+
+- Add a ping hud display (networking only), configurable
+  - This is untested with 3 or more people, please log an issue if anything is crazy
+  - (worst case) Disable the feature in the config if it causes issues!
+- **[UNTESTED]** (hopefully) fully implemented ability to disable Networking operations in config
+  - This will cause everything to be done CLIENT-SIDE ONLY
+  - This WILL cause desync issues with `sell` & `target` commands, *but* should recover on action of deposit desk eating the items
+  - Let us know if anything breaks from this please :)
+
 # v1.2.3: Mod Compatibility & Experimental fixes
 
 - Fixed an issue where Scrap UI will have a null reference if the HUD `iconFrames` changes in size after initializing

@@ -12,7 +12,6 @@
 		<!-- Auto copy dlls to mod profile -->
 		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(BepInExDirectory)\plugins" />
 		<Copy SourceFiles="$(TargetDir)Assets/modnetworkhandlerbundle" DestinationFolder="$(BepInExDirectory)\plugins" />
-
 		<Message Text="Copied build files" Importance="High" />
 	</Target>
 

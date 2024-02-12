@@ -19,6 +19,11 @@ internal class TimeMonitor : BaseMonitor
         _textMesh.text = "TIME:\n7:30\nAM";
     }
 
+    private void OnDestroy()
+    {
+        Instance = null;
+    }
+
     internal static void UpdateMonitor()
     {
         Instance?.UpdateMonitorText($"TIME:\n{_timeMesh.text}");

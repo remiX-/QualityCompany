@@ -65,9 +65,9 @@ public class AdvancedTerminal
             otherCategoryTerminalNode.displayText = otherCategoryTerminalNode.displayText.Substring(0, otherCategoryTerminalNode.displayText.Length - 1) + $"{cmdBuilder.description}";
         }
 
-        foreach (var kw in Terminal.terminalNodes.allKeywords)
-        {
-            Logger.LogDebug($"{kw.name} | {kw.word}");
-        }
+        // foreach (var kw in Terminal.terminalNodes.allKeywords)
+        // {
+        //     Logger.LogDebug($"{kw.name} | {kw.word}");
+        // }
     }
 }

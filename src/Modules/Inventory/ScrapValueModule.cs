@@ -64,7 +64,6 @@ internal class ScrapValueModule : InventoryBaseUI
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
     {
-        _logger.LogDebug($"ItemSlots: {GameNetworkManager.Instance.localPlayerController.ItemSlots.Length}");
         UpdateTotalScrapValue();
 
         if (!currentHeldItem.itemProperties.isScrap || currentHeldItem.scrapValue <= 0)

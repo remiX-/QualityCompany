@@ -46,6 +46,21 @@ internal class PluginConfig
     public float InventoryStartupDelay { get; set; }
 
     [JsonIgnore]
+    public bool HudLatencyEnabled { get; set; }
+
+    [JsonIgnore]
+    public float HudLatencyUpdateInterval { get; set; }
+
+    [JsonIgnore]
+    public string HudLatencyAnchor { get; set; }
+
+    [JsonIgnore]
+    public float HudLatencyHorizontalPadding { get; set; }
+
+    [JsonIgnore]
+    public float HudLatencyVerticalPadding { get; set; }
+
+    [JsonIgnore]
     public bool ShowDebugLogs { get; set; }
 
     [JsonIgnore]
@@ -150,6 +165,43 @@ internal class PluginConfig
             "StartupDelay",
             4.5f,
             "[CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\nNOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)"
+        ).Value;
+        #endregion
+
+        #region HUD
+        HudLatencyEnabled = configFile.Bind(
+            "HUD",
+            "Show latency to host",
+            true,
+            "[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default. Requires networking."
+        ).Value;
+
+        HudLatencyUpdateInterval = configFile.Bind(
+            "HUD",
+            "Latency Update Interval",
+            5f,
+            "[CLIENT] How often to do latency update checks. Will be set to a minimum of 2 seconds."
+        ).Value;
+
+        HudLatencyAnchor = configFile.Bind(
+            "HUD",
+            "Latency Anchor Position",
+            "BottomLeft",
+            "[CLIENT] Anchor position to place the latency display.\nPossible values: TopLeft, TopRight, BottomLeft, BottomRight"
+        ).Value;
+
+        HudLatencyHorizontalPadding = configFile.Bind(
+            "HUD",
+            "Latency Horizontal Padding",
+            5,
+            "[CLIENT] Horizontal padding for the latency hud display away from the horizontal (left/right) edge of the screen."
+        ).Value;
+
+        HudLatencyVerticalPadding = configFile.Bind(
+            "HUD",
+            "Latency Vertical Padding",
+            5,
+            "[CLIENT] Vertical padding for the latency hud display away from the vertical (top/bottom) edge of the screen."
         ).Value;
         #endregion
 

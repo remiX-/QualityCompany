@@ -16,12 +16,15 @@ internal class TimeOfDayPatch
     [HarmonyPatch("SyncNewProfitQuotaClientRpc")]
     private static void SyncNewProfitQuotaClientRpcPatch(TimeOfDay __instance)
     {
-        CompanyNetworkHandler.Instance.SaveData.TotalLootValue = ScrapUtils.GetShipTotalRawScrapValue();
-        CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota = 0;
-
-        if (__instance.IsHost)
+        if (Plugin.Instance.PluginConfig.NetworkingEnabled)
         {
-            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+            CompanyNetworkHandler.Instance.SaveData.TotalLootValue = ScrapUtils.GetShipTotalRawScrapValue();
+            CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota = 0;
+
+            if (__instance.IsHost)
+            {
+                CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+            }
         }
 
         LootMonitor.UpdateMonitor();

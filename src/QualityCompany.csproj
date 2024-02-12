@@ -3,13 +3,13 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<AssemblyName>QualityCompany</AssemblyName>
-		<Version>1.2.3</Version>
+		<Version>1.3.0</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	</PropertyGroup>
-	
+
 	<Import Project="CommonBuildProperties.proj" />
 
 	<ItemGroup>
@@ -56,6 +56,12 @@
 		<None Update="Assets\modnetworkhandlerbundle">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Assets\test.mp3">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\yippee-come-back.mp3">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<Target Name="NetcodePatch" AfterTargets="Build">
@@ -65,15 +71,10 @@
 	</Target>
 
 	<Target Name="Copy To Dist" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
-		<Message Text="Building dist directory" Importance="High" />
+		<Message Text="Configured for release, running release script." Importance="High" />
 
-		<Copy SourceFiles="$(TargetDir)$(ProjectName).dll" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="Assets\modnetworkhandlerbundle" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\CHANGELOG.md" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\README.md" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\manifest.json" DestinationFolder="$(SolutionDir)\dist" />
-		<Copy SourceFiles="$(SolutionDir)\assets\icon.png" DestinationFolder="$(SolutionDir)\dist" />
+		<Exec Command="powershell $(SolutionDir)release.ps1" />
 
-		<Message Text="Finished!" Importance="High" />
+		<Message Text="Release complete!" Importance="High" />
 	</Target>
 </Project>

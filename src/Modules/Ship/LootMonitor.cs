@@ -16,6 +16,11 @@ internal class LootMonitor : BaseMonitor
         UpdateMonitor();
     }
 
+    private void OnDestroy()
+    {
+        Instance = null;
+    }
+
     internal static void UpdateMonitor()
     {
         if (GameUtils.ShipGameObject == null)

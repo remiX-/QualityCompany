@@ -26,6 +26,7 @@ internal class NetworkObjectManager
         networkPrefab = Plugin.CustomAssets.LoadAsset<GameObject>("ExampleNetworkHandler");
         networkPrefab.AddComponent<NetworkHandler>();
         networkPrefab.AddComponent<CompanyNetworkHandler>();
+        networkPrefab.AddComponent<LatencyHandler>();
 
         NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
     }

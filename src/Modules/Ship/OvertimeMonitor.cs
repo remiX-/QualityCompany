@@ -30,24 +30,35 @@ internal class OvertimeMonitor : BaseMonitor
         UpdateMonitor();
     }
 
+    private void OnDestroy()
+    {
+        Instance = null;
+    }
+
     internal static void UpdateMonitor()
     {
         if (Instance is null) return;
 
-        if (!GameUtils.IsOnCompany())
+        if (GameUtils.IsOnCompany())
         {
-            var quotaStartScrap = CompanyNetworkHandler.Instance.SaveData.TotalLootValue;
-            var daysCompleted = CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota + 1;
-            var lootGainedInCurrentQuota = ScrapUtils.GetShipTotalRawScrapValue() - quotaStartScrap;
-            Instance.UpdateMonitorText($"On day: {daysCompleted}\nQuota start: ${quotaStartScrap}\nGained: ${lootGainedInCurrentQuota}");
+            targetNeeded = CalculateSellNeeded();
+            var overtime = CalculateOvertime();
+
+            Instance.UpdateMonitorText($"TARGET:${targetTotalCredits}\nNEEDED:${targetNeeded}\nOVERTIME:${overtime}\nDESK:${CalculateSumOnDepositDesk()}");
 
             return;
         }
 
-        targetNeeded = CalculateSellNeeded();
-        var overtime = CalculateOvertime();
+        if (!Plugin.Instance.PluginConfig.NetworkingEnabled)
+        {
+            Instance.UpdateMonitorText("DISABLED");
+            return;
+        }
 
-        Instance.UpdateMonitorText($"TARGET:${targetTotalCredits}\nNEEDED:${targetNeeded}\nOVERTIME:${overtime}\nDESK:${CalculateSumOnDepositDesk()}");
+        var quotaStartScrap = CompanyNetworkHandler.Instance.SaveData.TotalLootValue;
+        var daysCompleted = CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota + 1;
+        var lootGainedInCurrentQuota = ScrapUtils.GetShipTotalRawScrapValue() - quotaStartScrap;
+        Instance.UpdateMonitorText($"On day: {daysCompleted}\nQuota start: ${quotaStartScrap}\nGained: ${lootGainedInCurrentQuota}");
     }
 
     internal static string GetText()
