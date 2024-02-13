@@ -4,7 +4,7 @@ internal class GameSaveData
 {
     public int TotalShipLootAtStartForCurrentQuota { get; set; }
     public int TotalDaysPlayedForCurrentQuota { get; set; }
-    public int TargetForSelling { get; set; }
+    public int TargetForSelling { get; set; } = 1250;
 
     internal void ResetGameState()
     {

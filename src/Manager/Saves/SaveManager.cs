@@ -11,7 +11,7 @@ internal class SaveManager
 {
     private static readonly ACLogger Logger = new(nameof(SaveManager));
 
-    internal static GameSaveData SaveData { get; private set; }
+    internal static GameSaveData SaveData { get; private set; } = new();
 
     private static bool IsHost => NetworkManager.Singleton.IsHost;
     private static bool HasNetworking => Plugin.Instance.PluginConfig.NetworkingEnabled;
@@ -69,16 +69,30 @@ internal class SaveManager
 
     internal static void ClientLoadFromString(string saveJson)
     {
-        Logger.LogDebug("CLIENT: Save file received, updating.");
+        Logger.LogDebug("CLIENT: Save file received from host, updating.");
         LoadSaveJson(saveJson);
     }
 
     private static void LoadSaveJson(string saveJson)
     {
-        var jsonSaveData = JsonConvert.DeserializeObject<SaveData>(saveJson);
-        SaveData.TotalShipLootAtStartForCurrentQuota = jsonSaveData.TotalShipLootAtStartForCurrentQuota;
-        SaveData.TotalDaysPlayedForCurrentQuota = jsonSaveData.TotalDaysPlayedForCurrentQuota;
-        SaveData.TargetForSelling = jsonSaveData.TargetForSelling;
+        try
+        {
+            var jsonSaveData = JsonConvert.DeserializeObject<SaveData>(saveJson);
+
+            SaveData = new GameSaveData
+            {
+                TotalShipLootAtStartForCurrentQuota = jsonSaveData.TotalShipLootAtStartForCurrentQuota,
+                TotalDaysPlayedForCurrentQuota = jsonSaveData.TotalDaysPlayedForCurrentQuota,
+                TargetForSelling = jsonSaveData.TargetForSelling,
+            };
+        }
+        catch (Exception ex)
+        {
+            // save file has been edited / corrupted
+            Logger.LogError($"Save file has been corrupted or edited, resetting. Error: {ex.Message}");
+            SaveData = new GameSaveData();
+            Save();
+        }
     }
 }
 
@@ -87,5 +101,5 @@ file class SaveData
 {
     public int TotalShipLootAtStartForCurrentQuota { get; set; }
     public int TotalDaysPlayedForCurrentQuota { get; set; }
-    public int TargetForSelling { get; set; } = 1250;
+    public int TargetForSelling { get; set; }
 }

@@ -2,7 +2,9 @@
 using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
+using System.Collections;
 using Unity.Netcode;
+using UnityEngine;
 
 namespace QualityCompany.Network;
 
@@ -24,6 +26,8 @@ internal class CompanyNetworkHandler : NetworkBehaviour
         _logger.LogDebug("CLIENT: Requesting hosts config...");
         RequestPluginConfigServerRpc();
         RequestSaveDataServerRpc();
+
+        StartCoroutine(ClientSanityCheck());
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -98,6 +102,21 @@ internal class CompanyNetworkHandler : NetworkBehaviour
         _logger.LogDebug("SyncDepositDeskTotalValueClientRpc");
 
         OvertimeMonitor.UpdateMonitor();
+    }
+
+    private IEnumerator ClientSanityCheck()
+    {
+        yield return new WaitForSeconds(5.0f);
+
+        if (!_retrievedPluginConfig)
+        {
+            _logger.LogError("CLIENT: Still have not received plugin config from host, something is wrong!");
+        }
+
+        if (!_retrievedSaveFile)
+        {
+            _logger.LogError("CLIENT: Still have not received game save data from host, something is wrong!");
+        }
     }
 
     public override void OnNetworkSpawn()
