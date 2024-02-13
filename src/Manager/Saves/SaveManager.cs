@@ -21,6 +21,9 @@ internal class SaveManager
 
     internal static void Load()
     {
+        // client + networking = rely on host save
+        if (!IsHost && HasNetworking) return;
+
         if (IsHost)
         {
             var saveNum = GameNetworkManager.Instance.saveFileNum;
@@ -34,6 +37,7 @@ internal class SaveManager
         }
         else
         {
+            // super safe return, but should be handled by earlier early return
             return;
         }
 
@@ -55,9 +59,7 @@ internal class SaveManager
 
     internal static void Save()
     {
-        // host = always save to qc_saveNum
-        // client + networking = don't save
-        // client + no networking = save to qc.local
+        // client + networking = host does the saving
         if (!IsHost && HasNetworking) return;
 
         Logger.LogDebug($"Saving save data to {_saveFileName}");
