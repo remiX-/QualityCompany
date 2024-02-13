@@ -20,12 +20,6 @@ internal class NetworkHandler : NetworkBehaviour
     internal void UpdateSellTargetClientRpc(int newTarget, string playerName)
     {
         TargetManager.UpdateTargetClient(newTarget, playerName);
-
-        CompanyNetworkHandler.Instance.SaveData.TargetForSelling = newTarget;
-        if (IsHost)
-        {
-            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
-        }
     }
 
     [ServerRpc(RequireOwnership = false)]

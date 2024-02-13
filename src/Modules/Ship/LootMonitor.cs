@@ -11,7 +11,7 @@ internal class LootMonitor : BaseMonitor
     protected override void PostStart()
     {
         Instance = this;
-        _logger = new ACLogger(nameof(LootMonitor));
+        Logger = new ACLogger(nameof(LootMonitor));
 
         UpdateMonitor();
     }
@@ -25,7 +25,7 @@ internal class LootMonitor : BaseMonitor
     {
         if (GameUtils.ShipGameObject == null)
         {
-            Instance?._logger.LogError("ShipGameObject is null");
+            Instance?.Logger.LogError("ShipGameObject is null");
             return;
         }
 

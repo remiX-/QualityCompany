@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using QualityCompany.Network;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Utils;
 using static QualityCompany.Service.GameEvents;
 
@@ -19,11 +19,8 @@ internal class GameNetworkManagerPatch
 
     [HarmonyPrefix]
     [HarmonyPatch("SaveGame")]
-    private static void SaveGamePatch(GameNetworkManager __instance)
+    private static void SaveGamePatch()
     {
-        if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
-        if (!__instance.isHostingGame) return;
-
-        CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
+        SaveManager.Save();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using QualityCompany.Manager;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
@@ -30,7 +31,7 @@ internal class TargetCommands
                 })
                 .WithAction(() => _logger.LogDebug("EXEC target.Action???"))
             )
-            .AddTextReplacement("[targetSetTo]", () => OvertimeMonitor.targetTotalCredits.ToString())
+            .AddTextReplacement("[targetSetTo]", () => SaveManager.SaveData.TargetForSelling.ToString())
             .AddTextReplacement("[targetMonitorValues]", OvertimeMonitor.GetText);
     }
 }

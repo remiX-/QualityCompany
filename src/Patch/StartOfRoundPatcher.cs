@@ -1,7 +1,7 @@
 using HarmonyLib;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Core;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using System.Text;
@@ -17,8 +17,9 @@ internal class StartOfRoundPatcher
 
     [HarmonyPostfix]
     [HarmonyPatch("Start")]
-    private static void Initialize()
+    private static void StartPatch()
     {
+        SaveManager.Load();
         GameUtils.Init();
 
         // TODO see if better place?
@@ -28,7 +29,7 @@ internal class StartOfRoundPatcher
 
     [HarmonyPostfix]
     [HarmonyPatch("ReviveDeadPlayers")]
-    private static void PlayerHasRevivedServerRpc()
+    private static void ReviveDeadPlayersPatch()
     {
         LootMonitor.UpdateMonitor();
     }
@@ -37,50 +38,41 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("playersFiredGameOver")]
     private static void PlayersFiredGameOverPatch(StartOfRound __instance)
     {
-        CompanyNetworkHandler.Instance.SaveData.ResetGameState();
-
-        if (!__instance.NetworkManager.IsHost && !__instance.NetworkManager.IsServer)
-        {
-            return;
-        }
-
-        if (Plugin.Instance.PluginConfig.NetworkingEnabled)
-        {
-            CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
-        }
+        SaveManager.SaveData.ResetGameState();
+        SaveManager.Save();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("SyncShipUnlockablesClientRpc")]
-    private static void RefreshLootForClientOnStart()
+    private static void SyncShipUnlockablesClientRpcPatch()
     {
         LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("ChangeLevelClientRpc")]
-    private static void SwitchPlanets()
+    private static void ChangeLevelClientRpcPatch()
     {
         LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("StartGame")]
-    private static void StartGame()
+    private static void StartGamePatch()
     {
         OvertimeMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("ArriveAtLevel")]
-    private static void ArriveAtLevel()
+    private static void ArriveAtLevelPatch()
     {
         OvertimeMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("SetMapScreenInfoToCurrentLevel")]
-    private static void ColorWeather(ref TextMeshProUGUI ___screenLevelDescription, ref SelectableLevel ___currentLevel)
+    private static void SetMapScreenInfoToCurrentLevelPatch(ref TextMeshProUGUI ___screenLevelDescription, ref SelectableLevel ___currentLevel)
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("Orbiting: " + ___currentLevel.PlanetName + "\n");

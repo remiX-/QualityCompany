@@ -6,12 +6,12 @@ namespace QualityCompany.Modules.Ship;
 
 internal abstract class BaseMonitor : MonoBehaviour
 {
-    protected ACLogger _logger;
-    protected TextMeshProUGUI _textMesh;
+    protected ACLogger Logger;
+    protected TextMeshProUGUI TextMesh;
 
     private void Start()
     {
-        _textMesh = GetComponent<TextMeshProUGUI>();
+        TextMesh = GetComponent<TextMeshProUGUI>();
         ResetMonitor();
 
         PostStart();
@@ -21,12 +21,12 @@ internal abstract class BaseMonitor : MonoBehaviour
 
     protected void ResetMonitor()
     {
-        _textMesh.text = "";
+        TextMesh.text = "";
     }
 
     protected void UpdateMonitorText(string text)
     {
-        _textMesh.text = text;
+        TextMesh.text = text;
     }
 
     /// <summary>
@@ -36,11 +36,11 @@ internal abstract class BaseMonitor : MonoBehaviour
     /// <param name="number"></param>
     protected void UpdateMonitorText(string text, int number)
     {
-        _textMesh.text = $"{text}\n${number}";
+        TextMesh.text = $"{text}\n${number}";
     }
 
     protected string GetMonitorText()
     {
-        return _textMesh.text;
+        return TextMesh.text;
     }
 }
