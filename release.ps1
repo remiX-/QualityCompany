@@ -40,6 +40,7 @@ function CopyItemToBuild {
 }
 
 # copy required mod files
+CopyItemToBuild $PSScriptRoot\assets\icon.png
 CopyItemToBuild $PSScriptRoot\manifest.json
 CopyItemToBuild $PSScriptRoot\README.md
 CopyItemToBuild $PSScriptRoot\CHANGELOG.md
