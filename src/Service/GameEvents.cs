@@ -79,7 +79,7 @@ public class GameEvents
 
     internal static void OnPlayerDeath(PlayerControllerB instance)
     {
-        _logger.LogDebug("OnPlayerDeath");
+        _logger.LogDebug($"OnPlayerDeath -> {instance.playerUsername}");
         PlayerDeath?.Invoke(instance);
     }
 
