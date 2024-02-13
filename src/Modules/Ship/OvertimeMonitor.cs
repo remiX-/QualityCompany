@@ -15,7 +15,7 @@ internal class OvertimeMonitor : BaseMonitor
     private static GameObject _depositDesk;
 
     private static int _targetTotalCredits = 1200;
-    public static int TargetNeeded = 1200;
+    public static int TargetNeeded { get; private set; } = 1200;
 
     protected override void PostStart()
     {
@@ -89,11 +89,23 @@ internal class OvertimeMonitor : BaseMonitor
 
         if (_terminal.groupCredits > _targetTotalCredits) return GameUtils.TimeOfDay.profitQuota;
 
-        return Math.Max(0, CalculateSellAmountRequired() - GameUtils.TimeOfDay.quotaFulfilled);
+        var actualNeeded = Math.Max(0, CalculateSellAmountRequired() - GameUtils.TimeOfDay.quotaFulfilled);
+
+        // in the case where the group has a lot of credits already, then return to the remaining to reach `profitQuota`
+        // Thanks @throwitaway99 https://github.com/remiX-/QualityCompany/issues/4#issuecomment-1940570052
+        // TODO: something sad with calcs here if already sold and wanting to update target again + having a lot of credits already
+        // if (actualNeeded < GameUtils.TimeOfDay.profitQuota)
+        // {
+        //     return Math.Max(0, GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled);
+        // }
+
+        return actualNeeded;
     }
 
     private static int CalculateSellAmountRequired()
     {
+        // TODO: above comments
+        // var amountStillNeeded = _targetTotalCredits - (_terminal.groupCredits - GameUtils.TimeOfDay.quotaFulfilled) + GameUtils.TimeOfDay.quotaFulfilled;
         var amountStillNeeded = _targetTotalCredits - _terminal.groupCredits + GameUtils.TimeOfDay.quotaFulfilled;
         var deadlineDaysDifference = 15 * (GameUtils.TimeOfDay.daysUntilDeadline - 1);
         return (int)Math.Ceiling(5 * (amountStillNeeded - deadlineDaysDifference + (float)GameUtils.TimeOfDay.profitQuota / 5) / 6);
