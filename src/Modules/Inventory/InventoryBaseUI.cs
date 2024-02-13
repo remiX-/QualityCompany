@@ -36,6 +36,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
     }
     #endregion
 
+    #region UI Updates
     protected void OnRpcUpdate(PlayerControllerB instance, bool isLocalPlayer)
     {
         if (!isLocalPlayer) return;
@@ -59,6 +60,9 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
         OnUpdate(instance.currentlyHeldObjectServer, instance.currentItemSlot);
     }
+
+    protected abstract void OnUpdate(GrabbableObject go, int index);
+    #endregion
 
     #region UI
     protected TextMeshProUGUI CreateInventoryGameObject(string gameObjectName, int fontSize, Transform parent, Vector3? localPositionDelta = null)
@@ -89,17 +93,9 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
             OnUpdate(instance.ItemSlots[i], i);
         }
-        OnUpdateSpecial();
     }
 
-    protected abstract void OnUpdate(GrabbableObject go, int index);
-
-    protected virtual void OnUpdateSpecial()
-    {
-        // Do nothing for now I guess...
-    }
-
-    protected void UpdateItemSlotText(int index, string text, Color color)
+    protected virtual void UpdateItemSlotText(int index, string text, Color color)
     {
         var textComponent = texts[index];
         textComponent.enabled = true;
@@ -113,7 +109,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         texts[currentItemSlotIndex].enabled = false;
     }
 
-    protected void HideAll(PlayerControllerB instance, bool isLocalPlayer)
+    protected void HideAll(PlayerControllerB _, bool isLocalPlayer)
     {
         if (!isLocalPlayer) return;
 
@@ -123,8 +119,10 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         }
     }
 
-    protected void HideAll(PlayerControllerB instance)
+    protected void OnPlayerDeath(PlayerControllerB instance)
     {
+        if (instance != GameNetworkManager.Instance.localPlayerController) return;
+
         HideAll(instance, true);
     }
     #endregion

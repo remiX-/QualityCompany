@@ -1,4 +1,4 @@
-﻿using QualityCompany.Modules.Core;
+using QualityCompany.Modules.Core;
 using TMPro;
 using UnityEngine;
 using static QualityCompany.Service.GameEvents;
@@ -14,8 +14,7 @@ internal class ScrapValueModule : InventoryBaseUI
     private static readonly Color TEXT_COLOR_ABOVE50 = new(30f / 255f, 1f, 0f, 0.75f); // green
     private static readonly Color TEXT_COLOR_NOOBS = new(1f, 1f, 1f, 0.75f);
 
-    private TextMeshProUGUI totalScrapValueText;
-    private int totalScrapValue;
+    private TextMeshProUGUI _totalScrapValueText;
 
     public ScrapValueModule() : base(nameof(ScrapValueModule))
     { }
@@ -40,14 +39,14 @@ internal class ScrapValueModule : InventoryBaseUI
             var rectSize = rect?.sizeDelta ?? new Vector2(36, 36);
             var rectEulerAngles = rect?.eulerAngles ?? Vector3.zero;
             var zRotation = rectEulerAngles.z;
-            var scrapLocalPositionDelta = getLocalPositionDelta(zRotation, rectSize.x, rectSize.y);
+            var scrapLocalPositionDelta = GetLocalPositionDelta(zRotation, rectSize.x, rectSize.y);
 
             texts.Add(CreateInventoryGameObject($"qc_HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
 
             if (i == 0)
             {
                 // Invert positioning on the first slot to be 90 degrees opposite to the current item value
-                totalScrapValueText = CreateInventoryGameObject("qc_HUDScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));
+                _totalScrapValueText = CreateInventoryGameObject("qc_HUDScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));
             }
         }
     }
@@ -59,7 +58,7 @@ internal class ScrapValueModule : InventoryBaseUI
         PlayerThrowObjectClientRpc += OnRpcUpdate;
         PlayerDiscardHeldObject += OnUpdate;
         PlayerDropAllHeldItems += HideAll;
-        PlayerDeath += HideAll;
+        PlayerDeath += OnPlayerDeath;
     }
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
@@ -72,11 +71,14 @@ internal class ScrapValueModule : InventoryBaseUI
             return;
         }
 
-        var text = texts[currentItemSlotIndex];
+        var scrapValue = currentHeldItem.scrapValue;
+        UpdateItemSlotText(currentItemSlotIndex, $"${scrapValue}", GetColorForValue(scrapValue));
+    }
 
-        text.enabled = true;
-        text.text = "$" + currentHeldItem.scrapValue;
-        text.color = getColorForValue(currentHeldItem.scrapValue);
+    protected override void UpdateItemSlotText(int index, string text, Color color)
+    {
+        base.UpdateItemSlotText(index, text, color);
+        UpdateTotalScrapValue();
     }
 
     protected override void Hide(int currentItemSlotIndex)
@@ -85,17 +87,17 @@ internal class ScrapValueModule : InventoryBaseUI
         UpdateTotalScrapValue();
     }
 
-    protected override void OnUpdateSpecial()
-    {
-        base.OnUpdateSpecial();
-        UpdateTotalScrapValue();
-    }
-
     protected void UpdateTotalScrapValue()
     {
-        if (totalScrapValueText is null) return;
+        if (_totalScrapValueText is null) return;
 
-        totalScrapValue = 0;
+        if (GameNetworkManager.Instance?.localPlayerController?.ItemSlots is null)
+        {
+            _logger.LogWarning("UpdateTotalScrapValue: GNM.Instance?.localPlayerController?.ItemSlots is null");
+            return;
+        }
+
+        var totalScrapValue = 0;
         foreach (var slotScrap in GameNetworkManager.Instance.localPlayerController.ItemSlots)
         {
             if (slotScrap is null || !slotScrap.itemProperties.isScrap || slotScrap.scrapValue <= 0) continue;
@@ -103,12 +105,12 @@ internal class ScrapValueModule : InventoryBaseUI
             totalScrapValue += slotScrap.scrapValue;
         }
 
-        totalScrapValueText.text = "Total: $" + totalScrapValue;
-        totalScrapValueText.enabled = totalScrapValue > 0;
-        totalScrapValueText.color = getColorForValue(totalScrapValue);
+        _totalScrapValueText.text = $"Total: ${totalScrapValue}";
+        _totalScrapValueText.enabled = totalScrapValue > 0;
+        _totalScrapValueText.color = GetColorForValue(totalScrapValue);
     }
 
-    internal static Color getColorForValue(int value)
+    internal static Color GetColorForValue(int value)
     {
         return value switch
         {
@@ -120,7 +122,7 @@ internal class ScrapValueModule : InventoryBaseUI
         };
     }
 
-    internal static Vector2 getLocalPositionDelta(float parentRotationZ, float parentSizeX, float parentSizeY)
+    internal static Vector2 GetLocalPositionDelta(float parentRotationZ, float parentSizeX, float parentSizeY)
     {
         // Z - Rotation mapping for moving text "up"
         // 0    -> ++y
