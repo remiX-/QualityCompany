@@ -6,11 +6,11 @@ namespace QualityCompany.Manager.ShipTerminal;
 
 public class TerminalSubCommandBuilder
 {
-    private readonly TerminalSubCommand subCommand;
+    private readonly TerminalSubCommand _subCommand;
 
     public TerminalSubCommandBuilder(string name)
     {
-        subCommand = new TerminalSubCommand
+        _subCommand = new TerminalSubCommand
         {
             Name = name,
             Keyword = new TerminalKeyword
@@ -27,78 +27,78 @@ public class TerminalSubCommandBuilder
 
     public TerminalSubCommandBuilder EnableConfirmDeny(string confirmMessage = null, string denyMessage = null)
     {
-        subCommand.Node.isConfirmationNode = true;
-        subCommand.Node.overrideOptions = true;
+        _subCommand.Node.isConfirmationNode = true;
+        _subCommand.Node.overrideOptions = true;
 
-        if (!confirmMessage.IsNullOrWhiteSpace()) subCommand.ConfirmMessage = confirmMessage;
-        if (!denyMessage.IsNullOrWhiteSpace()) subCommand.DenyMessage = denyMessage;
+        if (!confirmMessage.IsNullOrWhiteSpace()) _subCommand.ConfirmMessage = confirmMessage;
+        if (!denyMessage.IsNullOrWhiteSpace()) _subCommand.DenyMessage = denyMessage;
 
         return this;
     }
 
     public TerminalSubCommandBuilder WithMessage(string text)
     {
-        subCommand.Message = text;
+        _subCommand.Message = text;
         return this;
     }
 
     public TerminalSubCommandBuilder WithConditions(params string[] conditions)
     {
-        subCommand.Conditions = conditions.ToList();
+        _subCommand.Conditions = conditions.ToList();
 
         return this;
     }
 
     public TerminalSubCommandBuilder WithPreAction(Action action)
     {
-        subCommand.PreConditionAction = action;
+        _subCommand.PreConditionAction = action;
 
         return this;
     }
 
     public TerminalSubCommandBuilder WithPreAction(Func<string, bool> action)
     {
-        subCommand.VariablePreAction = action;
+        _subCommand.VariablePreAction = action;
 
         return this;
     }
 
     public TerminalSubCommandBuilder WithAction(Action action)
     {
-        subCommand.Action = action;
+        _subCommand.Action = action;
 
         return this;
     }
 
     public TerminalSubCommandBuilder WithInputMatch(string patternSuffix)
     {
-        subCommand.IsVariableCommand = true;
-        subCommand.VariableRegexMatchPattern = patternSuffix;
+        _subCommand.IsVariableCommand = true;
+        _subCommand.VariableRegexMatchPattern = patternSuffix;
 
         return this;
     }
 
     internal TerminalSubCommand Build(string rootCommandName, TerminalKeyword confirmKeyword, TerminalKeyword denyKeyword)
     {
-        subCommand.Id = $"{rootCommandName}_{subCommand.Name}";
-        subCommand.Node.name = subCommand.Id;
-        subCommand.Node.displayText = subCommand.Message + AdvancedTerminal.EndOfMessage;
-        subCommand.ActionEvent = $"{rootCommandName}_{subCommand.Name}_event";
+        _subCommand.Id = $"{rootCommandName}_{_subCommand.Name}";
+        _subCommand.Node.name = _subCommand.Id;
+        _subCommand.Node.displayText = _subCommand.Message + AdvancedTerminal.EndOfMessage;
+        _subCommand.ActionEvent = $"{rootCommandName}_{_subCommand.Name}_event";
 
-        if (!subCommand.Node.isConfirmationNode) return subCommand;
+        if (!_subCommand.Node.isConfirmationNode) return _subCommand;
 
-        subCommand.Node.displayText += "[confirmOrDeny]";
-        subCommand.Node.terminalOptions = new[]
+        _subCommand.Node.displayText += "[confirmOrDeny]";
+        _subCommand.Node.terminalOptions = new[]
         {
             new CompatibleNoun
             {
                 noun = confirmKeyword,
                 result = new TerminalNode
                 {
-                    name = $"{rootCommandName}_{subCommand.Name}_confirm",
-                    displayText = subCommand.ConfirmMessage + AdvancedTerminal.EndOfMessage,
+                    name = $"{rootCommandName}_{_subCommand.Name}_confirm",
+                    displayText = _subCommand.ConfirmMessage + AdvancedTerminal.EndOfMessage,
                     clearPreviousText = true,
-                    terminalEvent = subCommand.ActionEvent
+                    terminalEvent = _subCommand.ActionEvent
                 }
             },
             new CompatibleNoun
@@ -106,13 +106,13 @@ public class TerminalSubCommandBuilder
                 noun = denyKeyword,
                 result = new TerminalNode
                 {
-                    name = $"{rootCommandName}_{subCommand.Name}_deny",
-                    displayText = subCommand.DenyMessage + AdvancedTerminal.EndOfMessage,
+                    name = $"{rootCommandName}_{_subCommand.Name}_deny",
+                    displayText = _subCommand.DenyMessage + AdvancedTerminal.EndOfMessage,
                     clearPreviousText = true
                 }
             }
         };
 
-        return subCommand;
+        return _subCommand;
     }
 }

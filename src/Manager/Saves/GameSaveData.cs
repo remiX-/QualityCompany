@@ -1,17 +1,14 @@
-﻿using System;
+﻿namespace QualityCompany.Manager.Saves;
 
-namespace QualityCompany.Network;
-
-[Serializable]
-internal class SaveData
+internal class GameSaveData
 {
-    public int TotalLootValue { get; set; }
+    public int TotalShipLootAtStartForCurrentQuota { get; set; }
     public int TotalDaysPlayedForCurrentQuota { get; set; }
     public int TargetForSelling { get; set; } = 1250;
 
     internal void ResetGameState()
     {
-        TotalLootValue = 0;
+        TotalShipLootAtStartForCurrentQuota = 0;
         TotalDaysPlayedForCurrentQuota = 0;
     }
 }

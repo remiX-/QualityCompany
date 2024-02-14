@@ -1,5 +1,4 @@
-﻿using QualityCompany.Manager.ShipTerminal;
-using QualityCompany.Service;
+﻿using QualityCompany.Service;
 using QualityCompany.Utils;
 
 namespace QualityCompany.Modules.Ship;
@@ -11,7 +10,7 @@ internal class LootMonitor : BaseMonitor
     protected override void PostStart()
     {
         Instance = this;
-        _logger = new ACLogger(nameof(LootMonitor));
+        Logger = new ACLogger(nameof(LootMonitor));
 
         UpdateMonitor();
     }
@@ -25,10 +24,10 @@ internal class LootMonitor : BaseMonitor
     {
         if (GameUtils.ShipGameObject == null)
         {
-            Instance?._logger.LogError("ShipGameObject is null");
+            Instance?.Logger.LogError("ShipGameObject is null");
             return;
         }
 
-        Instance?.UpdateMonitorText($"LOOT:\n${ScrapUtils.GetShipSettledTotalRawScrapValue()}\nCREDITS:\n${AdvancedTerminal.Terminal.groupCredits}");
+        Instance?.UpdateMonitorText($"LOOT:\n${ScrapUtils.GetShipSettledTotalRawScrapValue()}\nCREDITS:\n${GameUtils.Terminal.groupCredits}");
     }
 }

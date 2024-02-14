@@ -14,10 +14,8 @@ public class GameEvents
 
     public delegate void PlayerControllerEvent(PlayerControllerB instance);
     public delegate void PlayerControllerRpcEvent(PlayerControllerB instance, bool isLocalPlayerInstance);
-    public delegate void PlayerControllerRpcWithGOEvent(PlayerControllerB instance, bool isLocalPlayerInstance, GrabbableObject gameObject);
     // Player rpc actions
     public static event PlayerControllerRpcEvent PlayerGrabObjectClientRpc;
-    public static event PlayerControllerRpcWithGOEvent PlayerGrabObjectClientRpc2;
     public static event PlayerControllerRpcEvent PlayerSwitchToItemSlot; // seems this is actually is a Rpc call in the background
     public static event PlayerControllerRpcEvent PlayerThrowObjectClientRpc;
     public static event PlayerControllerRpcEvent PlayerDropAllHeldItems; // seems this is actually is a Rpc call in the background
@@ -44,7 +42,6 @@ public class GameEvents
     {
         _logger.LogDebug("OnPlayerGrabObjectClientRpc");
         PlayerGrabObjectClientRpc?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController);
-        PlayerGrabObjectClientRpc2?.Invoke(instance, instance == GameNetworkManager.Instance.localPlayerController, go);
     }
 
     internal static void OnPlayerSwitchToItemSlot(PlayerControllerB instance)
@@ -79,7 +76,7 @@ public class GameEvents
 
     internal static void OnPlayerDeath(PlayerControllerB instance)
     {
-        _logger.LogDebug("OnPlayerDeath");
+        _logger.LogDebug($"OnPlayerDeath -> {instance.playerUsername}");
         PlayerDeath?.Invoke(instance);
     }
 

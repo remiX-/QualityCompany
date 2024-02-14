@@ -17,7 +17,7 @@ internal class ScanFixModule
         if (!Plugin.Instance.PluginConfig.TerminalPatchFixScanEnabled || hasInit) return;
         hasInit = true;
 
-        var list = AdvancedTerminal.Terminal.terminalNodes.allKeywords.ToList();
+        var list = GameUtils.Terminal.terminalNodes.allKeywords.ToList();
         var scanKeyword = list.Find(keyword => keyword.word == "scan");
         if (scanKeyword is null)
         {

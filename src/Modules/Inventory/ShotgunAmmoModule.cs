@@ -41,7 +41,7 @@ internal class ShotgunAmmoModule : InventoryBaseUI
         PlayerThrowObjectClientRpc += OnRpcUpdate;
         PlayerDiscardHeldObject += OnUpdate;
         PlayerDropAllHeldItems += HideAll;
-        PlayerDeath += HideAll;
+        PlayerDeath += OnPlayerDeath;
         PlayerShotgunShoot += OnUpdate;
         PlayerShotgunReload += OnUpdate;
     }

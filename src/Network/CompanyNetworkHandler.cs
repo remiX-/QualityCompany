@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using System.Collections;
-using System.IO;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -14,114 +14,71 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
     private readonly ACLogger _logger = new(nameof(CompanyNetworkHandler));
 
-    internal SaveData SaveData { get; private set; } = new();
-
-    private bool retrievedCfg;
-    private bool retrievedSave;
+    private bool _retrievedPluginConfig;
+    private bool _retrievedSaveFile;
 
     private void Start()
     {
         Instance = this;
 
-        if (NetworkManager.IsHost)
-        {
-            var saveNum = GameNetworkManager.Instance.saveFileNum.ToString();
-            var filePath = Path.Combine(Application.persistentDataPath, $"QualityCompany_{saveNum}.json");
-            if (File.Exists(filePath))
-            {
-                _logger.LogDebug($"  > HOST: Loading save file for slot {saveNum}.");
-                var json = File.ReadAllText(filePath);
-                SaveData = JsonConvert.DeserializeObject<SaveData>(json);
-            }
-            else
-            {
-                _logger.LogDebug($"  > HOST: No save file found for slot {saveNum}. Creating new.");
-                SaveData = new SaveData();
-            }
-        }
-        else
-        {
-            _logger.LogDebug("  > CLIENT: Requesting hosts config...");
-            SendConfigServerRpc();
-        }
-    }
+        if (IsHost) return;
 
-    [ServerRpc(RequireOwnership = true)]
-    internal void ServerSaveFileServerRpc()
-    {
-        var saveNum = GameNetworkManager.Instance.saveFileNum.ToString();
-        var filePath = Path.Combine(Application.persistentDataPath, $"{PluginMetadata.PLUGIN_NAME}_{saveNum}.json");
-        var json = JsonConvert.SerializeObject(SaveData);
-        File.WriteAllText(filePath, json);
+        _logger.LogDebug("CLIENT: Requesting hosts config...");
+        RequestPluginConfigServerRpc();
+        RequestSaveDataServerRpc();
+
+        StartCoroutine(ClientSanityCheck());
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SendConfigServerRpc()
+    private void RequestPluginConfigServerRpc()
     {
-        _logger.LogDebug("SendConfigServerRpc > from client");
+        _logger.LogDebug("HOST: A client is requesting plugin config");
         var json = JsonConvert.SerializeObject(Plugin.Instance.PluginConfig);
-        SendConfigClientRpc(json);
+        SendPluginConfigClientRpc(json);
     }
 
     [ClientRpc]
-    private void SendConfigClientRpc(string json)
+    private void SendPluginConfigClientRpc(string json)
     {
-        if (retrievedCfg)
+        if (IsHost || IsServer) return;
+
+        if (_retrievedPluginConfig)
         {
-            _logger.LogDebug("Config has already been received from host on this client, disregarding.");
+            _logger.LogDebug("CLIENT: Config has already been received from host, disregarding.");
             return;
         }
+        _retrievedPluginConfig = true;
 
         var cfg = JsonConvert.DeserializeObject<PluginConfig>(json);
-        if (cfg != null && !IsHost && !IsServer)
+        if (cfg is null)
         {
-            _logger.LogDebug("Config received, deserializing and constructing...");
-            Plugin.Instance.PluginConfig.ApplyHostConfig(cfg);
-            retrievedCfg = true;
-        }
-
-        if (IsHost || IsServer)
-        {
-            StartCoroutine(WaitAndGetSaveFile());
-        }
-    }
-
-    private IEnumerator WaitAndGetSaveFile()
-    {
-        yield return new WaitForSeconds(0.5f);
-        _logger.LogDebug("Now sharing save file with clients...");
-        ShareSaveServerRpc();
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void ShareSaveServerRpc()
-    {
-        var json = JsonConvert.SerializeObject(SaveData);
-        ShareSaveClientRpc(json);
-    }
-
-    [ClientRpc]
-    private void ShareSaveClientRpc(string json)
-    {
-        if (retrievedSave)
-        {
-            _logger.LogDebug("Save file already received from host, disregarding.");
+            _logger.LogError($"CLIENT: failed to deserialize plugin config from host, disregarding. raw json: {json}");
             return;
         }
 
-        retrievedSave = true;
+        _logger.LogDebug("Config received, deserializing and constructing...");
+        Plugin.Instance.PluginConfig.ApplyHostConfig(cfg);
+    }
 
-        if (!IsHost && !IsServer)
-        {
-            _logger.LogDebug("Save file received, registering.");
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestSaveDataServerRpc()
+    {
+        _logger.LogDebug("HOST: A client is requesting save data");
+        var json = JsonConvert.SerializeObject(SaveManager.SaveData);
+        SendSaveDataClientRpc(json);
+    }
 
-            SaveData = JsonConvert.DeserializeObject<SaveData>(json);
+    [ClientRpc]
+    private void SendSaveDataClientRpc(string json)
+    {
+        if (IsHost || IsServer) return;
+        if (_retrievedSaveFile) return;
+        _retrievedSaveFile = true;
 
-            OvertimeMonitor.UpdateMonitor();
-        }
+        SaveManager.ClientLoadFromString(json);
 
-        _logger.LogDebug(JsonConvert.SerializeObject(SaveData));
-        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
+        InfoMonitor.UpdateMonitor();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -137,18 +94,26 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     {
         _logger.LogDebug("SyncDepositDeskTotalValueClientRpc");
 
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
+    }
+
+    private IEnumerator ClientSanityCheck()
+    {
+        yield return new WaitForSeconds(5.0f);
+
+        if (!_retrievedPluginConfig)
+        {
+            _logger.LogError("CLIENT: Still have not received plugin config from host, something is wrong!");
+        }
+
+        if (!_retrievedSaveFile)
+        {
+            _logger.LogError("CLIENT: Still have not received game save data from host, something is wrong!");
+        }
     }
 
     public override void OnNetworkSpawn()
     {
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-        {
-            // This is recommended in the docs, but it doesn't seem to work
-            // https://lethal.wiki/dev/advanced/networking#preventing-duplication
-            // Instance?.gameObject?.GetComponent<NetworkObject>()?.Despawn();
-        }
-
         Instance = this;
 
         base.OnNetworkSpawn();

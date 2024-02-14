@@ -23,7 +23,7 @@ internal class DepositItemsDeskPatch
     [HarmonyPatch("AddObjectToDeskClientRpc")]
     private static void CalculateTotalOnDesk()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 }
 

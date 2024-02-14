@@ -2,26 +2,43 @@
 
 namespace QualityCompany.Utils;
 
+/// <summary>
+/// A utility class containing various game instance objects
+/// </summary>
 public static class GameUtils
 {
+    /// <summary>
+    /// The games' TimeOfDay instance
+    /// </summary>
     public static TimeOfDay TimeOfDay { get; private set; }
+
+    /// <summary>
+    /// The games' StartOfRound instance
+    /// </summary>
     public static StartOfRound StartOfRound { get; private set; }
 
+    /// <summary>
+    /// The games' Terminal instance
+    /// </summary>
+    public static Terminal Terminal { get; internal set; }
+
+    /// <summary>
+    /// The games' HangarShip GameObject
+    /// </summary>
     public static GameObject ShipGameObject { get; private set; }
 
-    public static bool IsInShipMode => StartOfRound.inShipPhase;
-
-    public static void Init()
+    internal static void Init()
     {
         TimeOfDay = TimeOfDay.Instance;
         StartOfRound = StartOfRound.Instance;
         ShipGameObject = GameObject.Find("Environment/HangarShip");
     }
 
-    public static void Reset()
+    internal static void Reset()
     {
         TimeOfDay = null;
         StartOfRound = null;
+        Terminal = null;
         ShipGameObject = null;
     }
 

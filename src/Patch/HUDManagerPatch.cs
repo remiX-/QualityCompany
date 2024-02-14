@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
+using Newtonsoft.Json;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Network;
 using QualityCompany.Service;
 using static QualityCompany.Service.GameEvents;
 
@@ -16,6 +17,11 @@ internal class HUDManagerPatch
     private static void Start(HUDManager __instance)
     {
         OnHudManagerStart(__instance);
+
+        // Temp for now as HUDManager starts a little bit later than StartOfRound
+        // TODO: maybe move into a DebugModule?
+        _logger.LogDebug(JsonConvert.SerializeObject(SaveManager.SaveData));
+        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
     }
 
     [HarmonyPostfix]
@@ -29,7 +35,7 @@ internal class HUDManagerPatch
     [HarmonyPatch("DisplayCreditsEarning")]
     private static void DisplayCreditsEarning()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
         LootMonitor.UpdateMonitor();
     }
 
@@ -39,17 +45,10 @@ internal class HUDManagerPatch
     {
         _logger.LogDebug("DisplayDaysLeft");
 
-        if (Plugin.Instance.PluginConfig.NetworkingEnabled)
-        {
-            CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota++;
+        SaveManager.SaveData.TotalDaysPlayedForCurrentQuota++;
+        SaveManager.Save();
 
-            if (__instance.IsHost)
-            {
-                CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
-            }
-        }
-
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 }
 

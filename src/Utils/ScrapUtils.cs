@@ -98,7 +98,12 @@ public static class ScrapUtils
 
     public static int GetShipTotalSellableScrapValue() => GetAllSellableScrapInShip().Sum(scrap => scrap.ActualSellValue());
 
-    public static int GetShipTotalRawScrapValue() => GetAllScrapInShip().Sum(scrap => scrap.scrapValue);
+    public static int GetShipTotalRawScrapValue()
+    {
+        return GetAllScrapInShip()
+            .Where(scrap => scrap.itemProperties.isScrap && scrap.scrapValue > 0)
+            .Sum(scrap => scrap.scrapValue);
+    }
 
     public static int GetShipSettledTotalRawScrapValue()
     {
@@ -113,7 +118,7 @@ public static class ScrapUtils
     {
         if (item is null)
         {
-            _logger.LogDebug("CanSellItem: Trying to evaluate a null item");
+            _logger.LogError("CanSellItem: Trying to evaluate a null item");
             return false;
         }
 

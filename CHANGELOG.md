@@ -1,3 +1,13 @@
+# v1.3.1: Additional Networking fixes + InfoMonitor fix
+
+- Detached Save File from NetworkBehaviour instance entirely
+  - This and the changes in 1.3.0 should be more solid now
+  - Hosts with networking disabled will still save the same, making use of the games' `save number`
+  - Clients with networking disabled will have their own `local` client save, which is not tied to a `save number`
+  - **That said, this probably still needs more testing**
+- Fixed a bug with `InfoMonitor` calculating "NEEDED" amount incorrectly in a certain case - thanks @throwitaway99 ([#4](https://github.com/remiX-/QualityCompany/issues/4#issuecomment-1940570052))
+- Some class and file rename and reworks
+
 # v1.3.0: Networking
 
 - Add a ping hud display (networking only), configurable

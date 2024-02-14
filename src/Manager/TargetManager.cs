@@ -1,4 +1,5 @@
-﻿using QualityCompany.Modules.Ship;
+﻿using QualityCompany.Manager.Saves;
+using QualityCompany.Modules.Ship;
 using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
@@ -11,7 +12,7 @@ namespace QualityCompany.Manager;
 
 internal class TargetManager
 {
-    private static ACLogger _logger = new(nameof(TargetManager));
+    private static readonly ACLogger Logger = new(nameof(TargetManager));
 
     private static int _totalItems;
     private static int _totalValueForSale;
@@ -30,10 +31,12 @@ internal class TargetManager
 
     internal static void UpdateTargetClient(int targetAmount, string updatedBy)
     {
-        OvertimeMonitor.targetTotalCredits = targetAmount;
-        OvertimeMonitor.UpdateMonitor();
-
         HudUtils.DisplayNotification($"Sale target has been updated to ${targetAmount} by {updatedBy}");
+
+        SaveManager.SaveData.TargetForSelling = targetAmount;
+        SaveManager.Save();
+
+        InfoMonitor.UpdateMonitor();
     }
 
     #region Selling
@@ -101,7 +104,7 @@ internal class TargetManager
         var scrap = ScrapUtils.GetAllSellableScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
         if (scrap is null)
         {
-            _logger.LogError($"Failed to find network object on this client: {networkObjectId}");
+            Logger.LogError($"Failed to find network object on this client: {networkObjectId}");
             return;
         }
 

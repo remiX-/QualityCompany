@@ -23,7 +23,7 @@ public class ModuleRegistry
     public static void Register(Assembly assembly)
     {
         var assemblyName = assembly.GetName().Name;
-        _logger.LogMessage($"Registering Modules in {assemblyName}");
+        _logger.LogDebug($"Registering Modules in {assemblyName}");
 
         foreach (var type in assembly.GetTypes())
         {
@@ -38,13 +38,13 @@ public class ModuleRegistry
             };
 
             var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
-            _logger.LogMessage($" > {module.Name}");
+            _logger.LogDebug($" > {module.Name}");
             foreach (var method in methods)
             {
                 var onLoad = FindMethodInfoFor<ModuleOnLoad>(method);
                 if (onLoad is not null)
                 {
-                    _logger.LogMessage($"  > onLoad: {method.Name}");
+                    _logger.LogDebug($"  > onLoad: {method.Name}");
                     module.OnLoad = method;
                     continue;
                 }
@@ -52,7 +52,7 @@ public class ModuleRegistry
                 var onAttach = FindMethodInfoFor<ModuleOnAttach>(method);
                 if (onAttach is not null)
                 {
-                    _logger.LogMessage($"  > OnAttach: {method.Name}");
+                    _logger.LogDebug($"  > OnAttach: {method.Name}");
                     module.OnAttach = method;
                     continue;
                 }
@@ -60,7 +60,7 @@ public class ModuleRegistry
                 var onDetach = FindMethodInfoFor<ModuleOnDetach>(method);
                 if (onDetach is not null)
                 {
-                    _logger.LogMessage($"  > OnDetach: {method.Name}");
+                    _logger.LogDebug($"  > OnDetach: {method.Name}");
                     module.OnDetach = method;
                 }
             }
@@ -68,7 +68,7 @@ public class ModuleRegistry
             Modules.Add(module);
         }
 
-        _logger.LogMessage(" > Done!");
+        _logger.LogDebug(" > Done!");
     }
 
     private static T FindMethodInfoFor<T>(ICustomAttributeProvider member, bool inherit = false) where T : Attribute

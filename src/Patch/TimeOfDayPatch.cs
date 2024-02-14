@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Network;
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using static QualityCompany.Service.GameEvents;
@@ -14,18 +14,11 @@ internal class TimeOfDayPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("SyncNewProfitQuotaClientRpc")]
-    private static void SyncNewProfitQuotaClientRpcPatch(TimeOfDay __instance)
+    private static void SyncNewProfitQuotaClientRpcPatch()
     {
-        if (Plugin.Instance.PluginConfig.NetworkingEnabled)
-        {
-            CompanyNetworkHandler.Instance.SaveData.TotalLootValue = ScrapUtils.GetShipTotalRawScrapValue();
-            CompanyNetworkHandler.Instance.SaveData.TotalDaysPlayedForCurrentQuota = 0;
-
-            if (__instance.IsHost)
-            {
-                CompanyNetworkHandler.Instance.ServerSaveFileServerRpc();
-            }
-        }
+        SaveManager.SaveData.TotalShipLootAtStartForCurrentQuota = ScrapUtils.GetShipTotalRawScrapValue();
+        SaveManager.SaveData.TotalDaysPlayedForCurrentQuota = 0;
+        SaveManager.Save();
 
         LootMonitor.UpdateMonitor();
     }
@@ -42,7 +35,7 @@ internal class TimeOfDayPatch
     [HarmonyPatch("UpdateProfitQuotaCurrentTime")]
     private static void UpdateProfitQuotaCurrentTimePatch()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using QualityCompany.Manager;
+using QualityCompany.Manager.Saves;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Utils;
@@ -30,7 +31,6 @@ internal class SellCommands
                 .WithAction(() =>
                 {
                     TargetManager.SellAllScrap();
-                    // NetworkHandler.Instance.SellAllScrapServerRpc();
                 })
             )
             .WithSubCommand(new TerminalSubCommandBuilder("quota")
@@ -45,12 +45,6 @@ internal class SellCommands
                 .WithAction(() =>
                 {
                     TargetManager.SellAllTargetedScrap(_recommendedScraps);
-                    // foreach (var scrapNetworkObjectId in _recommendedScraps.Select(x => x.NetworkObjectId))
-                    // {
-                    //     NetworkHandler.Instance.TargetSellForNetworkObjectServerRpc(scrapNetworkObjectId);
-                    // }
-                    //
-                    // NetworkHandler.Instance.ExecuteSellAmountServerRpc();
                 })
             )
             .WithSubCommand(new TerminalSubCommandBuilder("target")
@@ -59,8 +53,8 @@ internal class SellCommands
                 .WithConditions("targetCommandDisabled", "landedAtCompany", "hasScrapItems", "notEnoughScrap", "targetAlreadyMet")
                 .WithPreAction(() =>
                 {
-                    _sellScrapActualTarget = OvertimeMonitor.targetTotalCredits;
-                    _sellScrapFor = OvertimeMonitor.targetNeeded;
+                    _sellScrapActualTarget = SaveManager.SaveData.TargetForSelling;
+                    _sellScrapFor = InfoMonitor.Instance.CalculatedNeededToReachTarget;
                     _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor);
                 })
                 .WithAction(() =>
