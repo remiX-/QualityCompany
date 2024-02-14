@@ -12,9 +12,9 @@ internal class GameNetworkManagerPatch
     [HarmonyPatch("Disconnect")]
     private static void DisconnectPatch(GameNetworkManager __instance)
     {
-        GameUtils.Reset();
-
         OnDisconnected(__instance);
+
+        GameUtils.Reset();
     }
 
     [HarmonyPrefix]

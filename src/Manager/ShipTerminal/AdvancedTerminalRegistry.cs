@@ -21,7 +21,7 @@ public class AdvancedTerminalRegistry
     public static void Register(Assembly assembly)
     {
         var assemblyName = assembly.GetName().Name;
-        _logger.LogMessage($"Registering Terminal Commands in {assemblyName}");
+        _logger.LogDebug($"Registering Terminal Commands in {assemblyName}");
 
         var assemblyCommandsCount = 0;
         foreach (var type in assembly.GetTypes())
@@ -44,7 +44,7 @@ public class AdvancedTerminalRegistry
             }
         }
 
-        _logger.LogMessage($" > Found {assemblyCommandsCount} terminal commands");
+        _logger.LogDebug($" > Found {assemblyCommandsCount} terminal commands");
     }
 
     private static T FindMethodInfoFor<T>(ICustomAttributeProvider member) where T : Attribute

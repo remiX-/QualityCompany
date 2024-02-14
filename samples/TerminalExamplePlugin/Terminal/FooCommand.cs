@@ -27,8 +27,8 @@ internal class FooCommand
                 })
                 .WithAction(() =>
                 {
-                    // Some action to perform
-                    // Can also do RPC methods here if your mod supports it
+                    // some action to perform
+                    // can also do `XyzServiceRpc` / `ZyxClientRpc` methods here if your mod supports it
                 })
             );
     }

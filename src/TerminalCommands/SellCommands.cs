@@ -54,7 +54,7 @@ internal class SellCommands
                 .WithPreAction(() =>
                 {
                     _sellScrapActualTarget = SaveManager.SaveData.TargetForSelling;
-                    _sellScrapFor = OvertimeMonitor.TargetNeeded;
+                    _sellScrapFor = InfoMonitor.Instance.CalculatedNeededToReachTarget;
                     _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor);
                 })
                 .WithAction(() =>

@@ -7,23 +7,23 @@ using UnityEngine;
 
 namespace QualityCompany.Modules.Ship;
 
-internal class OvertimeMonitor : BaseMonitor
+internal class InfoMonitor : BaseMonitor
 {
-    public static OvertimeMonitor Instance;
+    public static InfoMonitor Instance;
 
-    private static Terminal _terminal;
     private static GameObject _depositDesk;
 
-    private static int _targetTotalCredits = 1200;
-    public static int TargetNeeded { get; private set; } = 1200;
+    internal int TargetTotalCredits => SaveManager.SaveData.TargetForSelling;
+    internal int CalculatedNeededToReachTarget { get; private set; }
+    internal int CalculatedOvertime { get; private set; }
+    internal int CalculatedDeskTotal { get; private set; }
 
     protected override void PostStart()
     {
         Instance = this;
-        Logger = new ACLogger(nameof(OvertimeMonitor));
+        Logger = new ACLogger(nameof(InfoMonitor));
 
         TextMesh.fontSize *= 0.65f;
-        _terminal = FindFirstObjectByType<Terminal>();
 
         UpdateMonitor();
     }
@@ -39,14 +39,15 @@ internal class OvertimeMonitor : BaseMonitor
 
         if (GameUtils.IsOnCompany())
         {
-            TargetNeeded = CalculateSellNeeded();
-            var overtime = CalculateOvertime();
+            Instance.CalculatedNeededToReachTarget = CalculateSellNeeded();
+            Instance.CalculatedOvertime = CalculateOvertime();
+            Instance.CalculatedDeskTotal = CalculateSumOnDepositDesk();
 
             Instance.UpdateMonitorText(
                 $"TARGET:${SaveManager.SaveData.TargetForSelling}\n" +
-                $"NEEDED:${TargetNeeded}\n" +
-                $"OVERTIME:${overtime}\n" +
-                $"DESK:${CalculateSumOnDepositDesk()}"
+                $"NEEDED:${Instance.CalculatedNeededToReachTarget}\n" +
+                $"OVERTIME:${Instance.CalculatedOvertime}\n" +
+                $"DESK:${Instance.CalculatedDeskTotal}"
             );
 
             return;
@@ -62,12 +63,6 @@ internal class OvertimeMonitor : BaseMonitor
         Instance.UpdateMonitorText($"DAY: {(isDeadlineDay ? "DEADLINE" : daysCompleted)}\nQUOTA START: ${quotaStartScrap}\n${gainedLostText}");
     }
 
-    internal static void UpdateTargetAmount(int target)
-    {
-        _targetTotalCredits = target;
-        UpdateMonitor();
-    }
-
     internal static string GetText()
     {
         if (Instance is null) return string.Empty;
@@ -78,35 +73,34 @@ internal class OvertimeMonitor : BaseMonitor
     private static int CalculateSellNeeded()
     {
         // if the current profit quota is more than target
-        var isQuotaMoreThanTarget = GameUtils.TimeOfDay.profitQuota >= _targetTotalCredits;
+        var isQuotaMoreThanTarget = GameUtils.TimeOfDay.profitQuota >= Instance.TargetTotalCredits;
         // if players have more credits than the actual target, it would show 0
-        var groupCreditsMoreThanTarget = _terminal.groupCredits >= _targetTotalCredits;
+        var groupCreditsMoreThanTarget = GameUtils.Terminal.groupCredits >= Instance.TargetTotalCredits;
         // if either hit, then just show remaining amount needed to just meet the quota
         if (isQuotaMoreThanTarget || groupCreditsMoreThanTarget)
         {
             return Math.Max(0, GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled);
         }
 
-        if (_terminal.groupCredits > _targetTotalCredits) return GameUtils.TimeOfDay.profitQuota;
+        if (GameUtils.Terminal.groupCredits > Instance.TargetTotalCredits) return GameUtils.TimeOfDay.profitQuota;
 
         var actualNeeded = Math.Max(0, CalculateSellAmountRequired() - GameUtils.TimeOfDay.quotaFulfilled);
 
-        // in the case where the group has a lot of credits already, then return to the remaining to reach `profitQuota`
+        // in the case where the group has a lot of credits already, calculation gets cross-wired
+        // so instead, return to the remaining to reach `profitQuota` but still negating 'quotaFulfilled' (how much has been sold)
         // Thanks @throwitaway99 https://github.com/remiX-/QualityCompany/issues/4#issuecomment-1940570052
-        // TODO: something sad with calcs here if already sold and wanting to update target again + having a lot of credits already
-        // if (actualNeeded < GameUtils.TimeOfDay.profitQuota)
-        // {
-        //     return Math.Max(0, GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled);
-        // }
+        // to confirm if this actually works
+        if (actualNeeded < GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled)
+        {
+            return Math.Max(0, GameUtils.TimeOfDay.profitQuota - GameUtils.TimeOfDay.quotaFulfilled);
+        }
 
         return actualNeeded;
     }
 
     private static int CalculateSellAmountRequired()
     {
-        // TODO: above comments
-        // var amountStillNeeded = _targetTotalCredits - (_terminal.groupCredits - GameUtils.TimeOfDay.quotaFulfilled) + GameUtils.TimeOfDay.quotaFulfilled;
-        var amountStillNeeded = _targetTotalCredits - _terminal.groupCredits + GameUtils.TimeOfDay.quotaFulfilled;
+        var amountStillNeeded = Instance.TargetTotalCredits - GameUtils.Terminal.groupCredits + GameUtils.TimeOfDay.quotaFulfilled;
         var deadlineDaysDifference = 15 * (GameUtils.TimeOfDay.daysUntilDeadline - 1);
         return (int)Math.Ceiling(5 * (amountStillNeeded - deadlineDaysDifference + (float)GameUtils.TimeOfDay.profitQuota / 5) / 6);
     }

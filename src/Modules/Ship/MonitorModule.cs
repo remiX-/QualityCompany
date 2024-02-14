@@ -31,7 +31,7 @@ internal class MonitorModule
         }
         if (Plugin.Instance.PluginConfig.MonitorInfoEnabled)
         {
-            InitMonitor<OvertimeMonitor>(ref currentMonitorIndex);
+            InitMonitor<InfoMonitor>(ref currentMonitorIndex);
         }
         if (Plugin.Instance.PluginConfig.MonitorTimeEnabled)
         {

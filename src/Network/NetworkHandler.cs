@@ -60,13 +60,6 @@ internal class NetworkHandler : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-        {
-            // This is recommended in the docs, but it doesn't seem to work
-            // https://lethal.wiki/dev/advanced/networking#preventing-duplication
-            // Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
-        }
-
         Instance = this;
 
         base.OnNetworkSpawn();

@@ -1,4 +1,4 @@
-using QualityCompany.Modules.Core;
+﻿using QualityCompany.Modules.Core;
 using TMPro;
 using UnityEngine;
 using static QualityCompany.Service.GameEvents;

@@ -6,39 +6,39 @@ namespace QualityCompany.Manager.ShipTerminal;
 
 public class TerminalCommandBuilder
 {
-    public string CommandText { get; set; }
-    public Func<string> Action;
-    public bool IsSimpleCommand;
-    public string ActionEvent;
-    public readonly TerminalNode node = new();
-    public readonly TerminalKeyword nodeKeyword = new();
-    private readonly List<TerminalSubCommandBuilder> SubCommandsBuilders = new();
-    public List<TerminalSubCommand> SubCommands = new();
-    public readonly Dictionary<string, Func<string>> textProcessPlaceholders = new();
-    public readonly List<(TerminalNode node, Func<bool> condition)> specialNodes = new();
+    internal string CommandText { get; set; }
+    internal Func<string> Action;
+    internal bool IsSimpleCommand;
+    internal string ActionEvent;
+    internal readonly TerminalNode Node = new();
+    internal readonly TerminalKeyword NodeKeyword = new();
+    internal readonly List<TerminalSubCommandBuilder> SubCommandsBuilders = new();
+    internal List<TerminalSubCommand> SubCommands = new();
+    internal readonly Dictionary<string, Func<string>> TextProcessPlaceholders = new();
+    internal readonly List<(TerminalNode node, Func<bool> condition)> SpecialNodes = new();
 
-    public string description = "";
+    internal string Description = "";
 
-    public string ConfirmMessage = "Confirmed!";
-    public string DenyMessage = "Cancelled!";
+    internal string ConfirmMessage = "Confirmed!";
+    internal string DenyMessage = "Cancelled!";
 
     public TerminalCommandBuilder(string name)
     {
         CommandText = name;
-        node.name = name;
-        node.clearPreviousText = true;
-        node.displayText = $"{name} is empty";
-        nodeKeyword = new TerminalKeyword
+        Node.name = name;
+        Node.clearPreviousText = true;
+        Node.displayText = $"{name} is empty";
+        NodeKeyword = new TerminalKeyword
         {
             name = name,
             word = name,
-            specialKeywordResult = node
+            specialKeywordResult = Node
         };
     }
 
     public TerminalCommandBuilder WithDescription(string desc)
     {
-        description = desc + AdvancedTerminal.EndOfMessage;
+        Description = desc + AdvancedTerminal.EndOfMessage;
 
         return this;
     }
@@ -49,9 +49,9 @@ public class TerminalCommandBuilder
         Action = () =>
         {
             action();
-            return node.displayText;
+            return Node.displayText;
         };
-        node.terminalEvent = $"{node.name}_event";
+        Node.terminalEvent = $"{Node.name}_event";
 
         return this;
     }
@@ -74,7 +74,7 @@ public class TerminalCommandBuilder
 
     public TerminalCommandBuilder WithText(string text)
     {
-        node.displayText = text + AdvancedTerminal.EndOfMessage;
+        Node.displayText = text + AdvancedTerminal.EndOfMessage;
         return this;
     }
 
@@ -83,15 +83,15 @@ public class TerminalCommandBuilder
         ConfirmMessage = confirmMessage + AdvancedTerminal.EndOfMessage;
         DenyMessage = denyMessage + AdvancedTerminal.EndOfMessage;
 
-        node.isConfirmationNode = true;
-        node.overrideOptions = true;
+        Node.isConfirmationNode = true;
+        Node.overrideOptions = true;
 
         return this;
     }
 
     public TerminalCommandBuilder AddTextReplacement(string replacementKey, Func<string> action)
     {
-        textProcessPlaceholders.Add(replacementKey, action);
+        TextProcessPlaceholders.Add(replacementKey, action);
 
         return this;
     }
@@ -113,42 +113,42 @@ public class TerminalCommandBuilder
             displayText = displayText + AdvancedTerminal.EndOfMessage,
             clearPreviousText = true
         };
-        specialNodes.Add((specialNode, condition));
+        SpecialNodes.Add((specialNode, condition));
 
         return this;
     }
 
     internal TerminalKeyword[] Build(TerminalKeyword confirmKeyword, TerminalKeyword denyKeyword)
     {
-        ActionEvent = $"{node.name}_event";
+        ActionEvent = $"{Node.name}_event";
 
         if (SubCommandsBuilders.Any())
         {
             SubCommands = SubCommandsBuilders
-                .Select(x => x.Build(node.name, confirmKeyword, denyKeyword))
+                .Select(x => x.Build(Node.name, confirmKeyword, denyKeyword))
                 .ToList();
-            nodeKeyword.isVerb = SubCommands.Any();
-            nodeKeyword.compatibleNouns = SubCommands.Select(keyword => new CompatibleNoun
+            NodeKeyword.isVerb = SubCommands.Any();
+            NodeKeyword.compatibleNouns = SubCommands.Select(keyword => new CompatibleNoun
             {
                 noun = keyword.Keyword,
                 result = keyword.Node
             }).ToArray();
         }
 
-        if (node.isConfirmationNode)
+        if (Node.isConfirmationNode)
         {
-            node.displayText += "[confirmOrDeny]";
-            node.terminalOptions = new[]
+            Node.displayText += "[confirmOrDeny]";
+            Node.terminalOptions = new[]
             {
                 new CompatibleNoun
                 {
                     noun = confirmKeyword,
                     result = new TerminalNode
                     {
-                        name = $"{node.name}_confirm",
+                        name = $"{Node.name}_confirm",
                         displayText = ConfirmMessage + AdvancedTerminal.EndOfMessage,
                         clearPreviousText = true,
-                        terminalEvent = $"{node.name}_event"
+                        terminalEvent = $"{Node.name}_event"
                     }
                 },
                 new CompatibleNoun
@@ -156,7 +156,7 @@ public class TerminalCommandBuilder
                     noun = denyKeyword,
                     result = new TerminalNode
                     {
-                        name = $"{node.name}_deny",
+                        name = $"{Node.name}_deny",
                         displayText = DenyMessage + AdvancedTerminal.EndOfMessage,
                         clearPreviousText = true
                     }
@@ -165,10 +165,10 @@ public class TerminalCommandBuilder
         }
         else
         {
-            node.terminalEvent = $"{node.name}_event";
+            Node.terminalEvent = $"{Node.name}_event";
         }
 
-        return new List<TerminalKeyword> { nodeKeyword }
+        return new List<TerminalKeyword> { NodeKeyword }
             .Concat(SubCommands.Where(x => !x.IsVariableCommand).Select(x => x.Keyword))
             .ToArray();
     }

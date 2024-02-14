@@ -48,6 +48,8 @@ These commands use an approximation for finding a perfect match, it may not find
 
 ### target
 
+You will find a detailed explanation on this upon using the `target` command in-game.
+
 `target <amount>` will set a target that is displayed on the monitor from the terminal. This target denotes the target amount of credits you want after selling and leaving the company.
 
 Additionally a "Needed" field appears on the monitor (second from the left) which will tell you how much you need to sell in order to reach your target. This needed value **takes into account approximately how much overtime you will earn** and **how much current credits you currently have**.\
@@ -165,7 +167,8 @@ NOTE: Useful if you have mod compatibility issues with mods that affect the play
 
 ### **NetworkingEnabled**
 
-[EXPERIMENTAL!!!] [CLIENT] Turn on/off networking capabilities.\nNOTE: This will MOST LIKELY cause de-sync issues with a couple of things, primarily for non-host clients.\
+[EXPERIMENTAL!!!] [CLIENT] Turn on/off networking capabilities.\
+NOTE: This will MOST LIKELY cause de-sync issues with a couple of things, primarily for non-host clients.\
 **DEFAULT:** `true`
 
 ## Terminal

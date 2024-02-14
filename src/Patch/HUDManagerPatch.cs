@@ -35,7 +35,7 @@ internal class HUDManagerPatch
     [HarmonyPatch("DisplayCreditsEarning")]
     private static void DisplayCreditsEarning()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
         LootMonitor.UpdateMonitor();
     }
 
@@ -48,7 +48,7 @@ internal class HUDManagerPatch
         SaveManager.SaveData.TotalDaysPlayedForCurrentQuota++;
         SaveManager.Save();
 
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 }
 

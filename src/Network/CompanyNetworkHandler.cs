@@ -61,13 +61,6 @@ internal class CompanyNetworkHandler : NetworkBehaviour
         Plugin.Instance.PluginConfig.ApplyHostConfig(cfg);
     }
 
-    // private IEnumerator WaitAndRequestSaveFile()
-    // {
-    //     yield return new WaitForSeconds(0.5f);
-    //     _logger.LogDebug("Now getting save file from host");
-    //     RequestSaveDataServerRpc();
-    // }
-
     [ServerRpc(RequireOwnership = false)]
     private void RequestSaveDataServerRpc()
     {
@@ -85,7 +78,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         SaveManager.ClientLoadFromString(json);
 
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -101,7 +94,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     {
         _logger.LogDebug("SyncDepositDeskTotalValueClientRpc");
 
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 
     private IEnumerator ClientSanityCheck()
@@ -121,13 +114,6 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-        {
-            // This is recommended in the docs, but it doesn't seem to work
-            // https://lethal.wiki/dev/advanced/networking#preventing-duplication
-            // Instance?.gameObject?.GetComponent<NetworkObject>()?.Despawn();
-        }
-
         Instance = this;
 
         base.OnNetworkSpawn();

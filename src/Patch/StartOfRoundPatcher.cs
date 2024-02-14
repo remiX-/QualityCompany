@@ -60,14 +60,14 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("StartGame")]
     private static void StartGamePatch()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("ArriveAtLevel")]
     private static void ArriveAtLevelPatch()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]

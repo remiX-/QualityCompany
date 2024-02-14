@@ -36,7 +36,7 @@ internal class TargetManager
         SaveManager.SaveData.TargetForSelling = targetAmount;
         SaveManager.Save();
 
-        OvertimeMonitor.UpdateTargetAmount(targetAmount);
+        InfoMonitor.UpdateMonitor();
     }
 
     #region Selling

@@ -2,7 +2,6 @@
 using QualityCompany.Service;
 using System;
 using System.IO;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace QualityCompany.Manager.Saves;
@@ -13,7 +12,7 @@ internal class SaveManager
 
     internal static GameSaveData SaveData { get; private set; } = new();
 
-    private static bool IsHost => NetworkManager.Singleton.IsHost;
+    private static bool IsHost => GameNetworkManager.Instance.isHostingGame;
     private static bool HasNetworking => Plugin.Instance.PluginConfig.NetworkingEnabled;
 
     private static string _saveFileName;

@@ -3,6 +3,7 @@ using HarmonyLib;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
+using QualityCompany.Utils;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,37 +18,30 @@ internal class TerminalPatch
 {
     private static readonly ACLogger _logger = new(nameof(TerminalPatch));
 
-    private static bool patchedTerminal;
-
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
-    private static void Awake(Terminal __instance)
+    private static void AwakePatch(Terminal __instance)
     {
-        if (patchedTerminal)
-        {
-            return;
-        }
+        GameUtils.Terminal = __instance;
 
         AdvancedTerminal.AddGlobalTextReplacement("[companyBuyingRateWarning]", () => Math.Abs(StartOfRound.Instance.companyBuyingRate - 1f) == 0f
             ? ""
             : $"WARNING: Company buying rate is currently at {StartOfRound.Instance.companyBuyingRate:P0}\n\n");
         AdvancedTerminal.AddGlobalTextReplacement("[confirmOrDeny]", () => "Please CONFIRM or DENY.\n\n\n");
 
-        AdvancedTerminal.ApplyToTerminal(__instance);
-
-        patchedTerminal = true;
+        AdvancedTerminal.ApplyToTerminal();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("SyncGroupCreditsClientRpc")]
-    private static void RefreshMoney()
+    private static void SyncGroupCreditsClientRpcPatch()
     {
         LootMonitor.UpdateMonitor();
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("TextPostProcess")]
-    public static string ProcessCustomText(string __result)
+    public static string TextPostProcessPatch(string __result)
     {
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
@@ -58,7 +52,7 @@ internal class TerminalPatch
 
         foreach (var command in AdvancedTerminal.Commands)
         {
-            foreach (var (key, func) in command.textProcessPlaceholders)
+            foreach (var (key, func) in command.TextProcessPlaceholders)
             {
                 if (!__result.Contains(key)) continue;
 
@@ -71,7 +65,7 @@ internal class TerminalPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("ParsePlayerSentence")]
-    public static TerminalNode TryReturnSpecialNodes(TerminalNode __result, Terminal __instance)
+    public static TerminalNode ParsePlayerSentencePatch(TerminalNode __result, Terminal __instance)
     {
         if (__result is null) return null;
 
@@ -117,7 +111,7 @@ internal class TerminalPatch
     {
         //_logger.LogDebug(" > executing SimpleCommand");
         //_logger.LogDebug("  > checking conditions");
-        foreach (var (node, condition) in command.specialNodes)
+        foreach (var (node, condition) in command.SpecialNodes)
         {
             //_logger.LogDebug($"   > condition: {node.name}");
 
@@ -144,7 +138,7 @@ internal class TerminalPatch
         else
         {
             // If not input args are provided, return primary command main node
-            if (inputCommandArgs.IsNullOrWhiteSpace()) return command.node;
+            if (inputCommandArgs.IsNullOrWhiteSpace()) return command.Node;
 
             // Now try to find a matching variable input command
             subCommand = command.SubCommands.FirstOrDefault(subCmd =>
@@ -159,17 +153,17 @@ internal class TerminalPatch
             subCommand?.VariablePreAction(inputCommandArgs);
         }
 
-        // If nothing was found, just return early
+        // If nothing was found, just return the main commands node
         if (subCommand is null)
         {
             //_logger.LogDebug($"  > No matching sub command found for input: '{inputCommand}' | '{inputCommandArgs}'");
-            return null;
+            return command.Node;
         }
 
         //_logger.LogDebug("  > checking special conditions");
         foreach (var conditionString in subCommand.Conditions)
         {
-            var specialCondition = command.specialNodes.FirstOrDefault(x => x.node.name == conditionString);
+            var specialCondition = command.SpecialNodes.FirstOrDefault(x => x.node.name == conditionString);
             if (specialCondition == default)
             {
                 _logger.LogError($"> SubCommand {subCommand.Name} has special criteria for '{conditionString}' but it is not found as part of the commands' special conditions list.");
@@ -190,7 +184,7 @@ internal class TerminalPatch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(Terminal.RunTerminalEvents))]
-    public static void RunTerminalEvents(TerminalNode node)
+    public static void RunTerminalEventsPatch(TerminalNode node)
     {
         //_logger.LogDebug($"RunTerminalEvents: node: {node?.ToString() ?? "null"} | terminalEvent: {node?.terminalEvent ?? "empty"}");
 

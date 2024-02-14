@@ -35,7 +35,7 @@ internal class TimeOfDayPatch
     [HarmonyPatch("UpdateProfitQuotaCurrentTime")]
     private static void UpdateProfitQuotaCurrentTimePatch()
     {
-        OvertimeMonitor.UpdateMonitor();
+        InfoMonitor.UpdateMonitor();
     }
 }
 

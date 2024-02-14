@@ -37,7 +37,7 @@ internal class PlayerControllerBPatch
         OnPlayerGrabObjectClientRpc(__instance, grabbableObject);
         if (grabbableObject.isInShipRoom || grabbableObject.isInElevator)
         {
-            OvertimeMonitor.UpdateMonitor();
+            InfoMonitor.UpdateMonitor();
         }
 
         LootMonitor.UpdateMonitor();
@@ -51,7 +51,7 @@ internal class PlayerControllerBPatch
 
         if (droppedInShipRoom || droppedInElevator)
         {
-            OvertimeMonitor.UpdateMonitor();
+            InfoMonitor.UpdateMonitor();
         }
 
         LootMonitor.UpdateMonitor();
