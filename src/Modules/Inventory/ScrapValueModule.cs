@@ -1,4 +1,4 @@
-﻿using QualityCompany.Modules.Core;
+using QualityCompany.Modules.Core;
 using TMPro;
 using UnityEngine;
 using static QualityCompany.Service.GameEvents;
@@ -43,7 +43,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
             texts.Add(CreateInventoryGameObject($"qc_HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
 
-            if (i == 0)
+            if (i == 0 && Plugin.Instance.PluginConfig.InventoryShowTotalScrapUI)
             {
                 // Invert positioning on the first slot to be 90 degrees opposite to the current item value
                 _totalScrapValueText = CreateInventoryGameObject("qc_HUDScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));

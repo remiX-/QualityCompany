@@ -9,32 +9,20 @@ namespace QualityCompany;
 [Serializable]
 internal class PluginConfig
 {
-    public string SellIgnoreList { get; set; }
-
-    public bool TerminalMiscCommandsEnabled { get; set; }
-
-    public bool TerminalSellCommandsEnabled { get; set; }
-
-    public bool TerminalTargetCommandsEnabled { get; set; }
-
-    public bool TerminalDebugCommandsEnabled { get; set; }
-
-    public bool TerminalPatchFixScanEnabled { get; set; }
+    #region Debug
+    [JsonIgnore]
+    public bool ShowDebugLogs { get; set; }
 
     [JsonIgnore]
-    public bool NetworkingEnabled { get; set; }
+    public bool ExperimentalFeaturesEnabled { get; set; }
+    #endregion
 
-    [JsonIgnore]
-    public bool MonitorLootCreditsEnabled { get; set; }
-
-    [JsonIgnore]
-    public bool MonitorInfoEnabled { get; set; }
-
-    [JsonIgnore]
-    public bool MonitorTimeEnabled { get; set; }
-
+    #region HUD
     [JsonIgnore]
     public bool InventoryShowScrapUI { get; set; }
+
+    [JsonIgnore]
+    public bool InventoryShowTotalScrapUI { get; set; }
 
     [JsonIgnore]
     public bool InventoryShowShotgunAmmoCounterUI { get; set; }
@@ -59,18 +47,164 @@ internal class PluginConfig
 
     [JsonIgnore]
     public float HudLatencyVerticalPadding { get; set; }
+    #endregion
+
+    #region Monitor
+    [JsonIgnore]
+    public bool MonitorLootCreditsEnabled { get; set; }
 
     [JsonIgnore]
-    public bool ShowDebugLogs { get; set; }
+    public bool MonitorInfoEnabled { get; set; }
 
     [JsonIgnore]
-    public bool ExperimentalFeaturesEnabled { get; set; }
+    public bool MonitorTimeEnabled { get; set; }
+    #endregion
+
+    #region Networking
+
+    [JsonIgnore]
+    public bool NetworkingEnabled { get; set; }
+    #endregion
+
+    #region Terminal
+    public string SellIgnoreList { get; set; }
+
+    public bool TerminalMiscCommandsEnabled { get; set; }
+
+    public bool TerminalSellCommandsEnabled { get; set; }
+
+    public bool TerminalTargetCommandsEnabled { get; set; }
+
+    public bool TerminalDebugCommandsEnabled { get; set; }
+
+    public bool TerminalPatchFixScanEnabled { get; set; }
+    #endregion
 
     public PluginConfig()
     { }
 
     public void Bind(ConfigFile configFile)
     {
+        #region Debug
+        ShowDebugLogs = configFile.Bind(
+            "Debug",
+            "ShowDebugLogs",
+            false,
+            "[CLIENT] Turn on/off debug logs."
+        ).Value;
+
+        ExperimentalFeaturesEnabled = configFile.Bind(
+            "Debug",
+            "ExperimentalFeaturesEnabled",
+            false,
+            "[CLIENT] Turn on/off experimental features."
+        ).Value;
+        #endregion
+
+        #region HUD
+        InventoryShowScrapUI = configFile.Bind(
+            "HUD",
+            "ShowScrapUI",
+            true,
+            "[CLIENT] Turn on/off scrap value on the item slots UI."
+        ).Value;
+
+        InventoryShowTotalScrapUI = configFile.Bind(
+            "HUD",
+            "ShowTotalScrapUI",
+            true,
+            "[CLIENT] Turn on/off total held items scrap value UI."
+        ).Value;
+
+        InventoryShowShotgunAmmoCounterUI = configFile.Bind(
+            "HUD",
+            "ShowShotgunAmmoCounterUI",
+            true,
+            "[CLIENT] Turn on/off shotgun ammo counter on the item slots UI."
+        ).Value;
+
+        InventoryForceUpdateAllSlotsOnDiscard = configFile.Bind(
+            "HUD",
+            "ForceUpdateAllSlotsOnDiscard",
+            false,
+            "[CLIENT] Turn on/off force updating all item slots scrap & shotgun ui on discarding of a held item."
+        ).Value;
+
+        InventoryStartupDelay = configFile.Bind(
+            "HUD",
+            "StartupDelay",
+            4.5f,
+            "[CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\nNOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)"
+        ).Value;
+
+        HudLatencyEnabled = configFile.Bind(
+            "HUD",
+            "Show latency to host",
+            true,
+            "[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default. Requires networking."
+        ).Value;
+
+        HudLatencyUpdateInterval = configFile.Bind(
+            "HUD",
+            "Latency Update Interval",
+            5f,
+            "[CLIENT] How often to do latency update checks. Will be set to a minimum of 2 seconds."
+        ).Value;
+
+        HudLatencyAnchor = configFile.Bind(
+            "HUD",
+            "Latency Anchor Position",
+            "BottomLeft",
+            "[CLIENT] Anchor position to place the latency display.\nPossible values: TopLeft, TopRight, BottomLeft, BottomRight"
+        ).Value;
+
+        HudLatencyHorizontalPadding = configFile.Bind(
+            "HUD",
+            "Latency Horizontal Padding",
+            5,
+            "[CLIENT] Horizontal padding for the latency hud display away from the horizontal (left/right) edge of the screen."
+        ).Value;
+
+        HudLatencyVerticalPadding = configFile.Bind(
+            "HUD",
+            "Latency Vertical Padding",
+            5,
+            "[CLIENT] Vertical padding for the latency hud display away from the vertical (top/bottom) edge of the screen."
+        ).Value;
+        #endregion
+
+        #region Monitor
+        MonitorLootCreditsEnabled = configFile.Bind(
+            "Monitor",
+            "LootCreditsEnabled",
+            true,
+            "[CLIENT] Turn on/off the ship loot & game credit balance monitor in the ship."
+        ).Value;
+
+        MonitorInfoEnabled = configFile.Bind(
+            "Monitor",
+            "InfoEnabled",
+            true,
+            "[CLIENT] Turn on/off the info monitor in the ship."
+        ).Value;
+
+        MonitorTimeEnabled = configFile.Bind(
+            "Monitor",
+            "TimeEnabled",
+            true,
+            "[CLIENT] Turn on/off the time monitor in the ship."
+        ).Value;
+        #endregion
+
+        #region Networking
+        NetworkingEnabled = configFile.Bind(
+            "Networking",
+            "NetworkingEnabled",
+            true,
+            "[EXPERIMENTAL!!!] [CLIENT] Turn on/off networking capabilities.\nNOTE: This will MOST LIKELY cause de-sync issues with a couple of things, primarily for non-host clients."
+        ).Value;
+        #endregion
+
         #region Terminal
         SellIgnoreList = configFile.Bind(
             "Terminal",
@@ -112,121 +246,6 @@ internal class PluginConfig
             "PatchFixScanEnabled",
             true,
             "[HOST] Turn on/off patch fixing the games' 'scan' command where it occasionally does not work."
-        ).Value;
-        #endregion
-
-        #region Monitor
-        MonitorLootCreditsEnabled = configFile.Bind(
-            "Monitor",
-            "LootCreditsEnabled",
-            true,
-            "[CLIENT] Turn on/off the ship loot & game credit balance monitor in the ship."
-        ).Value;
-
-        MonitorInfoEnabled = configFile.Bind(
-            "Monitor",
-            "InfoEnabled",
-            true,
-            "[CLIENT] Turn on/off the info monitor in the ship."
-        ).Value;
-
-        MonitorTimeEnabled = configFile.Bind(
-            "Monitor",
-            "TimeEnabled",
-            true,
-            "[CLIENT] Turn on/off the time monitor in the ship."
-        ).Value;
-        #endregion
-
-        #region Inventory
-        InventoryShowScrapUI = configFile.Bind(
-            "HUD",
-            "ShowScrapUI",
-            true,
-            "[CLIENT] Turn on/off scrap value on the item slots UI."
-        ).Value;
-
-        InventoryShowShotgunAmmoCounterUI = configFile.Bind(
-            "HUD",
-            "ShowShotgunAmmoCounterUI",
-            true,
-            "[CLIENT] Turn on/off shotgun ammo counter on the item slots UI."
-        ).Value;
-
-        InventoryForceUpdateAllSlotsOnDiscard = configFile.Bind(
-            "HUD",
-            "ForceUpdateAllSlotsOnDiscard",
-            false,
-            "[CLIENT] Turn on/off force updating all item slots scrap & shotgun ui on discarding of a held item."
-        ).Value;
-
-        InventoryStartupDelay = configFile.Bind(
-            "HUD",
-            "StartupDelay",
-            4.5f,
-            "[CLIENT] Delay before creating inventory UI components for scrap value & shotgun ammo. Minimum value will be set to 3 seconds.\nNOTE: Useful if you have mod compatibility issues with mods that affect the players' inventory slots such as HotBarPlus, GeneralImprovements, ReservedItemSlot (Flashlight, Weapon, etc)"
-        ).Value;
-        #endregion
-
-        #region HUD
-        HudLatencyEnabled = configFile.Bind(
-            "HUD",
-            "Show latency to host",
-            true,
-            "[CLIENT] Whether to show the latency HUD or not. Disabled for the host by default. Requires networking."
-        ).Value;
-
-        HudLatencyUpdateInterval = configFile.Bind(
-            "HUD",
-            "Latency Update Interval",
-            5f,
-            "[CLIENT] How often to do latency update checks. Will be set to a minimum of 2 seconds."
-        ).Value;
-
-        HudLatencyAnchor = configFile.Bind(
-            "HUD",
-            "Latency Anchor Position",
-            "BottomLeft",
-            "[CLIENT] Anchor position to place the latency display.\nPossible values: TopLeft, TopRight, BottomLeft, BottomRight"
-        ).Value;
-
-        HudLatencyHorizontalPadding = configFile.Bind(
-            "HUD",
-            "Latency Horizontal Padding",
-            5,
-            "[CLIENT] Horizontal padding for the latency hud display away from the horizontal (left/right) edge of the screen."
-        ).Value;
-
-        HudLatencyVerticalPadding = configFile.Bind(
-            "HUD",
-            "Latency Vertical Padding",
-            5,
-            "[CLIENT] Vertical padding for the latency hud display away from the vertical (top/bottom) edge of the screen."
-        ).Value;
-        #endregion
-
-        #region Networking
-        NetworkingEnabled = configFile.Bind(
-            "Networking",
-            "NetworkingEnabled",
-            true,
-            "[EXPERIMENTAL!!!] [CLIENT] Turn on/off networking capabilities.\nNOTE: This will MOST LIKELY cause de-sync issues with a couple of things, primarily for non-host clients."
-        ).Value;
-        #endregion
-
-        #region Debug
-        ShowDebugLogs = configFile.Bind(
-            "Debug",
-            "ShowDebugLogs",
-            false,
-            "[CLIENT] Turn on/off debug logs."
-        ).Value;
-
-        ExperimentalFeaturesEnabled = configFile.Bind(
-            "Debug",
-            "ExperimentalFeaturesEnabled",
-            false,
-            "[CLIENT] Turn on/off experimental features."
         ).Value;
         #endregion
     }
