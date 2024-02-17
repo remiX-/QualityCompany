@@ -6,6 +6,7 @@ using QualityCompany.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace QualityCompany.TerminalCommands;
 
@@ -87,7 +88,10 @@ internal class SellCommands
             {
                 _sellScrapActualTarget = SaveManager.SaveData.TargetForSelling;
                 _sellScrapFor = InfoMonitor.Instance.CalculatedNeededToReachTarget;
-                _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor);
+                _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor)
+                    .OrderBy(x => x.itemProperties.name)
+                    .ThenByDescending(x => x.scrapValue)
+                    .ToList();
             })
             .WithAction(() =>
             {
@@ -109,7 +113,10 @@ internal class SellCommands
 
                 if (_sellScrapFor <= 0) return false;
 
-                _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor);
+                _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor)
+                    .OrderBy(x => x.itemProperties.name)
+                    .ThenByDescending(x => x.scrapValue)
+                    .ToList();
 
                 // Nothing found, return notEnoughScrapNode
                 if (_recommendedScraps.Count == 0) return false;
@@ -133,7 +140,10 @@ internal class SellCommands
             .WithPreAction(() =>
             {
                 _recommendedScraps = ScrapUtils.GetAllSellableScrapInShip()
-                    .Where(x => x.itemProperties.twoHanded).ToList();
+                    .Where(x => x.itemProperties.twoHanded)
+                    .OrderBy(x => x.itemProperties.name)
+                    .ThenByDescending(x => x.scrapValue)
+                    .ToList();
             })
             .WithAction(() =>
             {
@@ -141,19 +151,62 @@ internal class SellCommands
             });
     }
 
+    private static readonly Regex RemoveWhitespaceRegex = new(@"\s+");
     private static TerminalSubCommandBuilder CreateItemSubCommand()
     {
-        return new TerminalSubCommandBuilder("<sell_item>")
-            .WithDescription("Sell all items matching the input. e.g. 'sell mask' will sell 'ComedyMask' and 'TragedyMask'")
+        return new TerminalSubCommandBuilder("<item>")
+            .WithDescription(@"Sell all items matching the input. You can also use conditional value checks after the item name.
+Note: This will bypass the ignore list.
+Examples:
+> sell mask      - sells 'ComedyMask' and 'TragedyMask'
+> sell shot>50   - sells shotguns with a value of more than 50
+> sell lamp<=100 - lamps less than or equal to 100"
+            )
             .WithMessage("[companyBuyingRateWarning]Requesting to sell specified items.\n\nThe Company wants the follow items for a total of $[sellScrapActualTotal]:\n[companyBuyItemsCombo]")
             .EnableConfirmDeny(confirmMessage: "Sold [numScrapSold] scrap for $[sellScrapActualTotal].\n\nThe company is not responsible for any calculation errors.")
             .WithConditions("landedAtCompany", "hasScrapItems", "hasMatchingScrapItems")
-            .WithInputMatch(@"^(\w+)$")
+            .WithInputMatch("^(.+)$")
             .WithPreAction(input =>
             {
-                _recommendedScraps = ScrapUtils.GetAllScrapInShip()
-                    .Where(x => x.itemProperties.name.ToLower().Contains(input))
-                    .ToList();
+                input = RemoveWhitespaceRegex.Replace(input, "");
+
+                Plugin.Instance.ACLogger.LogDebug($"> '{input}'");
+
+                var reg = new Regex(@"^(\w+)(>|<|>=|<=|=)(\d+)$");
+                var match = reg.Match(input);
+                if (!match.Success)
+                {
+                    // Just try sell raw item
+                    _recommendedScraps = ScrapUtils.GetAllScrapInShip()
+                        .Where(x => x.itemProperties.name.ToLower().Contains(input))
+                        .ToList();
+                }
+                else
+                {
+                    // conditional selling
+                    foreach (Group group in match.Groups)
+                    {
+                        Plugin.Instance.ACLogger.LogDebug($"> '{group.Value}'");
+                    }
+                    var itemName = match.Groups[1].Value;
+                    var greaterThan = match.Groups[2].Value == ">";
+                    var smallerThan = match.Groups[2].Value == "<";
+                    var greaterThanEqualTo = match.Groups[2].Value == ">=";
+                    var smallerThanEqualTo = match.Groups[2].Value == ">=";
+
+                    var amount = int.Parse(match.Groups[3].Value);
+                    _recommendedScraps = ScrapUtils.GetAllScrapInShip()
+                        .Where(x => x.itemProperties.name.ToLower().Contains(itemName))
+                        .Where(x =>
+                            greaterThan ? x.scrapValue > amount :
+                            smallerThan ? x.scrapValue < amount :
+                            greaterThanEqualTo ? x.scrapValue >= amount :
+                            smallerThanEqualTo ? x.scrapValue <= amount :
+                            x.scrapValue == amount
+                        )
+                        .OrderByDescending(x => x.scrapValue)
+                        .ToList();
+                }
 
                 return true;
             })

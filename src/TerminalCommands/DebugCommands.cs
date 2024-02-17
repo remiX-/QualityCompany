@@ -1,6 +1,6 @@
 ﻿using QualityCompany.Manager.ShipTerminal;
+using QualityCompany.Network;
 using QualityCompany.Service;
-using QualityCompany.Utils;
 using System;
 using Unity.Netcode;
 using UnityEngine;
@@ -32,21 +32,31 @@ internal class DebugCommands
                     scrapCountToHack = Convert.ToInt32(input);
 
                     if (scrapCountToHack <= 0) return false;
+                    for (var i = 0; i < StartOfRound.Instance.allItemsList.itemsList.Count; i++)
+                    {
+                        var item = StartOfRound.Instance.allItemsList.itemsList[i];
+                        _logger.LogDebug($" > {i}:{item.name}: {item.isScrap} | {item.minValue} -> {item.maxValue}");
+                    }
 
+                    var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
                     for (var i = 0; i < scrapCountToHack; i++)
                     {
                         var rand = new System.Random();
                         var nextScrap = rand.Next(16, 68);
-                        var scrap = UnityEngine.Object.Instantiate(StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab, GameNetworkManager.Instance.localPlayerController.transform.position, Quaternion.identity);
-                        scrap.GetComponent<GrabbableObject>().fallTime = 0f;
-                        var scrapValue = rand.Next(40, 120);
-                        scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
-                        scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
-                        scrap.GetComponent<NetworkObject>().Spawn();
-                        _logger.LogDebug($"Spawned in {scrap.name} for {scrapValue}");
+                        var itemToSpawn = StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab;
 
-                        RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                        scrap.transform.parent = GameUtils.ShipGameObject.transform;
+                        var scrap = UnityEngine.Object.Instantiate(itemToSpawn, currentPlayerLocation, Quaternion.identity);
+                        var prop = scrap.GetComponent<PhysicsProp>();
+
+                        // scrapGO.fallTime = 0f;
+                        var scrapValue = rand.Next(prop.itemProperties.minValue, prop.itemProperties.maxValue);
+                        // scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
+                        // scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
+                        _logger.LogDebug($"Spawned in {itemToSpawn.name} for {scrapValue}");
+                        scrap.GetComponent<NetworkObject>().Spawn();
+
+                        // RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
+                        NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(prop));
                     }
 
                     return true;
