@@ -8,11 +8,11 @@ namespace QualityCompany.Modules.Inventory;
 [Module(Delayed = true)]
 internal class ScrapValueModule : InventoryBaseUI
 {
-    private static readonly Color TEXT_COLOR_ABOVE150 = new(255f / 255f, 128f / 255f, 0f / 255f, 1f); // Legendary orange??
-    private static readonly Color TEXT_COLOR_ABOVE100 = new(1f, 128f / 255f, 237f / 255f, 0.75f); // Epic
-    private static readonly Color TEXT_COLOR_69 = new(0f, 112f / 255f, 221f / 255f, 0.75f); // Crrtz?
-    private static readonly Color TEXT_COLOR_ABOVE50 = new(30f / 255f, 1f, 0f, 0.75f); // green
-    private static readonly Color TEXT_COLOR_NOOBS = new(1f, 1f, 1f, 0.75f);
+    private static readonly Color TextColorAbove150 = new(255f / 255f, 128f / 255f, 0f / 255f, 1f); // Legendary orange??
+    private static readonly Color TextColorAbove100 = new(1f, 128f / 255f, 237f / 255f, 0.75f); // Epic
+    private static readonly Color TextColor69 = new(0f, 112f / 255f, 221f / 255f, 0.75f); // Crrtz?
+    private static readonly Color TextColorAbove50 = new(30f / 255f, 1f, 0f, 0.75f); // green
+    private static readonly Color TextColorNoobs = new(1f, 1f, 1f, 0.75f);
 
     private TextMeshProUGUI _totalScrapValueText;
 
@@ -24,8 +24,8 @@ internal class ScrapValueModule : InventoryBaseUI
     {
         if (!Plugin.Instance.PluginConfig.InventoryShowScrapUI) return null;
 
-        var scrapUI = new GameObject(nameof(ScrapValueModule));
-        return scrapUI.AddComponent<ScrapValueModule>();
+        var go = new GameObject(nameof(ScrapValueModule));
+        return go.AddComponent<ScrapValueModule>();
     }
 
     private new void Awake()
@@ -54,11 +54,11 @@ internal class ScrapValueModule : InventoryBaseUI
     [ModuleOnAttach]
     private void Attach()
     {
-        PlayerGrabObjectClientRpc += OnRpcUpdate;
-        PlayerThrowObjectClientRpc += OnRpcUpdate;
+        PlayerGrabObjectClientRpc += OnUpdate;
+        PlayerThrowObjectClientRpc += OnUpdate;
         PlayerDiscardHeldObject += OnUpdate;
         PlayerDropAllHeldItems += HideAll;
-        PlayerDeath += OnPlayerDeath;
+        PlayerDeath += HideAll;
     }
 
     protected override void OnUpdate(GrabbableObject currentHeldItem, int currentItemSlotIndex)
@@ -114,11 +114,11 @@ internal class ScrapValueModule : InventoryBaseUI
     {
         return value switch
         {
-            > 150 => TEXT_COLOR_ABOVE150,
-            > 100 => TEXT_COLOR_ABOVE100,
-            69 => TEXT_COLOR_69,
-            > 50 => TEXT_COLOR_ABOVE50,
-            _ => TEXT_COLOR_NOOBS
+            > 150 => TextColorAbove150,
+            > 100 => TextColorAbove100,
+            69 => TextColor69,
+            > 50 => TextColorAbove50,
+            _ => TextColorNoobs
         };
     }
 

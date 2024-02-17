@@ -7,9 +7,9 @@ namespace QualityCompany.Modules.Inventory;
 [Module(Delayed = true)]
 internal class ShotgunAmmoModule : InventoryBaseUI
 {
-    private static readonly Color TEXT_COLOR_FULL = new(0f, 1f, 0f, 0.75f);
-    private static readonly Color TEXT_COLOR_HALF = new(1f, 243f / 255f, 36f / 255f, 0.75f);
-    private static readonly Color TEXT_COLOR_EMPTY = new(1f, 0f, 0f, 0.75f);
+    private static readonly Color TextColorFull = new(0f, 1f, 0f, 0.75f);
+    private static readonly Color TextColorHalf = new(1f, 243f / 255f, 36f / 255f, 0.75f);
+    private static readonly Color TextColorEmpty = new(1f, 0f, 0f, 0.75f);
 
     public ShotgunAmmoModule() : base(nameof(ShotgunAmmoModule))
     { }
@@ -19,8 +19,8 @@ internal class ShotgunAmmoModule : InventoryBaseUI
     {
         if (!Plugin.Instance.PluginConfig.InventoryShowShotgunAmmoCounterUI) return null;
 
-        var scrapUI = new GameObject(nameof(ShotgunAmmoModule));
-        return scrapUI.AddComponent<ShotgunAmmoModule>();
+        var go = new GameObject(nameof(ShotgunAmmoModule));
+        return go.AddComponent<ShotgunAmmoModule>();
     }
 
     private new void Awake()
@@ -37,11 +37,11 @@ internal class ShotgunAmmoModule : InventoryBaseUI
     private void Attach()
     {
         _logger.LogDebug($"Attach {nameof(ShotgunAmmoModule)}");
-        PlayerGrabObjectClientRpc += OnRpcUpdate;
-        PlayerThrowObjectClientRpc += OnRpcUpdate;
+        PlayerGrabObjectClientRpc += OnUpdate;
+        PlayerThrowObjectClientRpc += OnUpdate;
         PlayerDiscardHeldObject += OnUpdate;
         PlayerDropAllHeldItems += HideAll;
-        PlayerDeath += OnPlayerDeath;
+        PlayerDeath += HideAll;
         PlayerShotgunShoot += OnUpdate;
         PlayerShotgunReload += OnUpdate;
     }
@@ -54,9 +54,9 @@ internal class ShotgunAmmoModule : InventoryBaseUI
         var shellsLoaded = shotgunItem.shellsLoaded;
         var color = shellsLoaded switch
         {
-            2 => TEXT_COLOR_FULL,
-            1 => TEXT_COLOR_HALF,
-            _ => TEXT_COLOR_EMPTY
+            2 => TextColorFull,
+            1 => TextColorHalf,
+            _ => TextColorEmpty
         };
 
         UpdateItemSlotText(index, shellsLoaded.ToString(), color);

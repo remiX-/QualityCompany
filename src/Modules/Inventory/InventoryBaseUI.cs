@@ -37,15 +37,10 @@ internal abstract class InventoryBaseUI : MonoBehaviour
     #endregion
 
     #region UI Updates
-    protected void OnRpcUpdate(PlayerControllerB instance, bool isLocalPlayer)
-    {
-        if (!isLocalPlayer) return;
-
-        OnUpdate(instance);
-    }
-
     protected void OnUpdate(PlayerControllerB instance)
     {
+        if (!instance.IsOwner) return;
+
         if (Plugin.Instance.PluginConfig.InventoryForceUpdateAllSlotsOnDiscard)
         {
             ForceUpdateAllSlots(instance);
@@ -109,21 +104,14 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         texts[currentItemSlotIndex].enabled = false;
     }
 
-    protected void HideAll(PlayerControllerB _, bool isLocalPlayer)
+    protected void HideAll(PlayerControllerB instance)
     {
-        if (!isLocalPlayer) return;
+        if (!instance.IsOwner) return;
 
         for (var itemIndex = 0; itemIndex < GameNetworkManager.Instance.localPlayerController.ItemSlots.Length; itemIndex++)
         {
             Hide(itemIndex);
         }
-    }
-
-    protected void OnPlayerDeath(PlayerControllerB instance)
-    {
-        if (instance != GameNetworkManager.Instance.localPlayerController) return;
-
-        HideAll(instance, true);
     }
     #endregion
 }
