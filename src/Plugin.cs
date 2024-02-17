@@ -39,6 +39,7 @@ public class Plugin : BaseUnityPlugin
         // Plugin patch logic
         NetcodePatcher();
         Patch();
+        LoadAssets();
 
         // Loaded
         ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");
