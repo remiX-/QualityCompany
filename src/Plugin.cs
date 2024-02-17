@@ -1,6 +1,8 @@
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using LethalLib.Extras;
+using LethalLib.Modules;
 using QualityCompany.Assets;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Core;
@@ -12,6 +14,7 @@ using UnityEngine;
 namespace QualityCompany;
 
 [BepInPlugin(PluginMetadata.PLUGIN_GUID, PluginMetadata.PLUGIN_NAME, PluginMetadata.PLUGIN_VERSION)]
+[BepInDependency("evaisa.lethallib")]
 public class Plugin : BaseUnityPlugin
 {
     private readonly Harmony harmony = new(PluginMetadata.PLUGIN_GUID);
@@ -39,6 +42,7 @@ public class Plugin : BaseUnityPlugin
         // Plugin patch logic
         NetcodePatcher();
         Patch();
+        LoadAssets();
 
         // Loaded
         ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");

@@ -49,12 +49,18 @@
 		<Reference Include="UnityEngine.UI">
 			<HintPath>$(LethalCompanyGameSteamDirectory)\Lethal Company_Data\Managed\UnityEngine.UI.dll</HintPath>
 		</Reference>
+		<Reference Include="LethalLib">
+			<HintPath>$(BepInExDirectory)\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<!-- Bundle copying -->
 	<ItemGroup>
 		<None Update="Assets\modnetworkhandlerbundle">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\qualitycompanybundle">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="Assets\test.mp3">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
