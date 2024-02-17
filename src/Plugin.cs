@@ -30,7 +30,7 @@ public class Plugin : BaseUnityPlugin
         ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
 
         // Asset Bundles
-        PluginPath = Path.GetDirectoryName(Info.Location);
+        PluginPath = Path.GetDirectoryName(Info.Location)!;
         CustomAssets = AssetBundle.LoadFromFile(Path.Combine(PluginPath, "modnetworkhandlerbundle"));
         if (CustomAssets is null)
         {
@@ -51,7 +51,6 @@ public class Plugin : BaseUnityPlugin
 
     private void Patch()
     {
-        ACLogger.LogMessage($"Loading modules");
         AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly());
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 

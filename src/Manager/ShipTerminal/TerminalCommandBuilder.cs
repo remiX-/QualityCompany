@@ -7,6 +7,9 @@ namespace QualityCompany.Manager.ShipTerminal;
 public class TerminalCommandBuilder
 {
     internal string CommandText { get; set; }
+
+    internal string Description;
+    internal string Text { get; set; }
     internal Func<string> Action;
     internal bool IsSimpleCommand;
     internal string ActionEvent;
@@ -16,8 +19,6 @@ public class TerminalCommandBuilder
     internal List<TerminalSubCommand> SubCommands = new();
     internal readonly Dictionary<string, Func<string>> TextProcessPlaceholders = new();
     internal readonly List<(TerminalNode node, Func<bool> condition)> SpecialNodes = new();
-
-    internal string Description = "";
 
     internal string ConfirmMessage = "Confirmed!";
     internal string DenyMessage = "Cancelled!";
@@ -38,7 +39,7 @@ public class TerminalCommandBuilder
 
     public TerminalCommandBuilder WithDescription(string desc)
     {
-        Description = desc + AdvancedTerminal.EndOfMessage;
+        Description = desc;
 
         return this;
     }
@@ -74,7 +75,7 @@ public class TerminalCommandBuilder
 
     public TerminalCommandBuilder WithText(string text)
     {
-        Node.displayText = text + AdvancedTerminal.EndOfMessage;
+        Text = text;
         return this;
     }
 
@@ -122,6 +123,8 @@ public class TerminalCommandBuilder
     {
         ActionEvent = $"{Node.name}_event";
 
+        Node.displayText = Text ?? Description ?? "No description";
+
         if (SubCommandsBuilders.Any())
         {
             SubCommands = SubCommandsBuilders
@@ -133,7 +136,11 @@ public class TerminalCommandBuilder
                 noun = keyword.Keyword,
                 result = keyword.Node
             }).ToArray();
+
+            Node.displayText += string.Concat(SubCommands.Select(sc => $"\n\n> {sc.Name}\n{sc.Description}"));
         }
+
+        Node.displayText += "\n\n";
 
         if (Node.isConfirmationNode)
         {

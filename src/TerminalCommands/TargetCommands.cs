@@ -8,7 +8,7 @@ namespace QualityCompany.TerminalCommands;
 
 internal class TargetCommands
 {
-    private static readonly ACLogger _logger = new(nameof(TargetCommands));
+    private static readonly ACLogger Logger = new(nameof(TargetCommands));
 
     [TerminalCommand]
     private static TerminalCommandBuilder CreateTargetCommand()
@@ -18,7 +18,8 @@ internal class TargetCommands
         return new TerminalCommandBuilder("target")
             .WithDescription(">TARGET <AMOUNT>\nSet a target sell requirement for the target monitor.")
             .WithText("Please enter an amount.\neg: target 2000\n\n[targetExplanation]")
-            .WithSubCommand(new TerminalSubCommandBuilder("<ta>")
+            .WithSubCommand(new TerminalSubCommandBuilder("<amount>")
+                .WithDescription("The desired target wanted upon leaving The Company Building.")
                 .WithMessage("[companyBuyingRateWarning]Target has been set to [targetSetTo].\nMonitor Values:\n[targetMonitorValues]\n\n[targetExplanation]")
                 .WithConditions("landedAtCompany")
                 .WithInputMatch(@"^(\d+$)$")
@@ -33,7 +34,7 @@ internal class TargetCommands
 
                     return true;
                 })
-                .WithAction(() => _logger.LogDebug("EXEC target.Action???"))
+                .WithAction(() => Logger.LogDebug("EXEC target.Action???"))
             )
             .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
             .AddTextReplacement("[targetMonitorValues]", InfoMonitor.GetText)

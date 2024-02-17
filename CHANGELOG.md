@@ -1,3 +1,11 @@
+# v1.3.3: Misc
+
+## AdvancedTerminal API
+
+- Added ability to create a terminal for your mod using the name as an abbreviation (e.g. `QualityCompany` turns into `qc`), this can be customized within the `Register` call
+- Added ability to include your mod's terminal commands within the 'Help' command, can be disabled
+- Added more description options for sub commands to show when typing in the primary command
+
 # v1.3.2: Total Scrap UI Config
 
 - Introduced config item to disable **Total Scrap UI** separate from item scrap UI
