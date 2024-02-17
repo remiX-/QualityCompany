@@ -1,3 +1,7 @@
+# v1.3.2: Total Scrap UI Config
+
+- Introduced config item to disable **Total Scrap UI** separate from item scrap UI
+
 # v1.3.1: Additional Networking fixes + InfoMonitor fix
 
 - Detached Save File from NetworkBehaviour instance entirely
