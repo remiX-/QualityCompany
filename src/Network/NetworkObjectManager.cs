@@ -24,7 +24,7 @@ internal class NetworkObjectManager
 
         hasInit = true;
 
-        networkPrefab = AssetBundleLoader.CustomAssets.LoadAsset<GameObject>("ExampleNetworkHandler");
+        networkPrefab = AssetBundleLoader.CustomAssets.LoadAsset<GameObject>("QualityCompanyNetworkHandler");
         networkPrefab.AddComponent<NetworkHandler>();
         networkPrefab.AddComponent<CompanyNetworkHandler>();
         networkPrefab.AddComponent<LatencyHandler>();

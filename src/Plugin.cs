@@ -77,5 +77,42 @@ public class Plugin : BaseUnityPlugin
     private void LoadAssets()
     {
         AssetBundleLoader.LoadModBundle(PluginPath);
+
+        // var atmItem = AssetBundleLoader.GetItemObject("ATM");
+        // atmItem.AddComponent<PlaceableShipObject>();
+        //
+        // NetworkPrefabs.RegisterNetworkPrefab(atmItem);
+        // AssetBundleLoader.AddPrefab("ATM", atmItem);
+        //
+        // Unlockables.RegisterUnlockable(
+        //     new UnlockableItemDef
+        //     {
+        //         storeType = StoreType.Decor,
+        //         unlockable = new UnlockableItem
+        //         {
+        //             unlockableName = "atm",
+        //             spawnPrefab = true,
+        //             prefabObject = AssetBundleLoader.Prefabs["ATM"],
+        //             IsPlaceable = true,
+        //             alwaysInStock = true,
+        //             unlockableType = 1
+        //         }
+        //     }, StoreType.Decor, price: 500);
+
+
+        // var prop = atmItem.spawnPrefab.AddComponent<PlaceableShipObject>();
+        // NetworkManager.Singleton.AddNetworkPrefab(atmItem.spawnPrefab);
+        // AssetBundleLoader.AddPrefab("ATM", atmItem.spawnPrefab);
+        // prop.itemProperties = atmItem;
+        // prop.itemProperties.minValue = 1;
+        // prop.itemProperties.maxValue = 3;
+
+        // var creditCardItem = AssetBundleLoader.GetItemObject("CreditCard");
+        // var prop2 = atmItem.spawnPrefab.AddComponent<PhysicsProp>();
+        // prop2.itemProperties = atmItem;
+        // prop2.itemProperties.minValue = 100;
+        // prop2.itemProperties.maxValue = 3;
+        // NetworkManager.Singleton.AddNetworkPrefab(creditCardItem.spawnPrefab);
+        // AssetBundleLoader.AddPrefab("CreditCard", creditCardItem.spawnPrefab);
     }
 }

@@ -18,7 +18,7 @@ internal class AssetBundleLoader
     internal static void LoadModBundle(string root)
     {
         _modRoot = root;
-        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(_modRoot, "modnetworkhandlerbundle"));
+        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(_modRoot, "qualitycompanyhandlerbundle"));
         if (CustomAssets is null)
         {
             Logger.LogError("Failed to load custom assets!");
