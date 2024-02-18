@@ -5,6 +5,9 @@
 - Added ability to create a terminal for your mod using the name as an abbreviation (e.g. `QualityCompany` turns into `qc`), this can be customized within the `Register` call
 - Added ability to include your mod's terminal commands within the 'Help' command, can be disabled
 - Added more description options for sub commands to show when typing in the primary command
+
+## Debug commands
+
 - Fixed `hack` command to spawn items correctly and sync with clients
 
 # v1.3.2: Total Scrap UI Config
@@ -28,7 +31,7 @@
   - (worst case) Disable the feature in the config if it causes issues!
 - **[UNTESTED]** (hopefully) fully implemented ability to disable Networking operations in config
   - This will cause everything to be done CLIENT-SIDE ONLY
-  - This WILL cause desync issues with `sell` & `target` commands, *but* should recover on action of deposit desk eating the items
+  - This WILL cause desync issues with `sell` & `target` commands, _but_ should recover on action of deposit desk eating the items
   - Let us know if anything breaks from this please :)
 
 # v1.2.3: Mod Compatibility & Experimental fixes
