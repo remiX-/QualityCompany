@@ -33,25 +33,6 @@ internal class NetworkHandler : NetworkBehaviour
         _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
     }
 
-    // [ClientRpc]
-    // public void SpawnItemClientRpc(NetworkBehaviourReference netRef)
-    // {
-    //     netRef.TryGet(out GameObject prop);
-    //
-    //     if (prop != null)
-    //     {
-    //         prop.transform.parent = GameUtils.ShipGameObject.transform;
-    //         prop.itemProperties.creditsWorth = value;
-    //         prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
-    //
-    //         _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
-    //     }
-    //     else
-    //     {
-    //         _logger.LogInfo("Unable to resolve net ref for SyncValuesClientRpc!");
-    //     }
-    // }
-
     [ServerRpc(RequireOwnership = false)]
     internal void UpdateSellTargetServerRpc(int newTarget, string playerName)
     {
