@@ -61,10 +61,20 @@ public static class GameUtils
         return CurrentPlanet() == "71 Gordion";
     }
 
+    public static bool IsLanded()
+    {
+        return StartOfRound.shipHasLanded;
+    }
+
+    public static bool IsOrbiting()
+    {
+        return !StartOfRound.inShipPhase;
+    }
+
     public static bool IsLandedOnCompany()
     {
         if (StartOfRound is null) return false;
 
-        return IsOnCompany() && !StartOfRound.inShipPhase;
+        return IsOnCompany() && IsOrbiting();
     }
 }

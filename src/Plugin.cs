@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using LethalLib.Extras;
@@ -78,26 +78,26 @@ public class Plugin : BaseUnityPlugin
     {
         AssetBundleLoader.LoadModBundle(PluginPath);
 
-        // var atmItem = AssetBundleLoader.GetItemObject("ATM");
-        // atmItem.AddComponent<PlaceableShipObject>();
-        //
-        // NetworkPrefabs.RegisterNetworkPrefab(atmItem);
-        // AssetBundleLoader.AddPrefab("ATM", atmItem);
-        //
-        // Unlockables.RegisterUnlockable(
-        //     new UnlockableItemDef
-        //     {
-        //         storeType = StoreType.Decor,
-        //         unlockable = new UnlockableItem
-        //         {
-        //             unlockableName = "atm",
-        //             spawnPrefab = true,
-        //             prefabObject = AssetBundleLoader.Prefabs["ATM"],
-        //             IsPlaceable = true,
-        //             alwaysInStock = true,
-        //             unlockableType = 1
-        //         }
-        //     }, StoreType.Decor, price: 500);
+        var atmItem = AssetBundleLoader.GetItemObject("ATM");
+        atmItem.AddComponent<PlaceableShipObject>();
+        
+        NetworkPrefabs.RegisterNetworkPrefab(atmItem);
+        AssetBundleLoader.AddPrefab("ATM", atmItem);
+        
+        Unlockables.RegisterUnlockable(
+            new UnlockableItemDef
+            {
+                storeType = StoreType.Decor,
+                unlockable = new UnlockableItem
+                {
+                    unlockableName = "atm",
+                    spawnPrefab = true,
+                    prefabObject = AssetBundleLoader.Prefabs["ATM"],
+                    IsPlaceable = true,
+                    alwaysInStock = true,
+                    unlockableType = 1
+                }
+            }, StoreType.Decor, price: 500);
 
 
         // var prop = atmItem.spawnPrefab.AddComponent<PlaceableShipObject>();
