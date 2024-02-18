@@ -25,7 +25,7 @@ internal class AdvancedTerminal
 
     internal static void AddGlobalTextReplacement(string text, Func<string> func)
     {
-        GlobalTextReplacements.Add(text, func);
+        GlobalTextReplacements.TryAdd(text, func);
     }
 
     internal static void Init()

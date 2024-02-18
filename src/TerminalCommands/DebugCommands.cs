@@ -29,6 +29,10 @@ internal class DebugCommands
                 .WithInputMatch(@"(\d+$)$")
                 .WithPreAction(input =>
                 {
+                    _logger.LogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
+                    // TODO: bug here, this shouldn't be in "PreAction"
+                    if (!NetworkManager.Singleton.IsHost) return false;
+
                     scrapCountToHack = Convert.ToInt32(input);
 
                     if (scrapCountToHack <= 0) return false;
@@ -41,25 +45,36 @@ internal class DebugCommands
                     var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
                     for (var i = 0; i < scrapCountToHack; i++)
                     {
+                        _logger.LogDebug($"Hacking in item #{i}");
+
                         var rand = new System.Random();
                         var nextScrap = rand.Next(16, 68);
                         var itemToSpawn = StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab;
 
                         var scrap = UnityEngine.Object.Instantiate(itemToSpawn, currentPlayerLocation, Quaternion.identity);
-                        var prop = scrap.GetComponent<PhysicsProp>();
+                        var itemGrabObj = scrap.GetComponent<GrabbableObject>();
 
-                        // scrapGO.fallTime = 0f;
-                        var scrapValue = rand.Next(prop.itemProperties.minValue, prop.itemProperties.maxValue);
-                        // scrap.AddComponent<ScanNodeProperties>().scrapValue = scrapValue;
-                        // scrap.GetComponent<GrabbableObject>().scrapValue = scrapValue;
-                        _logger.LogDebug($"Spawned in {itemToSpawn.name} for {scrapValue}");
+                        if (itemGrabObj is null)
+                        {
+                            _logger.LogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
+                            continue;
+                        }
+
+                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue);
+                        _logger.LogDebug($" > spawned in {itemToSpawn.name} for {scrapValue}");
                         scrap.GetComponent<NetworkObject>().Spawn();
 
                         // RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
-                        NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(prop));
+                        NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(itemGrabObj));
+
+                        _logger.LogDebug(" > done");
                     }
 
                     return true;
+                })
+                .WithAction(() =>
+                {
+                    _logger.LogDebug("Hack: WithAction?");
                 })
             );
     }

@@ -2,7 +2,6 @@
 using QualityCompany.Service;
 using QualityCompany.Utils;
 using Unity.Netcode;
-using UnityEngine.UIElements;
 
 namespace QualityCompany.Network;
 
@@ -17,19 +16,21 @@ internal class NetworkHandler : NetworkBehaviour
     {
         netRef.TryGet(out GrabbableObject prop);
 
-        if (prop != null)
-        {
-            prop.transform.parent = GameUtils.ShipGameObject.transform;
-            prop.scrapValue = value;
-            prop.itemProperties.creditsWorth = value;
-            prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
-
-            _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
-        }
-        else
+        if (prop is null)
         {
             _logger.LogInfo("Unable to resolve net ref for SyncValuesClientRpc!");
+            return;
         }
+
+        prop.transform.parent = GameUtils.ShipGameObject.transform;
+
+        if (value == 0) return;
+
+        prop.scrapValue = value;
+        prop.itemProperties.creditsWorth = value;
+        prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
+
+        _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
     }
 
     // [ClientRpc]
