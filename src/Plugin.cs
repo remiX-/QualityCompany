@@ -76,28 +76,35 @@ public class Plugin : BaseUnityPlugin
 
     private void LoadAssets()
     {
-        AssetBundleLoader.LoadModBundle(PluginPath);
+        AssetManager.LoadModBundle(PluginPath);
 
-        var atmItem = AssetBundleLoader.GetItemObject("ATM");
-        atmItem.AddComponent<PlaceableShipObject>();
+        var atmItem = AssetManager.GetItemObject("ATM");
         
         NetworkPrefabs.RegisterNetworkPrefab(atmItem);
-        AssetBundleLoader.AddPrefab("ATM", atmItem);
-        
+        AssetManager.AddPrefab("ATM", atmItem);
+
+        var itemInfoNode = ScriptableObject.CreateInstance<TerminalNode>();
+        itemInfoNode.clearPreviousText = true;
+        itemInfoNode.name = "atm_itemInfo";
+        itemInfoNode.displayText = "atm_test";
+
         Unlockables.RegisterUnlockable(
             new UnlockableItemDef
             {
-                storeType = StoreType.Decor,
+                storeType = StoreType.ShipUpgrade,
                 unlockable = new UnlockableItem
                 {
                     unlockableName = "atm",
                     spawnPrefab = true,
-                    prefabObject = AssetBundleLoader.Prefabs["ATM"],
+                    prefabObject = AssetManager.Prefabs["ATM"],
                     IsPlaceable = true,
                     alwaysInStock = true,
                     unlockableType = 1
                 }
-            }, StoreType.Decor, price: 500);
+            }, StoreType.ShipUpgrade,
+            itemInfo: itemInfoNode,
+            price: 1
+        );
 
 
         // var prop = atmItem.spawnPrefab.AddComponent<PlaceableShipObject>();

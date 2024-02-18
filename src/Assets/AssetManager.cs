@@ -5,20 +5,25 @@ using UnityEngine;
 
 namespace QualityCompany.Assets;
 
-internal class AssetBundleLoader
+internal class AssetManager
 {
-    private static readonly ACLogger Logger = new(nameof(AssetBundleLoader));
+    private static readonly ACLogger Logger = new(nameof(AssetManager));
 
     internal static AssetBundle CustomAssets;
 
     private static string _modRoot;
-    private static readonly Dictionary<string, string> AssetPaths = new() { { "ATM", "ATM1" }, { "CreditCard", "CreditCard" } };
+    private static readonly Dictionary<string, string> AssetPaths = new()
+    {
+        { "ATM1", "assets/qualitycompany/prefabs/atm1.prefab" },
+        { "ATM", "assets/qualitycompany/prefabs/atm.prefab" },
+        { "CreditCard", "assets/qualitycompany/prefabs/creditcard.prefab" }
+    };
     internal static readonly Dictionary<string, GameObject> Prefabs = new();
 
     internal static void LoadModBundle(string root)
     {
         _modRoot = root;
-        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(_modRoot, "modnetworkhandlerbundle"));
+        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(_modRoot, "qualitycompanybundle"));
         if (CustomAssets is null)
         {
             Logger.LogError("Failed to load custom assets!");
