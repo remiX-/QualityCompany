@@ -126,6 +126,8 @@ internal class TargetManager
 
         _totalItems = 0;
         _totalValueForSale = 0;
+
+        InfoMonitor.UpdateMonitor();
     }
 
     #endregion

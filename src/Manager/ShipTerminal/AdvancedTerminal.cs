@@ -21,6 +21,8 @@ internal class AdvancedTerminal
     private static TerminalKeyword _terminalDenyKeyword;
     private static TerminalNode _helpTerminalNode;
 
+    private static bool _hasInstantiatedCommands;
+
     internal static string EndOfMessage => "\n\n\n";
 
     internal static void AddGlobalTextReplacement(string text, Func<string> func)
@@ -50,10 +52,20 @@ internal class AdvancedTerminal
         _terminalDenyKeyword = terminal.terminalNodes.allKeywords.First(kw => kw.name == "Deny");
         _helpTerminalNode = terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
 
+        if (_hasInstantiatedCommands) return;
+        _hasInstantiatedCommands = true;
+
         foreach (var (modName, config) in AdvancedTerminalRegistry.Commands)
         {
-            var commandTexts = LoadCommands(terminal, modName, config);
-            CreateModPrimaryCommand(terminal, config, commandTexts);
+            var modCommands = LoadModCommands(terminal, modName, config);
+
+            if (!modCommands.Any()) continue;
+
+            var cmdTexts = string.Concat(modCommands
+                .Where(b => !b.Description.IsNullOrWhiteSpace())
+                .Select(b => $"{b.Description}\n\n")
+            );
+            CreateModPrimaryCommand(terminal, config, cmdTexts);
             AddToHelp(config);
         }
 
@@ -63,18 +75,18 @@ internal class AdvancedTerminal
         }
     }
 
-    private static string LoadCommands(Terminal terminal, string modName, ModConfiguration config)
+    private static List<TerminalCommandBuilder> LoadModCommands(Terminal terminal, string modName, ModConfiguration config)
     {
         Logger.LogDebug($"Loading commands for: {modName}");
 
-        var primaryCommandText = "";
-
+        var commands = new List<TerminalCommandBuilder>();
         foreach (var command in config.Commands)
         {
             var res = command.Run.Invoke(null, null);
             if (res is not TerminalCommandBuilder builder) continue;
 
-            Commands.Add(builder);
+            Logger.LogDebug($"Created {builder.Node.name}");
+            commands.Add(builder);
 
             var keywords = builder.Build(_terminalConfirmKeyword, _terminalDenyKeyword);
 
@@ -82,13 +94,9 @@ internal class AdvancedTerminal
             if (terminal.terminalNodes.allKeywords.Any(kw => keywords.Any(kw2 => kw.name == kw2.name))) continue;
 
             terminal.terminalNodes.allKeywords = terminal.terminalNodes.allKeywords.AddRangeToArray(keywords);
-
-            if (builder.Description.IsNullOrWhiteSpace()) continue;
-
-            primaryCommandText += $"{builder.Description}\n\n";
         }
 
-        return primaryCommandText;
+        return commands;
     }
 
     private static void CreateModPrimaryCommand(Terminal terminal, ModConfiguration modConfig, string commandTexts)

@@ -47,7 +47,7 @@ public class Plugin : BaseUnityPlugin
 
     private void Patch()
     {
-        AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly());
+        AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly(), description: "QualityCompany provides auto-sell functionality with a few commands.");
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 
         harmony.PatchAll(Assembly.GetExecutingAssembly());

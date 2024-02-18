@@ -1,3 +1,7 @@
+# v1.3.4: AdvancedTerminal API
+
+- Fixed a bug where the Terminal API was doubling up on commands & help texts
+
 # v1.3.3: Misc
 
 ## AdvancedTerminal API
