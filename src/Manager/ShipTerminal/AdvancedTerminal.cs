@@ -5,14 +5,12 @@ using QualityCompany.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Manager.ShipTerminal;
 
-/// <summary>
-/// A super duper advanced Terminal API ;-)
-/// </summary>
-public class AdvancedTerminal
+internal class AdvancedTerminal
 {
     internal static readonly Dictionary<string, Func<string>> GlobalTextReplacements = new();
     internal static readonly List<TerminalCommandBuilder> Commands = new();
@@ -21,67 +19,107 @@ public class AdvancedTerminal
 
     private static TerminalKeyword _terminalConfirmKeyword;
     private static TerminalKeyword _terminalDenyKeyword;
-    private static TerminalNode _otherCategoryTerminalNode;
     private static TerminalNode _helpTerminalNode;
 
     internal static string EndOfMessage => "\n\n\n";
 
-    /// <summary>
-    /// Add global text replacements. Try not to use this and text replacements should be on a mod-specific level.
-    /// </summary>
-    /// <param name="text">Text to replace</param>
-    /// <param name="func">Replacement function that returns a string</param>
-    public static void AddGlobalTextReplacement(string text, Func<string> func)
+    internal static void AddGlobalTextReplacement(string text, Func<string> func)
     {
-        GlobalTextReplacements.Add(text, func);
+        GlobalTextReplacements.TryAdd(text, func);
     }
 
-    internal static void ApplyToTerminal()
+    internal static void Init()
     {
-        GameUtils.Terminal.terminalNodes.allKeywords = GameUtils.Terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
-        {
-            name = "QualityCompany",
-            word = "qc",
-            specialKeywordResult = new TerminalNode
-            {
-                clearPreviousText = true,
-                displayText = "> QUALITY COMPANY\n\n\t:)"
-            }
-        });
-        _terminalConfirmKeyword = GameUtils.Terminal.terminalNodes.allKeywords.First(kw => kw.name == "Confirm");
-        _terminalDenyKeyword = GameUtils.Terminal.terminalNodes.allKeywords.First(kw => kw.name == "Deny");
-        _otherCategoryTerminalNode = GameUtils.Terminal.terminalNodes.allKeywords.First(node => node.name == "Other").specialKeywordResult;
-        _helpTerminalNode = GameUtils.Terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
+        TerminalAwakeEvent += ApplyToTerminal;
 
-        foreach (var cmd in AdvancedTerminalRegistry.Commands)
+        Disconnected += _ =>
         {
-            var res = cmd.Run.Invoke(null, null);
+            GlobalTextReplacements.Clear();
+            Commands.Clear();
+        };
+    }
+
+    internal static void ApplyToTerminal(Terminal terminal)
+    {
+        AddGlobalTextReplacement("[companyBuyingRateWarning]", () => Math.Abs(GameUtils.StartOfRound.companyBuyingRate - 1f) == 0f
+            ? ""
+            : $"WARNING: Company buying rate is currently at {GameUtils.StartOfRound.companyBuyingRate:P0}\n\n");
+        AddGlobalTextReplacement("[confirmOrDeny]", () => "Please CONFIRM or DENY.\n\n\n");
+
+        _terminalConfirmKeyword = terminal.terminalNodes.allKeywords.First(kw => kw.name == "Confirm");
+        _terminalDenyKeyword = terminal.terminalNodes.allKeywords.First(kw => kw.name == "Deny");
+        _helpTerminalNode = terminal.terminalNodes.allKeywords.First(node => node.name == "Help").specialKeywordResult;
+
+        foreach (var (modName, config) in AdvancedTerminalRegistry.Commands)
+        {
+            var commandTexts = LoadCommands(terminal, modName, config);
+            CreateModPrimaryCommand(terminal, config, commandTexts);
+            AddToHelp(config);
+        }
+
+        foreach (var kw in terminal.terminalNodes.allKeywords)
+        {
+            Logger.LogDebug($"{kw.name} | {kw.word}");
+        }
+    }
+
+    private static string LoadCommands(Terminal terminal, string modName, ModConfiguration config)
+    {
+        Logger.LogDebug($"Loading commands for: {modName}");
+
+        var primaryCommandText = "";
+
+        foreach (var command in config.Commands)
+        {
+            var res = command.Run.Invoke(null, null);
             if (res is not TerminalCommandBuilder builder) continue;
 
             Commands.Add(builder);
+
+            var keywords = builder.Build(_terminalConfirmKeyword, _terminalDenyKeyword);
+
+            // if it already has the first keyword, it has already applied it, so just skip
+            if (terminal.terminalNodes.allKeywords.Any(kw => keywords.Any(kw2 => kw.name == kw2.name))) continue;
+
+            terminal.terminalNodes.allKeywords = terminal.terminalNodes.allKeywords.AddRangeToArray(keywords);
+
+            if (builder.Description.IsNullOrWhiteSpace()) continue;
+
+            primaryCommandText += $"{builder.Description}\n\n";
         }
 
-        foreach (var cmdBuilder in Commands)
-        {
-            var keywords = cmdBuilder.Build(_terminalConfirmKeyword, _terminalDenyKeyword);
-            GameUtils.Terminal.terminalNodes.allKeywords = GameUtils.Terminal.terminalNodes.allKeywords.AddRangeToArray(keywords);
-
-            if (cmdBuilder.Description.IsNullOrWhiteSpace()) continue;
-
-            _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"{cmdBuilder.Description}";
-            _otherCategoryTerminalNode.displayText = _otherCategoryTerminalNode.displayText.Substring(0, _otherCategoryTerminalNode.displayText.Length - 1) + $"{cmdBuilder.Description}";
-        }
-
-        Disconnected += OnDisconnected;
-
-        // foreach (var kw in GameUtils.Terminal.terminalNodes.allKeywords)
-        // {
-        //     Logger.LogDebug($"{kw.name} | {kw.word}");
-        // }
+        return primaryCommandText;
     }
 
-    private static void OnDisconnected(GameNetworkManager instance)
+    private static void CreateModPrimaryCommand(Terminal terminal, ModConfiguration modConfig, string commandTexts)
     {
-        GlobalTextReplacements.Clear();
+        if (!modConfig.CreatePrimaryCommand) return;
+
+        var builder = new StringBuilder();
+        builder.AppendLine(modConfig.PrimaryCommandName);
+        if (modConfig.Description is not null)
+        {
+            builder.AppendLine(modConfig.Description);
+            builder.AppendLine();
+        }
+        builder.AppendLine(commandTexts);
+
+        terminal.terminalNodes.allKeywords = terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
+        {
+            name = modConfig.PrimaryCommandName,
+            word = modConfig.PrimaryCommandKeyword,
+            specialKeywordResult = new TerminalNode
+            {
+                clearPreviousText = true,
+                displayText = builder.ToString()
+            }
+        });
+    }
+
+    private static void AddToHelp(ModConfiguration modConfig)
+    {
+        if (!modConfig.AddToHelp || !modConfig.CreatePrimaryCommand) return;
+
+        _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n";
     }
 }

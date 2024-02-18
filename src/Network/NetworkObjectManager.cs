@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using QualityCompany.Assets;
 using QualityCompany.Service;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,7 +24,7 @@ internal class NetworkObjectManager
 
         hasInit = true;
 
-        networkPrefab = Plugin.CustomAssets.LoadAsset<GameObject>("ExampleNetworkHandler");
+        networkPrefab = AssetBundleLoader.CustomAssets.LoadAsset<GameObject>("ExampleNetworkHandler");
         networkPrefab.AddComponent<NetworkHandler>();
         networkPrefab.AddComponent<CompanyNetworkHandler>();
         networkPrefab.AddComponent<LatencyHandler>();

@@ -16,7 +16,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("launch")
-            .WithDescription(">LAUNCH\nTo launch or land the ship. Host needs to do the very first launch.")
+            .WithDescription("> LAUNCH\nTo launch or land the ship. Host needs to do the very first launch.")
             .WithCondition("inTransitLandedOrLeaving", "Unable to comply. The ship is landing or taking off.",
                 () => StartOfRound.Instance.shipDoorsEnabled &&
                       !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
@@ -138,7 +138,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
 
         return new TerminalCommandBuilder("vw")
-            .WithDescription(">view <player>\nExecute 'switch' to a player but easier.")
+            .WithDescription(">vw <player>\nExecute 'switch' to a player but easier.")
             .WithSubCommand(new TerminalSubCommandBuilder("<player>")
                 .WithMessage("Switched to [playerSwitchName]")
                 .WithConditions("validPlayer")

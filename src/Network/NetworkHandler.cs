@@ -1,5 +1,6 @@
 ﻿using QualityCompany.Manager;
 using QualityCompany.Service;
+using QualityCompany.Utils;
 using Unity.Netcode;
 
 namespace QualityCompany.Network;
@@ -9,6 +10,47 @@ internal class NetworkHandler : NetworkBehaviour
     internal static NetworkHandler Instance { get; private set; }
 
     private readonly ACLogger _logger = new(nameof(NetworkHandler));
+
+    [ClientRpc]
+    public void SyncValuesClientRpc(int value, NetworkBehaviourReference netRef)
+    {
+        netRef.TryGet(out GrabbableObject prop);
+
+        if (prop is null)
+        {
+            _logger.LogInfo("Unable to resolve net ref for SyncValuesClientRpc!");
+            return;
+        }
+
+        prop.transform.parent = GameUtils.ShipGameObject.transform;
+
+        if (value == 0) return;
+
+        prop.scrapValue = value;
+        prop.itemProperties.creditsWorth = value;
+        prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
+
+        _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
+    }
+
+    // [ClientRpc]
+    // public void SpawnItemClientRpc(NetworkBehaviourReference netRef)
+    // {
+    //     netRef.TryGet(out GameObject prop);
+    //
+    //     if (prop != null)
+    //     {
+    //         prop.transform.parent = GameUtils.ShipGameObject.transform;
+    //         prop.itemProperties.creditsWorth = value;
+    //         prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
+    //
+    //         _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
+    //     }
+    //     else
+    //     {
+    //         _logger.LogInfo("Unable to resolve net ref for SyncValuesClientRpc!");
+    //     }
+    // }
 
     [ServerRpc(RequireOwnership = false)]
     internal void UpdateSellTargetServerRpc(int newTarget, string playerName)

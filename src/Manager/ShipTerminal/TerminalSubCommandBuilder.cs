@@ -25,6 +25,18 @@ public class TerminalSubCommandBuilder
         };
     }
 
+    public TerminalSubCommandBuilder WithDescription(string text)
+    {
+        _subCommand.Description = text;
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithMessage(string text)
+    {
+        _subCommand.Message = text;
+        return this;
+    }
+
     public TerminalSubCommandBuilder EnableConfirmDeny(string confirmMessage = null, string denyMessage = null)
     {
         _subCommand.Node.isConfirmationNode = true;
@@ -33,12 +45,6 @@ public class TerminalSubCommandBuilder
         if (!confirmMessage.IsNullOrWhiteSpace()) _subCommand.ConfirmMessage = confirmMessage;
         if (!denyMessage.IsNullOrWhiteSpace()) _subCommand.DenyMessage = denyMessage;
 
-        return this;
-    }
-
-    public TerminalSubCommandBuilder WithMessage(string text)
-    {
-        _subCommand.Message = text;
         return this;
     }
 
@@ -84,6 +90,7 @@ public class TerminalSubCommandBuilder
         _subCommand.Node.name = _subCommand.Id;
         _subCommand.Node.displayText = _subCommand.Message + AdvancedTerminal.EndOfMessage;
         _subCommand.ActionEvent = $"{rootCommandName}_{_subCommand.Name}_event";
+        _subCommand.Keyword.name = _subCommand.Id;
 
         if (!_subCommand.Node.isConfirmationNode) return _subCommand;
 

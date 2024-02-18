@@ -7,6 +7,7 @@ internal class TerminalSubCommand
 {
     internal string Id;
     internal string Name;
+    internal string Description;
     internal string Message;
     internal TerminalKeyword Keyword;
     internal TerminalNode Node;

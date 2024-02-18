@@ -1,6 +1,7 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using QualityCompany.Assets;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Core;
 using QualityCompany.Patch;
@@ -16,7 +17,6 @@ public class Plugin : BaseUnityPlugin
     private readonly Harmony harmony = new(PluginMetadata.PLUGIN_GUID);
 
     internal static Plugin Instance;
-    internal static AssetBundle CustomAssets;
 
     internal ManualLogSource ACLogger;
 
@@ -30,12 +30,7 @@ public class Plugin : BaseUnityPlugin
         ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
 
         // Asset Bundles
-        PluginPath = Path.GetDirectoryName(Info.Location);
-        CustomAssets = AssetBundle.LoadFromFile(Path.Combine(PluginPath, "modnetworkhandlerbundle"));
-        if (CustomAssets is null)
-        {
-            ACLogger.LogError("Failed to load custom assets!");
-        }
+        PluginPath = Path.GetDirectoryName(Info.Location)!;
 
         // Config
         PluginConfig = new PluginConfig();
@@ -44,6 +39,7 @@ public class Plugin : BaseUnityPlugin
         // Plugin patch logic
         NetcodePatcher();
         Patch();
+        LoadAssets();
 
         // Loaded
         ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");
@@ -51,7 +47,6 @@ public class Plugin : BaseUnityPlugin
 
     private void Patch()
     {
-        ACLogger.LogMessage($"Loading modules");
         AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly());
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 
@@ -74,5 +69,10 @@ public class Plugin : BaseUnityPlugin
                 }
             }
         }
+    }
+
+    private void LoadAssets()
+    {
+        AssetBundleLoader.LoadModBundle(PluginPath);
     }
 }

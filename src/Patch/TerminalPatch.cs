@@ -4,9 +4,9 @@ using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using QualityCompany.Utils;
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static QualityCompany.Service.GameEvents;
 
 #pragma warning disable IDE0060
 #pragma warning disable Harmony003
@@ -16,7 +16,7 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(Terminal))]
 internal class TerminalPatch
 {
-    private static readonly ACLogger _logger = new(nameof(TerminalPatch));
+    private static readonly ACLogger Logger = new(nameof(TerminalPatch));
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
@@ -24,12 +24,10 @@ internal class TerminalPatch
     {
         GameUtils.Terminal = __instance;
 
-        AdvancedTerminal.AddGlobalTextReplacement("[companyBuyingRateWarning]", () => Math.Abs(StartOfRound.Instance.companyBuyingRate - 1f) == 0f
-            ? ""
-            : $"WARNING: Company buying rate is currently at {StartOfRound.Instance.companyBuyingRate:P0}\n\n");
-        AdvancedTerminal.AddGlobalTextReplacement("[confirmOrDeny]", () => "Please CONFIRM or DENY.\n\n\n");
+        // TODO: this should be auto via attribute maybe?
+        AdvancedTerminal.Init();
 
-        AdvancedTerminal.ApplyToTerminal();
+        OnTerminalAwakeEvent(__instance);
     }
 
     [HarmonyPostfix]
@@ -85,7 +83,7 @@ internal class TerminalPatch
 
         if (filteredCommands.Count > 1)
         {
-            _logger.LogError($" > Found multiple commands! HOW? Only using first one. Found: {filteredCommands.Select(x => x.CommandText).Aggregate((first, second) => $"{first}, {second}")}");
+            Logger.LogError($" > Found multiple commands! HOW? Only using first one. Found: {filteredCommands.Select(x => x.CommandText).Aggregate((first, second) => $"{first}, {second}")}");
         }
 
         var advancedCommand = filteredCommands.First();
@@ -166,7 +164,7 @@ internal class TerminalPatch
             var specialCondition = command.SpecialNodes.FirstOrDefault(x => x.node.name == conditionString);
             if (specialCondition == default)
             {
-                _logger.LogError($"> SubCommand {subCommand.Name} has special criteria for '{conditionString}' but it is not found as part of the commands' special conditions list.");
+                Logger.LogError($"> SubCommand {subCommand.Name} has special criteria for '{conditionString}' but it is not found as part of the commands' special conditions list.");
                 break;
             }
 

@@ -9,19 +9,15 @@ namespace QualityCompany.Modules.ShipTerminal;
 [Module]
 internal class ScanFixModule
 {
-    private static bool hasInit;
-
     [ModuleOnLoad]
     private static void Handle()
     {
-        if (!Plugin.Instance.PluginConfig.TerminalPatchFixScanEnabled || hasInit) return;
-        hasInit = true;
+        if (!Plugin.Instance.PluginConfig.TerminalPatchFixScanEnabled) return;
 
         var list = GameUtils.Terminal.terminalNodes.allKeywords.ToList();
         var scanKeyword = list.Find(keyword => keyword.word == "scan");
         if (scanKeyword is null)
         {
-            // _logger.LogError("Failed to find can terminal keyword.");
             return;
         }
 
@@ -48,8 +44,6 @@ internal class ScanFixModule
             var allInShipTotalScrapValue = allInShip.Sum(go => go.scrapValue);
             return $"There are {allInShip.Count} objects inside the ship, totalling at an exact value of {allInShipTotalScrapValue}.";
         });
-
-        // _logger.LogDebug("Loaded");
     }
 }
 
