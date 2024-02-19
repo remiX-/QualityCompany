@@ -128,6 +128,6 @@ internal class AdvancedTerminal
     {
         if (!modConfig.AddToHelp || !modConfig.CreatePrimaryCommand) return;
 
-        _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n";
+        _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n\n";
     }
 }
