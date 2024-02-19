@@ -1,3 +1,7 @@
+# v1.3.5: Broken commands ;-(
+
+- Fixed a bug where commands were being added but not actually being run
+
 # v1.3.4: AdvancedTerminal API
 
 - Fixed a bug where the Terminal API was doubling up on commands & help texts

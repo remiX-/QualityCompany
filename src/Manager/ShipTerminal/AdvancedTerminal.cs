@@ -61,6 +61,8 @@ internal class AdvancedTerminal
 
             if (!modCommands.Any()) continue;
 
+            Commands.AddRange(modCommands);
+
             var cmdTexts = string.Concat(modCommands
                 .Where(b => !b.Description.IsNullOrWhiteSpace())
                 .Select(b => $"{b.Description}\n\n")
