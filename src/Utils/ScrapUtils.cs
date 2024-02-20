@@ -6,16 +6,24 @@ using System.Text.RegularExpressions;
 
 namespace QualityCompany.Utils;
 
+/// <summary>
+/// A scrap utilities class
+/// </summary>
 public static class ScrapUtils
 {
-    private static readonly ACLogger _logger = new(nameof(ScrapUtils));
+    private static readonly ACLogger Logger = new(nameof(ScrapUtils));
 
+    /// <summary>
+    /// Get all scrap items within the ship
+    /// </summary>
+    /// <returns></returns>
     public static List<GrabbableObject> GetAllScrapInShip()
     {
         try
         {
             return GameUtils.ShipGameObject
                 .GetComponentsInChildren<GrabbableObject>()
+                .Where(scrap => scrap.itemProperties.isScrap && scrap.scrapValue > 0)
                 .ToList();
         }
         catch
@@ -24,6 +32,11 @@ public static class ScrapUtils
         }
     }
 
+    /// <summary>
+    /// Get all sellable scrap items within the ship<br />
+    /// This takes into account items ignored by SellIgnoreList config
+    /// </summary>
+    /// <returns></returns>
     public static List<GrabbableObject> GetAllSellableScrapInShip()
     {
         return GetAllScrapInShip()
@@ -31,7 +44,56 @@ public static class ScrapUtils
             .ToList();
     }
 
-    public static List<GrabbableObject> GetScrapForAmount(int amount)
+    public static int GetShipTotalRawScrapValue() => GetAllScrapInShip().ScrapValueOfCollection();
+
+    public static int GetShipTotalSellableScrapValue() => GetAllSellableScrapInShip().ActualScrapValueOfCollection();
+
+    public static int GetShipSettledTotalRawScrapValue()
+    {
+        return GetAllScrapInShip()
+            .Where(scrap => !scrap.isHeld)
+            .ScrapValueOfCollection();
+    }
+
+    public static int SumScrapListSellValue(IEnumerable<GrabbableObject> scraps)
+    {
+        return scraps.Where(item => item.itemProperties.isScrap).ActualScrapValueOfCollection();
+    }
+
+    /// <summary>
+    /// Retrieves the sell value of a scrap item according to the current buying rate of The Company<br />
+    /// This should not be used to calculate the total sum of a list of scrap items. Use <see cref="ActualScrapValueOfCollection"/> instead
+    /// </summary>
+    /// <param name="scrap">The scrap item to evaluate</param>
+    /// <returns>The scrap value of a scrap item</returns>
+    public static int ActualSellValue(this GrabbableObject scrap)
+    {
+        var actualSellValue = scrap.scrapValue * GameUtils.StartOfRound.companyBuyingRate;
+        return (int)Math.Round(actualSellValue);
+    }
+
+    /// <summary>
+    /// Retrieves the raw total scrap value of a collection, not taking into account the current buying rate of The Company<br />
+    /// </summary>
+    /// <param name="scraps">The scrap items to evaluate</param>
+    /// <returns>The total raw scrap value of all scrap items in the collection</returns>
+    public static int ScrapValueOfCollection(this IEnumerable<GrabbableObject> scraps)
+    {
+        return scraps.Sum(go => go.scrapValue);
+    }
+
+    /// <summary>
+    /// Retrieves the total scrap value of a collection, taking into account the current buying rate of The Company<br />
+    /// This is the preferred way to calculate the sum of a collection of items as opposed to calling <see cref="ActualSellValue"/> on each individual scrap item
+    /// </summary>
+    /// <param name="scraps">The scrap items to evaluate</param>
+    /// <returns>The total scrap value of all scrap items in the collection</returns>
+    public static int ActualScrapValueOfCollection(this IEnumerable<GrabbableObject> scraps)
+    {
+        return (int)(scraps.Sum(go => go.scrapValue) * GameUtils.StartOfRound.companyBuyingRate);
+    }
+
+    internal static List<GrabbableObject> GetScrapForAmount(int amount)
     {
         var totalScrapValue = GetShipTotalSellableScrapValue();
         if (totalScrapValue < amount)
@@ -94,31 +156,11 @@ public static class ScrapUtils
         return scrapToSell;
     }
 
-    public static int GetShipSellableScrapCount() => GetAllSellableScrapInShip().Count;
-
-    public static int GetShipTotalSellableScrapValue() => GetAllSellableScrapInShip().Sum(scrap => scrap.ActualSellValue());
-
-    public static int GetShipTotalRawScrapValue()
-    {
-        return GetAllScrapInShip()
-            .Where(scrap => scrap.itemProperties.isScrap && scrap.scrapValue > 0)
-            .Sum(scrap => scrap.scrapValue);
-    }
-
-    public static int GetShipSettledTotalRawScrapValue()
-    {
-        return GetAllScrapInShip()
-               .Where(scrap => scrap.itemProperties.isScrap && scrap.scrapValue > 0 && !scrap.isHeld)
-               .Sum(scrap => scrap.scrapValue);
-    }
-
-    public static int SumScrapListSellValue(IEnumerable<GrabbableObject> scraps) => scraps.Where(item => item.itemProperties.isScrap).Sum(scrap => scrap.ActualSellValue());
-
-    public static bool CanSellItem(this GrabbableObject item)
+    internal static bool CanSellItem(this GrabbableObject item)
     {
         if (item is null)
         {
-            _logger.LogError("CanSellItem: Trying to evaluate a null item");
+            Logger.LogError("CanSellItem: Trying to evaluate a null item");
             return false;
         }
 
@@ -130,11 +172,5 @@ public static class ScrapUtils
             .Any(match => match.Success);
 
         return canSell && !isInIgnoreList;
-    }
-
-    public static int ActualSellValue(this GrabbableObject scrap)
-    {
-        var actualSellValue = scrap.scrapValue * StartOfRound.Instance.companyBuyingRate;
-        return (int)Math.Round(actualSellValue); // Not sure if Game ceils/floors/rounds, so might be off by 1 at most
     }
 }

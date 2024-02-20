@@ -1,7 +1,11 @@
-﻿using QualityCompany.Manager.ShipTerminal;
+﻿using Newtonsoft.Json;
+using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Network;
 using QualityCompany.Service;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -19,11 +23,12 @@ internal class DebugCommands
         if (!Plugin.Instance.PluginConfig.TerminalDebugCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("hack")
-            .WithDescription(">hack <count>\nSpawn some ez lewt.")
+            .WithDescription("> hack <count>\nSpawn some ez lewt.")
             .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
             .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
             .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
-            .WithSubCommand(new TerminalSubCommandBuilder("<ha>")
+            .WithSubCommand(new TerminalSubCommandBuilder("<count>")
+                .WithDescription("Hack in <count> number of items.")
                 .WithMessage("Hacked in [scrapCountToHack] items")
                 .WithConditions("isHost")
                 .WithInputMatch(@"(\d+$)$")
@@ -36,11 +41,26 @@ internal class DebugCommands
                     scrapCountToHack = Convert.ToInt32(input);
 
                     if (scrapCountToHack <= 0) return false;
-                    for (var i = 0; i < StartOfRound.Instance.allItemsList.itemsList.Count; i++)
+                    scrapCountToHack = Math.Min(100, scrapCountToHack);
+
+#if DEBUG
+                    var dict = StartOfRound.Instance.allItemsList.itemsList.ToDictionary<Item, string, dynamic>(item => item.name, item => new
                     {
-                        var item = StartOfRound.Instance.allItemsList.itemsList[i];
-                        _logger.LogDebug($" > {i}:{item.name}: {item.isScrap} | {item.minValue} -> {item.maxValue}");
-                    }
+                        item.name,
+                        item.minValue,
+                        item.maxValue,
+                        item.batteryUsage,
+                        item.isScrap,
+                        item.twoHanded,
+                        item.weight,
+                        item.creditsWorth,
+                        item.itemSpawnsOnGround,
+                        item.itemId
+                    });
+
+                    _logger.LogDebug($"Saved item data to {Path.Combine(Plugin.Instance.PluginPath)}");
+                    File.WriteAllText(Path.Combine(Plugin.Instance.PluginPath, "game_items.json"), JsonConvert.SerializeObject(dict));
+#endif
 
                     var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
                     for (var i = 0; i < scrapCountToHack; i++)
@@ -60,7 +80,7 @@ internal class DebugCommands
                             continue;
                         }
 
-                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue);
+                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue) / 2;
                         _logger.LogDebug($" > spawned in {itemToSpawn.name} for {scrapValue}");
                         scrap.GetComponent<NetworkObject>().Spawn();
 

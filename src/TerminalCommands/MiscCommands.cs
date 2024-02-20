@@ -16,7 +16,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("launch")
-            .WithDescription("> LAUNCH\nTo launch or land the ship. Host needs to do the very first launch.")
+            .WithDescription("> launch\nTo launch or land the ship. Host needs to do the very first launch.")
             .WithCondition("inTransitLandedOrLeaving", "Unable to comply. The ship is landing or taking off.",
                 () => StartOfRound.Instance.shipDoorsEnabled &&
                       !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
@@ -44,7 +44,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("door")
-            .WithDescription(">DOOR\nToggle the ship door.")
+            .WithDescription("> door\nToggle the ship door.")
             .WithAction(() =>
             {
                 var trigger = GameObject.Find(StartOfRound.Instance.hangarDoorsClosed ? "StartButton" : "StopButton")
@@ -61,7 +61,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("tp")
-            .WithDescription(">TP\nTeleport the currently active player on the view monitor to the ship. Must have a teleporter.")
+            .WithDescription("> tp\nTeleport the currently active player on the view monitor to the ship. Must have a teleporter.")
             .WithAction(() =>
             {
                 var teleporterObject = GameObject.Find("Teleporter(Clone)");
@@ -83,7 +83,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("lights")
-            .WithDescription(">LIGHTS\nToggle the lights.")
+            .WithDescription("> lights\nToggle the lights.")
             .WithAction(() =>
             {
                 var trigger = GameObject.Find("LightSwitch").GetComponent<InteractTrigger>();
@@ -99,7 +99,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("time")
-            .WithDescription(">TIME\nGet the current time whilst on a moon.")
+            .WithDescription("> time\nGet the current time whilst on a moon.")
             .WithAction(GetTime);
 
         static string GetTime()
@@ -114,7 +114,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
 
         return new TerminalCommandBuilder("vs")
-            .WithDescription(">vs\nExecute 'switch' but easier.")
+            .WithDescription("> vs\nExecute 'switch' but easier.")
             .WithAction(() =>
             {
                 var switchObject = GameObject.Find("CameraMonitorSwitchButton");
@@ -138,7 +138,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
 
         return new TerminalCommandBuilder("vw")
-            .WithDescription(">vw <player>\nExecute 'switch' to a player but easier.")
+            .WithDescription("> vw <player>\nExecute 'switch' to a player but easier.")
             .WithSubCommand(new TerminalSubCommandBuilder("<player>")
                 .WithMessage("Switched to [playerSwitchName]")
                 .WithConditions("validPlayer")

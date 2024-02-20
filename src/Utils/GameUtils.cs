@@ -42,6 +42,11 @@ public static class GameUtils
         ShipGameObject = null;
     }
 
+    public static bool IsCompanyBuyingAtFullRate()
+    {
+        return TimeOfDay.daysUntilDeadline == 0;
+    }
+
     public static string CurrentLevel()
     {
         if (TimeOfDay is null) return "";

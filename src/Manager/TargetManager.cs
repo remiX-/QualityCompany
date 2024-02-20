@@ -57,24 +57,17 @@ internal class TargetManager
         PerformSell(ScrapUtils.GetAllSellableScrapInShip());
     }
 
-    private static void PerformSell(List<GrabbableObject> scrap)
+    private static void PerformSell(IReadOnlyCollection<GrabbableObject> scrap)
     {
-        var depositItemsDesk = Object.FindFirstObjectByType<DepositItemsDesk>();
+        _totalItems = 0;
+        _totalValueForSale = 0;
 
-        var index = 0;
-        scrap.ForEach(item =>
+        foreach (var scrapNetworkObjectId in scrap.Select(x => x.NetworkObjectId))
         {
-            item.transform.parent = depositItemsDesk.deskObjectsContainer.transform;
-            item.transform.localPosition = depositItemsDesk.transform.position + new Vector3(0f, 0f, (index - 5) * 1f);
-            depositItemsDesk.AddObjectToDeskServerRpc(new NetworkObjectReference(item.gameObject.GetComponent<NetworkObject>()));
+            MoveNetworkObjectToDepositDeskClient(scrapNetworkObjectId);
+        }
 
-            index++;
-        });
-
-        depositItemsDesk.SetTimesHeardNoiseServerRpc(5f);
-
-        var totalValue = ScrapUtils.SumScrapListSellValue(scrap);
-        HudUtils.DisplayNotification($"Placed {scrap.Count} pieces of scrap onto the Company Desk for sale. Total ${totalValue}!");
+        ExecuteTargetedSellOrderClient();
     }
 
     internal static void SellAllTargetedScrap(List<GrabbableObject> scrap)
@@ -101,7 +94,7 @@ internal class TargetManager
 
     internal static void MoveNetworkObjectToDepositDeskClient(ulong networkObjectId)
     {
-        var scrap = ScrapUtils.GetAllSellableScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
+        var scrap = ScrapUtils.GetAllScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
         if (scrap is null)
         {
             Logger.LogError($"Failed to find network object on this client: {networkObjectId}");
@@ -111,7 +104,7 @@ internal class TargetManager
         var depositItemsDesk = Object.FindFirstObjectByType<DepositItemsDesk>();
         scrap.transform.parent = depositItemsDesk.deskObjectsContainer.transform;
         scrap.transform.localPosition = depositItemsDesk.transform.position + new Vector3(0f, 0f, (_totalItems - 5) * 1f);
-        depositItemsDesk.AddObjectToDeskServerRpc(new NetworkObjectReference(scrap.gameObject.GetComponent<NetworkObject>()));
+        depositItemsDesk.AddObjectToDeskServerRpc(scrap.gameObject.GetComponent<NetworkObject>());
 
         _totalItems++;
         _totalValueForSale += scrap.ActualSellValue();

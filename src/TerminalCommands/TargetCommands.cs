@@ -16,7 +16,7 @@ internal class TargetCommands
         if (!Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("target")
-            .WithDescription(">TARGET <AMOUNT>\nSet a target sell requirement for the target monitor.")
+            .WithDescription("> target <AMOUNT>\nSet a target sell requirement for the target monitor.")
             .WithText("Please enter an amount.\neg: target 2000\n\n[targetExplanation]")
             .WithSubCommand(new TerminalSubCommandBuilder("<amount>")
                 .WithDescription("The desired target wanted upon leaving The Company Building.")

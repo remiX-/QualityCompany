@@ -1,3 +1,11 @@
+# v1.3.6: Sell commands 
+
+- Fixed a bug where 'sell' commands wouldn't total scrap values correctly when selling mid-way through the quota
+- Fixed a bug with 'sell <item><condition>' command did not take into account company buying rate & equals condition
+- Added visibility on actual scrap value when selling mid-way through the quota
+- Halved the scrap value of items spawned by the 'hack' command
+- Cleaned up ScrapUtils
+
 # v1.3.5: Broken commands ;-(
 
 - Fixed a bug where commands were being added but not actually being run

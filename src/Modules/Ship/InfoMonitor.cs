@@ -58,9 +58,9 @@ internal class InfoMonitor : BaseMonitor
         var daysCompleted = SaveManager.SaveData.TotalDaysPlayedForCurrentQuota + 1;
         var lootGainedInCurrentQuota = ScrapUtils.GetShipTotalRawScrapValue() - quotaStartScrap;
         var gainedLostText = lootGainedInCurrentQuota < 0
-            ? $"LOST: {lootGainedInCurrentQuota * -1}"
-            : $"GAINED: {lootGainedInCurrentQuota}";
-        Instance.UpdateMonitorText($"DAY: {(isDeadlineDay ? "DEADLINE" : daysCompleted)}\nQUOTA START: ${quotaStartScrap}\n${gainedLostText}");
+            ? $"LOST: ${lootGainedInCurrentQuota * -1}"
+            : $"GAINED: ${lootGainedInCurrentQuota}";
+        Instance.UpdateMonitorText($"DAY: {(isDeadlineDay ? "DEADLINE" : daysCompleted)}\nQUOTA START: ${quotaStartScrap}\n{gainedLostText}");
     }
 
     internal static string GetText()

@@ -97,6 +97,13 @@ public class TerminalCommandBuilder
         return this;
     }
 
+    public TerminalCommandBuilder AddTextReplacement(string replacementKey, Func<int> action)
+    {
+        TextProcessPlaceholders.Add(replacementKey, () => action().ToString());
+
+        return this;
+    }
+
     /// <summary>
     /// A condition is an action that returns a bool specifying whether this command may proceed.
     /// Occurs before <see cref="Action"/> and after <see cref="TerminalSubCommand.PreConditionAction"/>.
