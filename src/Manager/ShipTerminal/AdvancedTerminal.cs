@@ -33,12 +33,6 @@ internal class AdvancedTerminal
     internal static void Init()
     {
         TerminalAwakeEvent += ApplyToTerminal;
-
-        Disconnected += _ =>
-        {
-            GlobalTextReplacements.Clear();
-            Commands.Clear();
-        };
     }
 
     internal static void ApplyToTerminal(Terminal terminal)
