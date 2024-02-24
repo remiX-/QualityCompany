@@ -88,7 +88,7 @@ internal class TerminalPatch
 
         if (filteredCommands.Count > 1)
         {
-            //Logger.LogError($" > Found multiple commands! HOW? Only using first one. Found: {filteredCommands.Select(x => x.CommandText).Aggregate((first, second) => $"{first}, {second}")}");
+            Logger.LogError($" > Found multiple commands! HOW? Only using first one. Found: {filteredCommands.Select(x => x.CommandText).Aggregate((first, second) => $"{first}, {second}")}");
         }
 
         var advancedCommand = filteredCommands.First();

@@ -11,9 +11,9 @@ using static QualityCompany.Service.GameEvents;
 namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(HUDManager))]
-internal class HUDManagerPatch
+internal class HudManagerPatch
 {
-    private static readonly ACLogger _logger = new(nameof(HUDManagerPatch));
+    private static readonly ACLogger Logger = new(nameof(HudManagerPatch));
 
     [HarmonyPostfix]
     [HarmonyPatch("Start")]
@@ -30,10 +30,8 @@ internal class HUDManagerPatch
 
         // Temp for now as HUDManager starts a little bit later than StartOfRound
         // TODO: maybe move into a DebugModule?
-        _logger.LogDebug(JsonConvert.SerializeObject(SaveManager.SaveData));
-        Plugin.Instance.PluginConfig.DebugPrintConfig(_logger);
-
-        QualityCompany.TerminalApi.TestApi.Hello();
+        Logger.LogDebug(JsonConvert.SerializeObject(SaveManager.SaveData));
+        Plugin.Instance.PluginConfig.DebugPrintConfig(Logger);
     }
 
     [HarmonyPostfix]
@@ -55,8 +53,6 @@ internal class HUDManagerPatch
     [HarmonyPatch("DisplayDaysLeft")]
     private static void DisplayDaysLeft(TimeOfDay __instance)
     {
-        _logger.LogDebug("DisplayDaysLeft");
-
         SaveManager.SaveData.TotalDaysPlayedForCurrentQuota++;
         SaveManager.Save();
 

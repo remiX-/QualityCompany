@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Service;
 using QualityCompany.Utils;
 using static QualityCompany.Service.GameEvents;
 
@@ -10,8 +9,6 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(TimeOfDay))]
 internal class TimeOfDayPatch
 {
-    private static readonly ACLogger _logger = new(nameof(TimeOfDayPatch));
-
     [HarmonyPostfix]
     [HarmonyPatch("SyncNewProfitQuotaClientRpc")]
     private static void SyncNewProfitQuotaClientRpcPatch()

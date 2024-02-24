@@ -7,14 +7,10 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(ShotgunItem))]
 internal class ShotgunItemPatch
 {
-    private static readonly ACLogger _logger = new(nameof(ShotgunItemPatch));
-
     [HarmonyPostfix]
     [HarmonyPatch("ShootGun")]
     private static void ShootGunPatch()
     {
-        _logger.LogDebug("ShootGun");
-
         OnPlayerShotgunShoot(GameNetworkManager.Instance.localPlayerController);
     }
 
@@ -22,8 +18,6 @@ internal class ShotgunItemPatch
     [HarmonyPatch("ReloadGunEffectsClientRpc")]
     private static void ReloadGunEffectsClientRpcPatch()
     {
-        _logger.LogDebug("ReloadGunEffectsClientRpcPatch");
-
         OnPlayerShotgunReload(GameNetworkManager.Instance.localPlayerController);
     }
 }

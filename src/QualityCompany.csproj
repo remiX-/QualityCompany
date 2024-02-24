@@ -8,6 +8,7 @@
 		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<!-- <GenerateAssemblyInfo>false</GenerateAssemblyInfo> -->
 	</PropertyGroup>
 
 	<Import Project="CommonBuildProperties.proj" />
@@ -16,8 +17,8 @@
 		<PackageReference Include="BepInEx.Analyzers" Version="1.0.8" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
 		<!-- <PackageReference Include="BepInEx.PluginInfoProps" Version="2.1.0" /> -->
-		<PackageReference Include="UnityEngine.Modules" Version="2023.2.8" IncludeAssets="compile" />
-		<!-- <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" /> -->
+		<!-- <PackageReference Include="UnityEngine.Modules" Version="2023.2.8" IncludeAssets="compile" /> -->
+		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -51,26 +52,13 @@
 		</Reference>
 	</ItemGroup>
 
-	<!-- Bundle copying -->
-	<ItemGroup>
-		<None Update="Assets\modnetworkhandlerbundle">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\test.mp3">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Assets\yippee-come-back.mp3">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<Target Name="NetcodePatch" AfterTargets="Build">
 		<Message Text="NetcodePatch task" Importance="High" />
 
 		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
 	</Target>
 
-	<Target Name="Copy To Dist" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
+	<Target Name="Release" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
 		<Message Text="Configured for release, running release script." Importance="High" />
 
 		<Exec Command="powershell $(SolutionDir)release.ps1" />

@@ -1,26 +1,14 @@
 using HarmonyLib;
 using QualityCompany.Manager.Saves;
-using QualityCompany.Modules.Core;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Service;
-using QualityCompany.Utils;
 using System.Text;
 using TMPro;
-using UnityEngine;
 
 namespace QualityCompany.Patch;
 
 [HarmonyPatch(typeof(StartOfRound))]
 internal class StartOfRoundPatcher
 {
-    private static readonly ACLogger _logger = new(nameof(StartOfRoundPatcher));
-
-    [HarmonyPostfix]
-    [HarmonyPatch("Start")]
-    private static void StartPatch()
-    {
-    }
-
     [HarmonyPostfix]
     [HarmonyPatch("ReviveDeadPlayers")]
     private static void ReviveDeadPlayersPatch()

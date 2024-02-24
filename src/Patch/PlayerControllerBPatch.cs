@@ -1,7 +1,6 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using QualityCompany.Modules.Ship;
-using QualityCompany.Service;
 using Unity.Netcode;
 using static QualityCompany.Service.GameEvents;
 
@@ -10,8 +9,6 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(PlayerControllerB))]
 internal class PlayerControllerBPatch
 {
-    private static readonly ACLogger _logger = new(nameof(PlayerControllerBPatch));
-
     [HarmonyPostfix]
     [HarmonyPatch("ConnectClientToPlayerObject")]
     private static void OnPlayerConnect()
@@ -31,7 +28,6 @@ internal class PlayerControllerBPatch
     private static void RefreshLootOnPickupClient(PlayerControllerB __instance, ref NetworkObjectReference grabbedObject)
     {
         if (!grabbedObject.TryGet(out var networkObject)) return;
-
 
         var grabbableObject = networkObject.gameObject.GetComponentInChildren<GrabbableObject>();
         OnPlayerGrabObjectClientRpc(__instance, grabbableObject);
@@ -61,8 +57,6 @@ internal class PlayerControllerBPatch
     [HarmonyPatch(nameof(PlayerControllerB.DiscardHeldObject))]
     private static void DiscardHeldObjectPatch(PlayerControllerB __instance)
     {
-        // this seems to trigger 3 times for host? ...
-        // also does not seem to work for updating UI
         OnPlayerDiscardHeldObject(__instance);
     }
 
@@ -73,12 +67,10 @@ internal class PlayerControllerBPatch
         OnPlayerDeath(__instance);
     }
 
-    // This seems bad... it triggers a lot, such as just placing an item on the deposit desk triggers this
     [HarmonyPostfix]
     [HarmonyPatch(nameof(PlayerControllerB.DropAllHeldItems))]
     private static void DropAllHeldItemsPatch(PlayerControllerB __instance)
     {
-        _logger.LogDebug($"DropAllHeldItemsPatch: isLocal? {__instance == GameNetworkManager.Instance.localPlayerController} | isOwner? {__instance.IsOwner}");
         OnPlayerDropAllHeldItems(__instance);
     }
 }

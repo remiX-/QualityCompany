@@ -8,8 +8,6 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(DepositItemsDesk))]
 internal class DepositItemsDeskPatch
 {
-    private static readonly ACLogger _logger = new(nameof(DepositItemsDeskPatch));
-
     [HarmonyPostfix]
     [HarmonyPatch("PlaceItemOnCounter")]
     private static void PlaceItemOnCounterPatch()
