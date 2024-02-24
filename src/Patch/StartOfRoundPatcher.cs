@@ -19,12 +19,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("Start")]
     private static void StartPatch()
     {
-        SaveManager.Load();
-        GameUtils.Init();
-
-        // TODO see if better place?
-        var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
-        moduleLoaderGameObject.AddComponent<ModuleLoader>();
     }
 
     [HarmonyPostfix]
