@@ -11,7 +11,7 @@ namespace QualityCompany.Utils;
 /// </summary>
 public static class ScrapUtils
 {
-    private static readonly ACLogger Logger = new(nameof(ScrapUtils));
+    private static readonly ModLogger Logger = new(nameof(ScrapUtils));
 
     /// <summary>
     /// Get all scrap items within the ship
@@ -93,7 +93,7 @@ public static class ScrapUtils
         return (int)(scraps.Sum(go => go.scrapValue) * GameUtils.StartOfRound.companyBuyingRate);
     }
 
-    internal static List<GrabbableObject> GetScrapForAmount(int amount)
+    public static List<GrabbableObject> GetScrapForAmount(int amount)
     {
         var totalScrapValue = GetShipTotalSellableScrapValue();
         if (totalScrapValue < amount)

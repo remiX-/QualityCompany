@@ -21,7 +21,7 @@ internal class InfoMonitor : BaseMonitor
     protected override void PostStart()
     {
         Instance = this;
-        Logger = new ACLogger(nameof(InfoMonitor));
+        Logger = new ModLogger(nameof(InfoMonitor));
 
         TextMesh.fontSize *= 0.65f;
 

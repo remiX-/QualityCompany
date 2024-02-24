@@ -12,7 +12,7 @@ namespace QualityCompany.Manager;
 
 internal class TargetManager
 {
-    private static readonly ACLogger Logger = new(nameof(TargetManager));
+    private static readonly ModLogger Logger = new(nameof(TargetManager));
 
     private static int _totalItems;
     private static int _totalValueForSale;

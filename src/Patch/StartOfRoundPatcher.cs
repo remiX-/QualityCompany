@@ -3,6 +3,7 @@ using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
 using System.Text;
 using TMPro;
+using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Patch;
 
@@ -22,6 +23,13 @@ internal class StartOfRoundPatcher
     {
         SaveManager.SaveData.ResetGameState();
         SaveManager.Save();
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch("EndOfGame")]
+    private static void EndOfGamePatch(StartOfRound __instance)
+    {
+        OnEndOfGame(__instance);
     }
 
     [HarmonyPostfix]

@@ -14,7 +14,7 @@ public class AdvancedTerminalRegistry
 {
     internal static Dictionary<string, ModConfiguration> Commands { get; } = new();
 
-    private static readonly ACLogger Logger = new(nameof(AdvancedTerminalRegistry));
+    private static readonly ModLogger Logger = new(nameof(AdvancedTerminalRegistry));
 
     /// <summary>
     /// Call this with your current assembly with <see cref="Assembly.GetExecutingAssembly" />

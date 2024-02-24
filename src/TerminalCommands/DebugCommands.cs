@@ -13,7 +13,7 @@ namespace QualityCompany.TerminalCommands;
 
 internal class DebugCommands
 {
-    private static readonly ACLogger _logger = new(nameof(DebugCommands));
+    private static readonly ModLogger _logger = new(nameof(DebugCommands));
 
     private static int scrapCountToHack;
 

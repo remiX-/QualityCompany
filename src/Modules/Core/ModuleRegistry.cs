@@ -14,7 +14,7 @@ public class ModuleRegistry
 {
     internal static List<InternalModule> Modules { get; } = new();
 
-    private static readonly ACLogger _logger = new(nameof(ModuleRegistry));
+    private static readonly ModLogger _logger = new(nameof(ModuleRegistry));
 
     /// <summary>
     /// Call this with your current assembly with <see cref="Assembly.GetExecutingAssembly" />

@@ -13,7 +13,7 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(HUDManager))]
 internal class HudManagerPatch
 {
-    private static readonly ACLogger Logger = new(nameof(HudManagerPatch));
+    private static readonly ModLogger Logger = new(nameof(HudManagerPatch));
 
     [HarmonyPostfix]
     [HarmonyPatch("Start")]

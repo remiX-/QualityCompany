@@ -12,7 +12,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 {
     public static CompanyNetworkHandler Instance { get; private set; }
 
-    private readonly ACLogger _logger = new(nameof(CompanyNetworkHandler));
+    private readonly ModLogger _logger = new(nameof(CompanyNetworkHandler));
 
     private bool _retrievedPluginConfig;
     private bool _retrievedSaveFile;

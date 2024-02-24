@@ -9,16 +9,17 @@ internal class NetworkHandler : NetworkBehaviour
 {
     internal static NetworkHandler Instance { get; private set; }
 
-    private readonly ACLogger _logger = new(nameof(NetworkHandler));
+    private readonly ModLogger _logger = new(nameof(NetworkHandler));
 
     [ClientRpc]
     public void SyncValuesClientRpc(int value, NetworkBehaviourReference netRef)
     {
+        _logger.LogMessage("SyncValuesClientRpc");
         netRef.TryGet(out GrabbableObject prop);
 
         if (prop is null)
         {
-            _logger.LogInfo("Unable to resolve net ref for SyncValuesClientRpc!");
+            _logger.LogError("Unable to resolve net ref for SyncValuesClientRpc!");
             return;
         }
 

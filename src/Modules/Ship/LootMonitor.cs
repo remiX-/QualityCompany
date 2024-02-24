@@ -10,7 +10,7 @@ internal class LootMonitor : BaseMonitor
     protected override void PostStart()
     {
         Instance = this;
-        Logger = new ACLogger(nameof(LootMonitor));
+        Logger = new ModLogger(nameof(LootMonitor));
 
         UpdateMonitor();
     }

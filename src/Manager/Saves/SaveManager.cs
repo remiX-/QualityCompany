@@ -8,7 +8,7 @@ namespace QualityCompany.Manager.Saves;
 
 internal class SaveManager
 {
-    private static readonly ACLogger Logger = new(nameof(SaveManager));
+    private static readonly ModLogger Logger = new(nameof(SaveManager));
 
     internal static GameSaveData SaveData { get; private set; } = new();
 

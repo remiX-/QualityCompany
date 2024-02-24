@@ -16,7 +16,7 @@ internal class LatencyModule : MonoBehaviour
 {
     public static LatencyModule Instance { get; private set; }
 
-    private static readonly ACLogger _logger = new(nameof(LatencyModule));
+    private static readonly ModLogger _logger = new(nameof(LatencyModule));
 
     private static readonly Color TEXT_COLOR_ABOVE200 = new(1f, 0f, 0f, 0.8f);
     private static readonly Color TEXT_COLOR_ABOVE130 = new(1f, 128f / 255f, 237f / 255f, 0.8f);

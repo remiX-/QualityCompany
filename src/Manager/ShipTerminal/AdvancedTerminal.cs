@@ -15,7 +15,7 @@ internal class AdvancedTerminal
     internal static readonly Dictionary<string, Func<string>> GlobalTextReplacements = new();
     internal static readonly List<TerminalCommandBuilder> Commands = new();
 
-    private static readonly ACLogger Logger = new(nameof(AdvancedTerminal));
+    private static readonly ModLogger Logger = new(nameof(AdvancedTerminal));
 
     private static TerminalKeyword _terminalConfirmKeyword;
     private static TerminalKeyword _terminalDenyKeyword;

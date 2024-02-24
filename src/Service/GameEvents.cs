@@ -2,7 +2,7 @@
 
 public partial class GameEvents
 {
-    private static readonly ACLogger Logger = new(nameof(GameEvents));
+    private static readonly ModLogger Logger = new(nameof(GameEvents));
 
     public static event TimeUpdateEvent GameTimeUpdate;
     public delegate void TimeUpdateEvent();

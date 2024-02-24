@@ -9,7 +9,7 @@ namespace QualityCompany.Network;
 [HarmonyPatch]
 internal class NetworkObjectManager
 {
-    private static readonly ACLogger _logger = new(nameof(NetworkObjectManager));
+    private static readonly ModLogger _logger = new(nameof(NetworkObjectManager));
 
     private static GameObject networkPrefab;
 

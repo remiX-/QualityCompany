@@ -1,10 +1,10 @@
 ﻿namespace QualityCompany.Service;
 
-internal class ACLogger
+internal class ModLogger
 {
     private readonly string _moduleName;
 
-    internal ACLogger(string moduleName)
+    internal ModLogger(string moduleName)
     {
         _moduleName = moduleName;
     }
@@ -13,32 +13,31 @@ internal class ACLogger
     {
         if (!Plugin.Instance.PluginConfig.ShowDebugLogs) return;
 
-        Plugin.Instance.ACLogger.LogDebug($"[{_moduleName}] {message}");
+        Plugin.Instance.Log.LogDebug($"[{_moduleName}] {message}");
     }
 
     internal void LogMessage(object message)
     {
-        Plugin.Instance.ACLogger.LogMessage($"[{_moduleName}] {message}");
+        Plugin.Instance.Log.LogMessage($"[{_moduleName}] {message}");
     }
 
     internal void LogWarning(object message)
     {
-        Plugin.Instance.ACLogger.LogWarning($"[{_moduleName}] {message}");
+        Plugin.Instance.Log.LogWarning($"[{_moduleName}] {message}");
     }
 
     internal void LogInfo(object message)
     {
-        Plugin.Instance.ACLogger.LogInfo($"[{_moduleName}] {message}");
+        Plugin.Instance.Log.LogInfo($"[{_moduleName}] {message}");
     }
 
     internal void LogError(object message)
     {
-        Plugin.Instance.ACLogger.LogError($"[{_moduleName}] {message}");
+        Plugin.Instance.Log.LogError($"[{_moduleName}] {message}");
     }
 
     internal void LogFatal(object message)
     {
-        Plugin.Instance.ACLogger.LogFatal($"[{_moduleName}] {message}");
+        Plugin.Instance.Log.LogFatal($"[{_moduleName}] {message}");
     }
-
 }

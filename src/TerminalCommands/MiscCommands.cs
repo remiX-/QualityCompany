@@ -8,7 +8,7 @@ namespace QualityCompany.TerminalCommands;
 
 internal class MiscCommands
 {
-    private static readonly ACLogger _logger = new(nameof(MiscCommands));
+    private static readonly ModLogger _logger = new(nameof(MiscCommands));
 
     [TerminalCommand]
     private static TerminalCommandBuilder LaunchCommand()

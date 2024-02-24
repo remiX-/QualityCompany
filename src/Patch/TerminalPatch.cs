@@ -16,7 +16,7 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(Terminal))]
 internal class TerminalPatch
 {
-    private static readonly ACLogger Logger = new(nameof(TerminalPatch));
+    private static readonly ModLogger Logger = new(nameof(TerminalPatch));
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]

@@ -8,7 +8,7 @@ namespace QualityCompany.TerminalCommands;
 
 internal class TargetCommands
 {
-    private static readonly ACLogger Logger = new(nameof(TargetCommands));
+    private static readonly ModLogger Logger = new(nameof(TargetCommands));
 
     [TerminalCommand]
     private static TerminalCommandBuilder CreateTargetCommand()

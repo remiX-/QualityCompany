@@ -260,7 +260,7 @@ internal class PluginConfig
         TerminalPatchFixScanEnabled = hostConfig.TerminalPatchFixScanEnabled;
     }
 
-    public void DebugPrintConfig(ACLogger logger)
+    public void DebugPrintConfig(ModLogger logger)
     {
         foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(this))
         {

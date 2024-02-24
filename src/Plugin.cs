@@ -14,11 +14,11 @@ namespace QualityCompany;
 [BepInPlugin(PluginMetadata.PLUGIN_GUID, PluginMetadata.PLUGIN_NAME, PluginMetadata.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-    private readonly Harmony harmony = new(PluginMetadata.PLUGIN_GUID);
+    private readonly Harmony _harmony = new(PluginMetadata.PLUGIN_GUID);
 
     internal static Plugin Instance;
 
-    internal ManualLogSource ACLogger;
+    internal ManualLogSource Log;
 
     internal PluginConfig PluginConfig;
 
@@ -27,7 +27,7 @@ public class Plugin : BaseUnityPlugin
     private void Awake()
     {
         Instance = this;
-        ACLogger = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
+        Log = BepInEx.Logging.Logger.CreateLogSource(PluginMetadata.PLUGIN_NAME);
 
         // Asset Bundles
         PluginPath = Path.GetDirectoryName(Info.Location)!;
@@ -42,7 +42,7 @@ public class Plugin : BaseUnityPlugin
         LoadAssets();
 
         // Loaded
-        ACLogger.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");
+        Log.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");
     }
 
     private void Patch()
@@ -50,8 +50,8 @@ public class Plugin : BaseUnityPlugin
         AdvancedTerminalRegistry.Register(Assembly.GetExecutingAssembly(), description: "QualityCompany provides auto-sell functionality with a few commands.");
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 
-        harmony.PatchAll(Assembly.GetExecutingAssembly());
-        harmony.PatchAll(typeof(MenuPatch));
+        _harmony.PatchAll(Assembly.GetExecutingAssembly());
+        _harmony.PatchAll(typeof(MenuPatch));
     }
 
     private static void NetcodePatcher()

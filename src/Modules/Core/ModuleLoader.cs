@@ -9,7 +9,7 @@ namespace QualityCompany.Modules.Core;
 
 internal class ModuleLoader : MonoBehaviour
 {
-    private readonly ACLogger _logger = new(nameof(ModuleLoader));
+    private readonly ModLogger _logger = new(nameof(ModuleLoader));
 
     private void Start()
     {

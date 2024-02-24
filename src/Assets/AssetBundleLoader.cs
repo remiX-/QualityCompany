@@ -7,7 +7,7 @@ namespace QualityCompany.Assets;
 
 internal class AssetBundleLoader
 {
-    private static readonly ACLogger Logger = new(nameof(AssetBundleLoader));
+    private static readonly ModLogger Logger = new(nameof(AssetBundleLoader));
 
     internal static AssetBundle CustomAssets;
 

@@ -6,7 +6,7 @@ namespace QualityCompany.Modules.Ship;
 
 internal abstract class BaseMonitor : MonoBehaviour
 {
-    protected ACLogger Logger;
+    protected ModLogger Logger;
     protected TextMeshProUGUI TextMesh;
 
     private void Start()
