@@ -66,10 +66,10 @@ internal class AdvancedTerminal
             AddToHelp(config);
         }
 
-        foreach (var kw in terminal.terminalNodes.allKeywords)
-        {
-            Logger.LogDebug($"{kw.name} | {kw.word}");
-        }
+        // foreach (var kw in terminal.terminalNodes.allKeywords)
+        // {
+        //     Logger.LogDebug($"{kw.name} | {kw.word}");
+        // }
     }
 
     private static List<TerminalCommandBuilder> LoadModCommands(Terminal terminal, string modName, ModConfiguration config)
