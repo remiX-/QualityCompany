@@ -21,12 +21,7 @@ internal class ScanFixModule
             return;
         }
 
-        scanKeyword.specialKeywordResult = new TerminalNode
-        {
-            name = "scan",
-            displayText = "[scanForItemsFix]",
-            clearPreviousText = true
-        };
+        scanKeyword.specialKeywordResult = TerminalUtils.CreateNode("scan", "[scanForItemsFix]");
 
         AdvancedTerminal.AddGlobalTextReplacement("[scanForItemsFix]", () =>
         {

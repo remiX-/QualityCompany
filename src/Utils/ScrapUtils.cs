@@ -1,4 +1,5 @@
-﻿using QualityCompany.Service;
+﻿using BepInEx;
+using QualityCompany.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,19 +35,27 @@ public static class ScrapUtils
 
     /// <summary>
     /// Get all sellable scrap items within the ship<br />
-    /// This takes into account items ignored by SellIgnoreList config
+    /// This takes into account items ignored by passed in includeList
     /// </summary>
     /// <returns></returns>
-    public static List<GrabbableObject> GetAllSellableScrapInShip()
+    public static List<GrabbableObject> GetAllIncludedScrapInShip(string includeList)
     {
         return GetAllScrapInShip()
-            .Where(scrap => scrap.CanSellItem())
+            .Where(scrap => scrap.CanIncludeItem(includeList))
             .ToList();
     }
 
-    public static int GetShipTotalRawScrapValue() => GetAllScrapInShip().ScrapValueOfCollection();
+    public static int GetShipTotalRawScrapValue()
+    {
+        return GetAllScrapInShip()
+            .ScrapValueOfCollection();
+    }
 
-    public static int GetShipTotalSellableScrapValue() => GetAllSellableScrapInShip().ActualScrapValueOfCollection();
+    public static int GetShipTotalIncludedScrapValue(string includeList)
+    {
+        return GetAllIncludedScrapInShip(includeList)
+            .ActualScrapValueOfCollection();
+    }
 
     public static int GetShipSettledTotalRawScrapValue()
     {
@@ -93,7 +102,39 @@ public static class ScrapUtils
         return (int)(scraps.Sum(go => go.scrapValue) * GameUtils.StartOfRound.companyBuyingRate);
     }
 
-    public static List<GrabbableObject> GetScrapForAmount(int amount)
+    public static bool CanIncludeItem(this GrabbableObject? item, string includeList)
+    {
+        if (item is null)
+        {
+            Logger.LogWarning("CanIncludeItem: Trying to evaluate a null item");
+            return false;
+        }
+
+        if (includeList.IsNullOrWhiteSpace())
+        {
+            Logger.LogWarning("CanIncludeItem: includeList is empty");
+            return false;
+        }
+
+        var canSell = item.itemProperties.isScrap && item is { scrapValue: > 0, isHeld: false };
+        var isInIgnoreList = includeList
+            .Split(",")
+            .Select(x => x.Trim())
+            .Select(x => Regex.Match(item.itemProperties.name, x, RegexOptions.IgnoreCase))
+            .Any(match => match.Success);
+
+        return canSell && !isInIgnoreList;
+    }
+
+    #region Internal use only
+    internal static List<GrabbableObject> GetAllSellableScrapInShip()
+    {
+        return GetAllIncludedScrapInShip(Plugin.Instance.PluginConfig.SellIgnoreList);
+    }
+
+    internal static int GetShipTotalSellableScrapValue() => GetAllSellableScrapInShip().ActualScrapValueOfCollection();
+
+    internal static List<GrabbableObject> GetScrapForAmount(int amount)
     {
         var totalScrapValue = GetShipTotalSellableScrapValue();
         if (totalScrapValue < amount)
@@ -155,22 +196,5 @@ public static class ScrapUtils
 
         return scrapToSell;
     }
-
-    internal static bool CanSellItem(this GrabbableObject item)
-    {
-        if (item is null)
-        {
-            Logger.LogError("CanSellItem: Trying to evaluate a null item");
-            return false;
-        }
-
-        var canSell = item.itemProperties.isScrap && item.scrapValue > 0 && !item.isHeld;
-        var isInIgnoreList = Plugin.Instance.PluginConfig.SellIgnoreList
-            .Split(",")
-            .Select(x => x.Trim())
-            .Select(x => Regex.Match(item.itemProperties.name, x, RegexOptions.IgnoreCase))
-            .Any(match => match.Success);
-
-        return canSell && !isInIgnoreList;
-    }
+    #endregion
 }

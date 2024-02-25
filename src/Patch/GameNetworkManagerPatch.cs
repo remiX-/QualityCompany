@@ -9,6 +9,20 @@ namespace QualityCompany.Patch;
 internal class GameNetworkManagerPatch
 {
     [HarmonyPostfix]
+    [HarmonyPatch("Awake")]
+    public static void AwakePatch(GameNetworkManager __instance)
+    {
+        OnGameNetworkManagerAwake(__instance);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch("Start")]
+    public static void StartPatch(GameNetworkManager __instance)
+    {
+        OnGameNetworkManagerStart(__instance);
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch("Disconnect")]
     private static void DisconnectPatch(GameNetworkManager __instance)
     {

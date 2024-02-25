@@ -11,6 +11,20 @@ namespace QualityCompany.Patch;
 internal class StartOfRoundPatcher
 {
     [HarmonyPostfix]
+    [HarmonyPatch("Awake")]
+    public static void AwakePatch(StartOfRound __instance)
+    {
+        OnStartOfRoundAwake(__instance);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch("Start")]
+    public static void StartPatch(StartOfRound __instance)
+    {
+        OnStartOfRoundStart(__instance);
+    }
+
+    [HarmonyPostfix]
     [HarmonyPatch("ReviveDeadPlayers")]
     private static void ReviveDeadPlayersPatch()
     {
@@ -23,6 +37,7 @@ internal class StartOfRoundPatcher
     {
         SaveManager.SaveData.ResetGameState();
         SaveManager.Save();
+        OnPlayersFired(__instance);
     }
 
     [HarmonyPrefix]

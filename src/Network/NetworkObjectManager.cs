@@ -1,45 +1,44 @@
-﻿using HarmonyLib;
-using QualityCompany.Assets;
-using QualityCompany.Service;
+﻿using QualityCompany.Assets;
 using Unity.Netcode;
 using UnityEngine;
+using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Network;
 
-[HarmonyPatch]
-internal class NetworkObjectManager
+internal class ModNetworkManager
 {
-    private static readonly ModLogger _logger = new(nameof(NetworkObjectManager));
-
-    private static GameObject networkPrefab;
+    private static GameObject? _networkPrefab;
 
     private static bool hasInit;
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(GameNetworkManager), "Start")]
-    public static void Init()
+    internal static void Init()
+    {
+        GameNetworkManagerStart += _ => Start();
+        StartOfRoundAwake += _ => Load();
+    }
+
+    public static void Start()
     {
         if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
-        if (networkPrefab != null || hasInit) return;
+        if (_networkPrefab is not null || hasInit) return;
 
         hasInit = true;
 
-        networkPrefab = AssetBundleLoader.CustomAssets.LoadAsset<GameObject>("ExampleNetworkHandler");
-        networkPrefab.AddComponent<NetworkHandler>();
-        networkPrefab.AddComponent<CompanyNetworkHandler>();
-        networkPrefab.AddComponent<LatencyHandler>();
+        _networkPrefab = AssetManager.CustomAssets.LoadAsset<GameObject>("ExampleNetworkHandler");
+        _networkPrefab.AddComponent<NetworkHandler>();
+        _networkPrefab.AddComponent<CompanyNetworkHandler>();
+        _networkPrefab.AddComponent<LatencyHandler>();
 
-        NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
+        NetworkManager.Singleton.AddNetworkPrefab(_networkPrefab);
     }
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(StartOfRound), "Awake")]
-    public static void SpawnNetworkHandlerObject()
+    public static void Load()
     {
         if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
         if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer) return;
+        if (_networkPrefab is null) return;
 
-        var networkHandlerHost = Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
+        var networkHandlerHost = Object.Instantiate(_networkPrefab, Vector3.zero, Quaternion.identity);
         networkHandlerHost.GetComponent<NetworkObject>().Spawn();
     }
 }

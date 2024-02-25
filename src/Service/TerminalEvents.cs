@@ -11,7 +11,6 @@ public partial class GameEvents
     /// 
     /// </summary>
     public static event TerminalEvent TerminalAwakeEvent;
-    // public static event TerminalEvent TerminalAwakeEvent;
 
     internal static void OnTerminalAwakeEvent(Terminal instance)
     {

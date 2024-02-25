@@ -4,6 +4,7 @@ using HarmonyLib;
 using QualityCompany.Assets;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Core;
+using QualityCompany.Network;
 using QualityCompany.Patch;
 using System.IO;
 using System.Reflection;
@@ -41,6 +42,8 @@ public class Plugin : BaseUnityPlugin
         Patch();
         LoadAssets();
 
+        ModNetworkManager.Init();
+
         // Loaded
         Log.LogMessage($"Plugin {PluginMetadata.PLUGIN_NAME} v{PluginMetadata.PLUGIN_VERSION} is loaded!");
     }
@@ -73,6 +76,6 @@ public class Plugin : BaseUnityPlugin
 
     private void LoadAssets()
     {
-        AssetBundleLoader.LoadModBundle(PluginPath);
+        AssetManager.LoadModBundle(PluginPath);
     }
 }

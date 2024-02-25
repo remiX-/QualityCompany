@@ -18,10 +18,7 @@ public class TerminalSubCommandBuilder
                 name = name,
                 word = name
             },
-            Node = new TerminalNode
-            {
-                clearPreviousText = true
-            }
+            Node = TerminalUtils.CreateNodeEmpty()
         };
     }
 
@@ -90,6 +87,7 @@ public class TerminalSubCommandBuilder
         _subCommand.Node.name = _subCommand.Id;
         _subCommand.Node.displayText = _subCommand.Message + AdvancedTerminal.EndOfMessage;
         _subCommand.ActionEvent = $"{rootCommandName}_{_subCommand.Name}_event";
+        // _subCommand.Node.terminalEvent = $"{rootCommandName}_{_subCommand.Name}_event";
         _subCommand.Keyword.name = _subCommand.Id;
 
         if (!_subCommand.Node.isConfirmationNode) return _subCommand;
@@ -100,23 +98,12 @@ public class TerminalSubCommandBuilder
             new CompatibleNoun
             {
                 noun = confirmKeyword,
-                result = new TerminalNode
-                {
-                    name = $"{rootCommandName}_{_subCommand.Name}_confirm",
-                    displayText = _subCommand.ConfirmMessage + AdvancedTerminal.EndOfMessage,
-                    clearPreviousText = true,
-                    terminalEvent = _subCommand.ActionEvent
-                }
+                result = TerminalUtils.CreateConfirmNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.ConfirmMessage, _subCommand.ActionEvent)
             },
             new CompatibleNoun
             {
                 noun = denyKeyword,
-                result = new TerminalNode
-                {
-                    name = $"{rootCommandName}_{_subCommand.Name}_deny",
-                    displayText = _subCommand.DenyMessage + AdvancedTerminal.EndOfMessage,
-                    clearPreviousText = true
-                }
+                result = TerminalUtils.CreateDenyNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.DenyMessage)
             }
         };
 

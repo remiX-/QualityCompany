@@ -8,8 +8,8 @@ public class TerminalCommandBuilder
 {
     internal string CommandText { get; set; }
 
-    internal string Description;
-    internal string Text { get; set; }
+    internal string? Description;
+    internal string? Text { get; set; }
     internal Func<string> Action;
     internal bool IsSimpleCommand;
     internal string ActionEvent;
@@ -81,8 +81,8 @@ public class TerminalCommandBuilder
 
     public TerminalCommandBuilder EnableConfirmDeny(string confirmMessage, string denyMessage)
     {
-        ConfirmMessage = confirmMessage + AdvancedTerminal.EndOfMessage;
-        DenyMessage = denyMessage + AdvancedTerminal.EndOfMessage;
+        ConfirmMessage = confirmMessage;
+        DenyMessage = denyMessage;
 
         Node.isConfirmationNode = true;
         Node.overrideOptions = true;
@@ -105,8 +105,8 @@ public class TerminalCommandBuilder
     }
 
     /// <summary>
-    /// A condition is an action that returns a bool specifying whether this command may proceed.
-    /// Occurs before <see cref="Action"/> and after <see cref="TerminalSubCommand.PreConditionAction"/>.
+    /// A condition is an action that returns a bool specifying whether this command may proceed.<br />
+    /// Occurs before <see cref="Action"/> and after <see cref="TerminalSubCommand.PreConditionAction"/>.<br /><br />
     /// <example>Example: A simple example would be adding a condition to be able to run a command after 1PM in-game time.</example>
     /// </summary>
     /// <param name="name">The unique name for this overall command.</param>
@@ -115,12 +115,7 @@ public class TerminalCommandBuilder
     /// <returns></returns>
     public TerminalCommandBuilder WithCondition(string name, string displayText, Func<bool> condition)
     {
-        var specialNode = new TerminalNode
-        {
-            name = name,
-            displayText = displayText + AdvancedTerminal.EndOfMessage,
-            clearPreviousText = true
-        };
+        var specialNode = TerminalUtils.CreateNode(name, displayText + AdvancedTerminal.EndOfMessage);
         SpecialNodes.Add((specialNode, condition));
 
         return this;
@@ -157,23 +152,12 @@ public class TerminalCommandBuilder
                 new CompatibleNoun
                 {
                     noun = confirmKeyword,
-                    result = new TerminalNode
-                    {
-                        name = $"{Node.name}_confirm",
-                        displayText = ConfirmMessage + AdvancedTerminal.EndOfMessage,
-                        clearPreviousText = true,
-                        terminalEvent = $"{Node.name}_event"
-                    }
+                    result = TerminalUtils.CreateConfirmNode(Node.name, ConfirmMessage)
                 },
                 new CompatibleNoun
                 {
                     noun = denyKeyword,
-                    result = new TerminalNode
-                    {
-                        name = $"{Node.name}_deny",
-                        displayText = DenyMessage + AdvancedTerminal.EndOfMessage,
-                        clearPreviousText = true
-                    }
+                    result = TerminalUtils.CreateDenyNode(Node.name, DenyMessage)
                 }
             };
         }

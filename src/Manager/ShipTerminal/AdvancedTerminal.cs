@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Manager.ShipTerminal;
@@ -112,11 +113,7 @@ internal class AdvancedTerminal
         {
             name = modConfig.PrimaryCommandName,
             word = modConfig.PrimaryCommandKeyword,
-            specialKeywordResult = new TerminalNode
-            {
-                clearPreviousText = true,
-                displayText = builder.ToString()
-            }
+            specialKeywordResult = TerminalUtils.CreateNode(modConfig.PrimaryCommandName, builder.ToString())
         });
     }
 
