@@ -116,14 +116,12 @@ public static class ScrapUtils
             return false;
         }
 
-        Logger.LogDebug($"CanIncludeItem: {includeList}");
         var canSell = item.itemProperties.isScrap && item is { scrapValue: > 0, isHeld: false };
         var isInIgnoreList = includeList
             .Split(",")
             .Select(x => x.Trim())
             .Select(x => Regex.Match(item.itemProperties.name, x, RegexOptions.IgnoreCase))
             .Any(match => match.Success);
-        Logger.LogMessage($"CanIncludeItem: {item.itemProperties.name} -> {isInIgnoreList}");
 
         return canSell && !isInIgnoreList;
     }
