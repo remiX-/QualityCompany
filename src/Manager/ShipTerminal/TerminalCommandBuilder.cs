@@ -13,7 +13,7 @@ public class TerminalCommandBuilder
     internal Func<string> Action;
     internal bool IsSimpleCommand;
     internal string ActionEvent;
-    internal readonly TerminalNode Node = new();
+    internal readonly TerminalNode Node;
     internal readonly TerminalKeyword NodeKeyword = new();
     internal readonly List<TerminalSubCommandBuilder> SubCommandsBuilders = new();
     internal List<TerminalSubCommand> SubCommands = new();
@@ -26,9 +26,7 @@ public class TerminalCommandBuilder
     public TerminalCommandBuilder(string name)
     {
         CommandText = name;
-        Node.name = name;
-        Node.clearPreviousText = true;
-        Node.displayText = $"{name} is empty";
+        Node = TerminalUtils.CreateNode(name, "Empty");
         NodeKeyword = new TerminalKeyword
         {
             name = name,
@@ -123,9 +121,8 @@ public class TerminalCommandBuilder
 
     internal TerminalKeyword[] Build(TerminalKeyword confirmKeyword, TerminalKeyword denyKeyword)
     {
-        ActionEvent = $"{Node.name}_event";
-
         Node.displayText = Text ?? Description ?? "No description";
+        ActionEvent = $"{Node.name}_event";
 
         if (SubCommandsBuilders.Any())
         {

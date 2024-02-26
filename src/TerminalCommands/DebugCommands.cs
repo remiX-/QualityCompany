@@ -58,8 +58,8 @@ internal class DebugCommands
                         item.itemId
                     });
 
-                    _logger.LogDebug($"Saved item data to {Path.Combine(Plugin.Instance.PluginPath)}");
-                    File.WriteAllText(Path.Combine(Plugin.Instance.PluginPath, "game_items.json"), JsonConvert.SerializeObject(dict));
+                    _logger.LogDebug($"Saved item data to {Application.persistentDataPath}");
+                    File.WriteAllText(Path.Combine(Application.persistentDataPath, "game_items.json"), JsonConvert.SerializeObject(dict));
 #endif
 
                     var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
@@ -69,7 +69,10 @@ internal class DebugCommands
 
                         var rand = new System.Random();
                         var nextScrap = rand.Next(16, 68);
-                        var itemToSpawn = StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab;
+                        var item = StartOfRound.Instance.allItemsList.itemsList[nextScrap];
+                        if (!item.isScrap) continue;
+
+                        var itemToSpawn = item.spawnPrefab;
 
                         var scrap = UnityEngine.Object.Instantiate(itemToSpawn, currentPlayerLocation, Quaternion.identity);
                         var itemGrabObj = scrap.GetComponent<GrabbableObject>();
@@ -80,7 +83,7 @@ internal class DebugCommands
                             continue;
                         }
 
-                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue) / 2;
+                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue);
                         _logger.LogDebug($" > spawned in {itemToSpawn.name} for {scrapValue}");
                         scrap.GetComponent<NetworkObject>().Spawn();
 

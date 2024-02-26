@@ -7,12 +7,12 @@ namespace QualityCompany.Network;
 
 internal class NetworkHandler : NetworkBehaviour
 {
-    internal static NetworkHandler Instance { get; private set; }
+    internal static NetworkHandler Instance { get; private set; } = null!;
 
     private readonly ModLogger _logger = new(nameof(NetworkHandler));
 
     [ClientRpc]
-    public void SyncValuesClientRpc(int value, NetworkBehaviourReference netRef)
+    internal void SyncValuesClientRpc(int value, NetworkBehaviourReference netRef)
     {
         _logger.LogMessage("SyncValuesClientRpc");
         netRef.TryGet(out GrabbableObject prop);
@@ -31,7 +31,7 @@ internal class NetworkHandler : NetworkBehaviour
         prop.itemProperties.creditsWorth = value;
         prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
 
-        _logger.LogInfo($"Successfully synced values of {prop.itemProperties.itemName}");
+        _logger.LogDebug($"Successfully synced values of {prop.itemProperties.itemName}");
     }
 
     [ServerRpc(RequireOwnership = false)]

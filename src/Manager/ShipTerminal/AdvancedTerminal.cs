@@ -66,10 +66,10 @@ internal class AdvancedTerminal
             AddToHelp(config);
         }
 
-        // foreach (var kw in terminal.terminalNodes.allKeywords)
-        // {
-        //     Logger.LogDebug($"{kw.name} | {kw.word}");
-        // }
+        foreach (var kw in terminal.terminalNodes.allKeywords)
+        {
+            Logger.LogDebug($"{kw.name} | {kw.word}");
+        }
     }
 
     private static List<TerminalCommandBuilder> LoadModCommands(Terminal terminal, string modName, ModConfiguration config)
@@ -121,6 +121,7 @@ internal class AdvancedTerminal
     {
         if (!modConfig.AddToHelp || !modConfig.CreatePrimaryCommand) return;
 
-        _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n\n";
+        _helpTerminalNode.displayText = _helpTerminalNode.displayText + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n";
+        // _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n\n";
     }
 }

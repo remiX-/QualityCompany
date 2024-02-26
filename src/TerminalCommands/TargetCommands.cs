@@ -21,14 +21,14 @@ internal class TargetCommands
             .WithSubCommand(new TerminalSubCommandBuilder("<amount>")
                 .WithDescription("The desired target wanted upon leaving The Company Building.")
                 .WithMessage("[companyBuyingRateWarning]Target has been set to [targetSetTo].\nMonitor Values:\n[targetMonitorValues]\n\n[targetExplanation]")
-                .WithConditions("landedAtCompany")
+                // .WithConditions("landedAtCompany")
                 .WithInputMatch(@"^(\d+$)$")
                 .WithPreAction(input =>
                 {
                     if (!int.TryParse(input, out var amount)) return false;
 
                     // TODO: this UpdateTarget action should be part of `WithAction`! But seemingly there is a bug in the Terminal API
-                    if (!GameUtils.IsLandedOnCompany()) return false;
+                    // if (!GameUtils.IsLandedOnCompany()) return false;
 
                     TargetManager.UpdateTarget(amount, GameNetworkManager.Instance.localPlayerController.playerUsername);
 

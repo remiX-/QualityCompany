@@ -210,7 +210,7 @@ Examples:
 #if DEBUG
                     foreach (Group group in match.Groups)
                     {
-                        Plugin.Instance.ACLogger.LogDebug($"> '{group.Value}'");
+                        Plugin.Instance.Log.LogDebug($"> '{group.Value}'");
                     }
 #endif
 

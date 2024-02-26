@@ -19,6 +19,7 @@ internal class TargetManager
 
     internal static void UpdateTarget(int targetAmount, string updatedBy)
     {
+        Logger.LogDebug($"UpdateTarget => {Plugin.Instance.PluginConfig.NetworkingEnabled}");
         if (Plugin.Instance.PluginConfig.NetworkingEnabled)
         {
             NetworkHandler.Instance.UpdateSellTargetServerRpc(targetAmount, GameNetworkManager.Instance.localPlayerController.playerUsername);

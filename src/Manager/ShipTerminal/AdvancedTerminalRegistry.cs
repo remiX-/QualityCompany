@@ -92,10 +92,15 @@ public class AdvancedTerminalRegistry
 internal struct ModConfiguration
 {
     public bool CreatePrimaryCommand { get; internal set; }
+
     public bool AddToHelp { get; internal set; }
+
     public string PrimaryCommandName { get; internal set; }
+
     public string PrimaryCommandKeyword { get; internal set; }
-    public string Description { get; internal set; }
+
+    public string? Description { get; internal set; }
+
     public IReadOnlyList<InternalCommand> Commands { get; internal set; }
 }
 

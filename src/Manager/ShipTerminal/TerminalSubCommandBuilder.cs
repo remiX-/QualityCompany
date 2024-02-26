@@ -89,6 +89,7 @@ public class TerminalSubCommandBuilder
         _subCommand.ActionEvent = $"{rootCommandName}_{_subCommand.Name}_event";
         // _subCommand.Node.terminalEvent = $"{rootCommandName}_{_subCommand.Name}_event";
         _subCommand.Keyword.name = _subCommand.Id;
+        _subCommand.Keyword.word = _subCommand.Id;
 
         if (!_subCommand.Node.isConfirmationNode) return _subCommand;
 

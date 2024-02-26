@@ -41,10 +41,13 @@ internal class TerminalPatch
     [HarmonyPatch("TextPostProcess")]
     public static string TextPostProcessPatch(string __result)
     {
+        Logger.LogDebug("TextPostProcessPatch.start");
+
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
             if (!__result.Contains(key)) continue;
 
+            Logger.LogDebug($" > found global: {key}");
             __result = __result.Replace(key, func());
         }
 
@@ -54,9 +57,12 @@ internal class TerminalPatch
             {
                 if (!__result.Contains(key)) continue;
 
+                Logger.LogDebug($" > found command: {command.CommandText}.{key}");
                 __result = __result.Replace(key, func());
             }
         }
+
+        Logger.LogDebug("TextPostProcessPatch.end");
 
         return __result;
     }
@@ -74,17 +80,26 @@ internal class TerminalPatch
 
         // Try to find the matching primary command first
         var filteredCommands = AdvancedTerminal.Commands
-            .Where(x => inputCommand.Length < 3 ? x.CommandText == inputCommand : x.CommandText.StartsWith(inputCommand))
+            // .Where(x => inputCommand.Length < 3 ? x.CommandText == inputCommand : x.CommandText.StartsWith(inputCommand))
             // .Where(
-            //     x => inputCommand.Contains(' ')
+            //     x => x.CommandText.Contains(' ')
             //     ? true
             //     : inputCommand.Length < 3 ? x.CommandText == inputCommand : x.CommandText.StartsWith(inputCommand)
             // )
+            .Where(x =>
+            {
+                if (x.CommandText.Contains(' '))
+                {
+                    return inputCommand.Length < 4 ? x.CommandText == inputCommand : x.CommandText.StartsWith(inputCommand);
+                }
+
+                return inputCommand.Length < 3 ? x.CommandText == inputCommand : x.CommandText.StartsWith(inputCommand);
+            })
             .ToList();
 
         if (!filteredCommands.Any())
         {
-            Logger.LogDebug($" > No commands found matching '{inputCommand}' with args '{inputCommandArgs}'");
+            Logger.LogDebug($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{inputCommandArgs}'");
             return __result;
         }
 
