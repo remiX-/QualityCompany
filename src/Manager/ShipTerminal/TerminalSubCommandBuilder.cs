@@ -34,13 +34,13 @@ public class TerminalSubCommandBuilder
         return this;
     }
 
-    public TerminalSubCommandBuilder EnableConfirmDeny(string confirmMessage = null, string denyMessage = null)
+    public TerminalSubCommandBuilder EnableConfirmDeny(string? confirmMessage = null, string? denyMessage = null)
     {
         _subCommand.Node.isConfirmationNode = true;
         _subCommand.Node.overrideOptions = true;
 
-        if (!confirmMessage.IsNullOrWhiteSpace()) _subCommand.ConfirmMessage = confirmMessage;
-        if (!denyMessage.IsNullOrWhiteSpace()) _subCommand.DenyMessage = denyMessage;
+        if (!confirmMessage.IsNullOrWhiteSpace()) _subCommand.ConfirmMessage = confirmMessage!;
+        if (!denyMessage.IsNullOrWhiteSpace()) _subCommand.DenyMessage = denyMessage!;
 
         return this;
     }
@@ -84,9 +84,9 @@ public class TerminalSubCommandBuilder
     internal TerminalSubCommand Build(string rootCommandName, TerminalKeyword confirmKeyword, TerminalKeyword denyKeyword)
     {
         _subCommand.Id = $"{rootCommandName}_{_subCommand.Name}";
-        _subCommand.Node.name = _subCommand.Id;
+        _subCommand.Node.name = $"qc:{_subCommand.Id}";
         _subCommand.Node.displayText = _subCommand.Message + AdvancedTerminal.EndOfMessage;
-        _subCommand.ActionEvent = $"{rootCommandName}_{_subCommand.Name}_event";
+        _subCommand.ActionEvent = $"qc:{_subCommand.Id}_event";
         // _subCommand.Node.terminalEvent = $"{rootCommandName}_{_subCommand.Name}_event";
         _subCommand.Keyword.name = _subCommand.Id;
         _subCommand.Keyword.word = _subCommand.Id;
@@ -99,7 +99,7 @@ public class TerminalSubCommandBuilder
             new CompatibleNoun
             {
                 noun = confirmKeyword,
-                result = TerminalUtils.CreateConfirmNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.ConfirmMessage, _subCommand.ActionEvent)
+                result = TerminalUtils.CreateConfirmNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.ConfirmMessage, $"{_subCommand.Id}_event")
             },
             new CompatibleNoun
             {

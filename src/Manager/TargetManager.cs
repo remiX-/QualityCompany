@@ -14,9 +14,6 @@ internal class TargetManager
 {
     private static readonly ModLogger Logger = new(nameof(TargetManager));
 
-    private static int _totalItems;
-    private static int _totalValueForSale;
-
     internal static void UpdateTarget(int targetAmount, string updatedBy)
     {
         Logger.LogDebug($"UpdateTarget => {Plugin.Instance.PluginConfig.NetworkingEnabled}");
@@ -55,74 +52,63 @@ internal class TargetManager
 
     internal static void SellAllScrapClient()
     {
-        PerformSell(ScrapUtils.GetAllSellableScrapInShip());
-    }
-
-    private static void PerformSell(IReadOnlyCollection<GrabbableObject> scrap)
-    {
-        _totalItems = 0;
-        _totalValueForSale = 0;
-
-        foreach (var scrapNetworkObjectId in scrap.Select(x => x.NetworkObjectId))
-        {
-            MoveNetworkObjectToDepositDeskClient(scrapNetworkObjectId);
-        }
-
-        ExecuteTargetedSellOrderClient();
+        MoveNetworkObjectsToDepositDeskClient(
+            ScrapUtils
+                .GetAllSellableScrapInShip()
+                .Select(x => x.NetworkObjectId)
+                .ToArray()
+        );
     }
 
     internal static void SellAllTargetedScrap(List<GrabbableObject> scrap)
     {
+        var scrapNetworkObjectIds = scrap
+            .Select(x => x.NetworkObjectId)
+            .ToArray();
+
         if (Plugin.Instance.PluginConfig.NetworkingEnabled)
         {
-            foreach (var scrapNetworkObjectId in scrap.Select(x => x.NetworkObjectId))
-            {
-                NetworkHandler.Instance.TargetSellForNetworkObjectServerRpc(scrapNetworkObjectId);
-            }
-
-            NetworkHandler.Instance.ExecuteSellAmountServerRpc();
+            NetworkHandler.Instance.TargetSellForNetworkObjectsServerRpc(scrapNetworkObjectIds);
         }
         else
         {
-            foreach (var scrapNetworkObjectId in scrap.Select(x => x.NetworkObjectId))
+            MoveNetworkObjectsToDepositDeskClient(scrapNetworkObjectIds);
+        }
+    }
+
+    internal static void MoveNetworkObjectsToDepositDeskClient(ulong[] networkObjectId)
+    {
+        var scrapToSell = ScrapUtils
+            .GetAllScrapInShip()
+            .Where(x =>
             {
-                MoveNetworkObjectToDepositDeskClient(scrapNetworkObjectId);
-            }
+                var contains = networkObjectId.Contains(x.NetworkObjectId);
+                if (!contains) Logger.LogError($"Failed to find network object on this client: {networkObjectId}");
+                return contains;
+            })
+            .ToList();
 
-            ExecuteTargetedSellOrderClient();
-        }
-    }
+        if (scrapToSell.Count == 0) return;
 
-    internal static void MoveNetworkObjectToDepositDeskClient(ulong networkObjectId)
-    {
-        var scrap = ScrapUtils.GetAllScrapInShip().FirstOrDefault(x => x.NetworkObjectId == networkObjectId);
-        if (scrap is null)
+        var depositItemsDesk = Object.FindFirstObjectByType<DepositItemsDesk>();
+
+        var totalItems = scrapToSell.Count;
+        var totalValue = 0;
+        for (var index = 0; index < totalItems; index++)
         {
-            Logger.LogError($"Failed to find network object on this client: {networkObjectId}");
-            return;
+            var scrap = scrapToSell[index];
+            scrap.transform.parent = depositItemsDesk.deskObjectsContainer.transform;
+            scrap.transform.localPosition = depositItemsDesk.transform.position + new Vector3(0f, 0f, (index - 5) * 1f);
+            depositItemsDesk.AddObjectToDeskServerRpc(scrap.gameObject.GetComponent<NetworkObject>());
+
+            totalValue += scrap.ActualSellValue();
         }
 
-        var depositItemsDesk = Object.FindFirstObjectByType<DepositItemsDesk>();
-        scrap.transform.parent = depositItemsDesk.deskObjectsContainer.transform;
-        scrap.transform.localPosition = depositItemsDesk.transform.position + new Vector3(0f, 0f, (_totalItems - 5) * 1f);
-        depositItemsDesk.AddObjectToDeskServerRpc(scrap.gameObject.GetComponent<NetworkObject>());
-
-        _totalItems++;
-        _totalValueForSale += scrap.ActualSellValue();
-    }
-
-    internal static void ExecuteTargetedSellOrderClient()
-    {
-        var depositItemsDesk = Object.FindFirstObjectByType<DepositItemsDesk>();
         depositItemsDesk.SetTimesHeardNoiseServerRpc(5f);
 
-        HudUtils.DisplayNotification($"Placed {_totalItems} pieces of scrap onto the Company Desk for sale. Total ${_totalValueForSale}!");
-
-        _totalItems = 0;
-        _totalValueForSale = 0;
+        HudUtils.DisplayNotification($"Placed {totalItems} pieces of scrap onto the Company Desk for sale. Total ${totalValue}!");
 
         InfoMonitor.UpdateMonitor();
     }
-
     #endregion
 }

@@ -22,8 +22,7 @@ internal class SellCommands
         if (!Plugin.Instance.PluginConfig.TerminalSellCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("sell")
-            .WithDescription("> sell [ALL|QUOTA|TARGET|2h|<AMOUNT>|<ITEM>]\nTo sell items on the ship. Will not sell ignored items from config except when selling a specific item.")
-            .WithText("Please enter [ALL|QUOTA|TARGET|2h|<AMOUNT>|<ITEM>]")
+            .WithHelpDescription("To sell items on the ship. Will not sell ignored items from config except when selling a specific item.")
             .WithSubCommand(CreateAllSubCommand())
             .WithSubCommand(CreateQuotaSubCommand())
             .WithSubCommand(CreateTargetSubCommand())

@@ -8,7 +8,7 @@ namespace QualityCompany.Modules.Inventory;
 
 internal abstract class InventoryBaseUI : MonoBehaviour
 {
-    protected readonly ModLogger _logger;
+    protected readonly ModLogger Logger;
 
     protected readonly List<TextMeshProUGUI> texts = new();
 
@@ -16,7 +16,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
     protected InventoryBaseUI(string moduleName)
     {
-        _logger = new ModLogger(moduleName);
+        Logger = new ModLogger(moduleName);
     }
 
     #region Lifecycle

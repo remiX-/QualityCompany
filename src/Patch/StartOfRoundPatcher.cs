@@ -1,8 +1,13 @@
 using HarmonyLib;
+using Newtonsoft.Json;
 using QualityCompany.Manager.Saves;
+using QualityCompany.Modules.Core;
 using QualityCompany.Modules.Ship;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System.Text;
 using TMPro;
+using UnityEngine;
 using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Patch;
@@ -10,11 +15,25 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(StartOfRound))]
 internal class StartOfRoundPatcher
 {
+    private static readonly ModLogger Logger = new(nameof(StartOfRoundPatcher));
+
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
     public static void AwakePatch(StartOfRound __instance)
     {
         OnStartOfRoundAwake(__instance);
+
+        SaveManager.Load();
+        GameUtils.Init();
+
+        // TODO see if better place?
+        var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
+        moduleLoaderGameObject.AddComponent<ModuleLoader>();
+
+        // Temp for now as HUDManager starts a little bit later than StartOfRound
+        // TODO: maybe move into a DebugModule?
+        Logger.LogDebug(JsonConvert.SerializeObject(SaveManager.SaveData));
+        Plugin.Instance.PluginConfig.DebugPrintConfig(Logger);
     }
 
     [HarmonyPostfix]

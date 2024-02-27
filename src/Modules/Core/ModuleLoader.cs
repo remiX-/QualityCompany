@@ -9,7 +9,7 @@ namespace QualityCompany.Modules.Core;
 
 internal class ModuleLoader : MonoBehaviour
 {
-    private readonly ModLogger _logger = new(nameof(ModuleLoader));
+    private readonly ModLogger Logger = new(nameof(ModuleLoader));
 
     private void Start()
     {
@@ -25,11 +25,11 @@ internal class ModuleLoader : MonoBehaviour
     private IEnumerator LoadModulesCoroutine()
     {
         var delay = Math.Max(3.0f, Plugin.Instance.PluginConfig.InventoryStartupDelay);
-        _logger.LogDebug($"Loading up modules with a {delay} seconds delay...");
+        Logger.LogDebug($"Loading up modules with a {delay} seconds delay...");
 
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => !x.DelayedStart))
         {
-            _logger.LogDebug($"Starting up {internalModule.Name}");
+            Logger.LogDebug($"Starting up {internalModule.Name}");
             var instance = internalModule.OnLoad?.Invoke(null, null);
             if (instance is null) continue;
 
@@ -41,7 +41,7 @@ internal class ModuleLoader : MonoBehaviour
 
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => x.DelayedStart))
         {
-            _logger.LogDebug($"Starting up {internalModule.Name}");
+            Logger.LogDebug($"Starting up {internalModule.Name}");
             var instance = internalModule.OnLoad?.Invoke(null, null);
             if (instance is null) continue;
 
@@ -49,18 +49,18 @@ internal class ModuleLoader : MonoBehaviour
             internalModule.OnAttach?.Invoke(instance, null);
         }
 
-        _logger.LogDebug("Internal modules loaded!");
+        Logger.LogDebug("Internal modules loaded!");
     }
 
     private void DetachAllModules(GameNetworkManager _)
     {
-        _logger.LogDebug("DetachAllModules");
+        Logger.LogDebug("DetachAllModules");
 
         foreach (var internalModule in ModuleRegistry.Modules)
         {
             if (internalModule.Instance is null) continue;
 
-            _logger.LogDebug($"Detaching {internalModule.Name}");
+            Logger.LogDebug($"Detaching {internalModule.Name}");
             internalModule.OnDetach?.Invoke(internalModule.Instance, null);
             internalModule.Instance = null;
         }

@@ -9,17 +9,17 @@ internal class NetworkHandler : NetworkBehaviour
 {
     internal static NetworkHandler Instance { get; private set; } = null!;
 
-    private readonly ModLogger _logger = new(nameof(NetworkHandler));
+    private readonly ModLogger Logger = new(nameof(NetworkHandler));
 
     [ClientRpc]
     internal void SyncValuesClientRpc(int value, NetworkBehaviourReference netRef)
     {
-        _logger.LogMessage("SyncValuesClientRpc");
+        Logger.LogMessage("SyncValuesClientRpc");
         netRef.TryGet(out GrabbableObject prop);
 
         if (prop is null)
         {
-            _logger.LogError("Unable to resolve net ref for SyncValuesClientRpc!");
+            Logger.LogError("Unable to resolve net ref for SyncValuesClientRpc!");
             return;
         }
 
@@ -31,7 +31,7 @@ internal class NetworkHandler : NetworkBehaviour
         prop.itemProperties.creditsWorth = value;
         prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
 
-        _logger.LogDebug($"Successfully synced values of {prop.itemProperties.itemName}");
+        Logger.LogDebug($"Successfully synced values of {prop.itemProperties.itemName}");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -59,27 +59,15 @@ internal class NetworkHandler : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    internal void TargetSellForNetworkObjectServerRpc(ulong networkObjectId)
+    internal void TargetSellForNetworkObjectsServerRpc(ulong[] networkObjectId)
     {
-        TargetSellForNetworkObjectClientRpc(networkObjectId);
+        TargetSellForNetworkObjectsClientRpc(networkObjectId);
     }
 
     [ClientRpc]
-    internal void TargetSellForNetworkObjectClientRpc(ulong networkObjectId)
+    internal void TargetSellForNetworkObjectsClientRpc(ulong[] networkObjectId)
     {
-        TargetManager.MoveNetworkObjectToDepositDeskClient(networkObjectId);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    internal void ExecuteSellAmountServerRpc()
-    {
-        ExecuteSellAmountClientRpc();
-    }
-
-    [ClientRpc]
-    internal void ExecuteSellAmountClientRpc()
-    {
-        TargetManager.ExecuteTargetedSellOrderClient();
+        TargetManager.MoveNetworkObjectsToDepositDeskClient(networkObjectId);
     }
 
     public override void OnNetworkSpawn()

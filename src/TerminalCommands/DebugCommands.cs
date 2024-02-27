@@ -8,12 +8,13 @@ using System.IO;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using static QualityCompany.Service.ServiceRegistry;
 
 namespace QualityCompany.TerminalCommands;
 
 internal class DebugCommands
 {
-    private static readonly ModLogger _logger = new(nameof(DebugCommands));
+    private static readonly ModLogger Logger = new(nameof(DebugCommands));
 
     private static int scrapCountToHack;
 
@@ -23,8 +24,8 @@ internal class DebugCommands
         if (!Plugin.Instance.PluginConfig.TerminalDebugCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("hack")
-            .WithDescription("> hack <count>\nSpawn some ez lewt.")
-            .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
+            .WithHelpDescription("Spawn some ez lewt.")
+            .WithCommandDescription("Please enter a number of scrap items to spawn.\neg: hack 5")
             .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
             .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
             .WithSubCommand(new TerminalSubCommandBuilder("<count>")
@@ -34,7 +35,7 @@ internal class DebugCommands
                 .WithInputMatch(@"(\d+$)$")
                 .WithPreAction(input =>
                 {
-                    _logger.LogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
+                    Logger.LogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
                     // TODO: bug here, this shouldn't be in "PreAction"
                     if (!NetworkManager.Singleton.IsHost) return false;
 
@@ -58,19 +59,20 @@ internal class DebugCommands
                         item.itemId
                     });
 
-                    _logger.LogDebug($"Saved item data to {Application.persistentDataPath}");
+                    Logger.LogDebug($"Saved item data to {Application.persistentDataPath}");
                     File.WriteAllText(Path.Combine(Application.persistentDataPath, "game_items.json"), JsonConvert.SerializeObject(dict));
 #endif
-
+                    var itemsList = StartOfRound.Instance.allItemsList.itemsList;
                     var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
                     for (var i = 0; i < scrapCountToHack; i++)
                     {
-                        _logger.LogDebug($"Hacking in item #{i}");
+                        Logger.LogDebug($"Hacking in item #{i}");
 
-                        var rand = new System.Random();
-                        var nextScrap = rand.Next(16, 68);
-                        var item = StartOfRound.Instance.allItemsList.itemsList[nextScrap];
-                        if (!item.isScrap) continue;
+                        var item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
+                        while (!item.isScrap)
+                        {
+                            item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
+                        }
 
                         var itemToSpawn = item.spawnPrefab;
 
@@ -79,33 +81,25 @@ internal class DebugCommands
 
                         if (itemGrabObj is null)
                         {
-                            _logger.LogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
+                            Logger.LogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
                             continue;
                         }
 
-                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue);
-                        _logger.LogDebug($" > spawned in {itemToSpawn.name} for {scrapValue}");
+                        var scrapValue = Randomizer.GetInt(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue);
+                        Logger.LogDebug($" > spawned in {itemToSpawn.name} for {scrapValue}");
                         scrap.GetComponent<NetworkObject>().Spawn();
 
-                        // RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
                         NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(itemGrabObj));
 
-                        _logger.LogDebug(" > done");
+                        Logger.LogDebug(" > done");
                     }
 
                     return true;
                 })
                 .WithAction(() =>
                 {
-                    _logger.LogDebug("Hack: WithAction?");
+                    Logger.LogDebug("Hack: WithAction?");
                 })
             );
-    }
-
-    private string GetTime()
-    {
-        return !StartOfRound.Instance.currentLevel.planetHasTime || !StartOfRound.Instance.shipDoorsEnabled ?
-            "You're not on a moon. There is no time here.\n" :
-            $"The time is currently {HUDManager.Instance.clockNumber.text.Replace('\n', ' ')}.\n";
     }
 }

@@ -10,16 +10,19 @@ public partial class GameEvents
 
     internal static void OnGameNetworkManagerAwake(GameNetworkManager instance)
     {
+        Logger.LogDebugMode("OnGameNetworkManagerAwake");
         GameNetworkManagerAwake?.Invoke(instance);
     }
 
     internal static void OnGameNetworkManagerStart(GameNetworkManager instance)
     {
+        Logger.LogDebugMode("OnGameNetworkManagerStart");
         GameNetworkManagerStart?.Invoke(instance);
     }
 
     internal static void OnSaveGame(GameNetworkManager instance)
     {
+        Logger.LogDebugMode("OnSaveGame");
         SaveGame?.Invoke(instance);
     }
 }

@@ -16,6 +16,13 @@ internal class ModLogger
         Plugin.Instance.Log.LogDebug($"[{_moduleName}] {message}");
     }
 
+    internal void LogDebugMode(object message)
+    {
+#if DEBUG
+        Plugin.Instance.Log.LogDebug($"[{_moduleName}] {message}");
+#endif
+    }
+
     internal void LogMessage(object message)
     {
         Plugin.Instance.Log.LogMessage($"[{_moduleName}] {message}");

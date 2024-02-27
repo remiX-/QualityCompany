@@ -8,7 +8,7 @@ namespace QualityCompany.TerminalCommands;
 
 internal class MiscCommands
 {
-    private static readonly ModLogger _logger = new(nameof(MiscCommands));
+    private static readonly ModLogger Logger = new(nameof(MiscCommands));
 
     [TerminalCommand]
     private static TerminalCommandBuilder LaunchCommand()
@@ -16,7 +16,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("launch")
-            .WithDescription("> launch\nTo launch or land the ship. Host needs to do the very first launch.")
+            .WithHelpDescription("To launch or land the ship. Host needs to do the very first launch.")
             .WithCondition("inTransitLandedOrLeaving", "Unable to comply. The ship is landing or taking off.",
                 () => StartOfRound.Instance.shipDoorsEnabled &&
                       !(StartOfRound.Instance.shipHasLanded || StartOfRound.Instance.shipIsLeaving))
@@ -44,7 +44,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("door")
-            .WithDescription("> door\nToggle the ship door.")
+            .WithHelpDescription("Toggle the ship door.")
             .WithAction(() =>
             {
                 var trigger = GameObject.Find(StartOfRound.Instance.hangarDoorsClosed ? "StartButton" : "StopButton")
@@ -61,7 +61,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("tp")
-            .WithDescription("> tp\nTeleport the currently active player on the view monitor to the ship. Must have a teleporter.")
+            .WithHelpDescription("Teleport the currently active player on the view monitor to the ship. Must have a teleporter.")
             .WithAction(() =>
             {
                 var teleporterObject = GameObject.Find("Teleporter(Clone)");
@@ -83,7 +83,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("lights")
-            .WithDescription("> lights\nToggle the lights.")
+            .WithHelpDescription("Toggle the lights.")
             .WithAction(() =>
             {
                 var trigger = GameObject.Find("LightSwitch").GetComponent<InteractTrigger>();
@@ -99,12 +99,14 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.TerminalMiscCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("time")
-            .WithDescription("> time\nGet the current time whilst on a moon.")
+            .WithHelpDescription("Get the current time whilst on a moon.")
             .WithAction(GetTime);
 
         static string GetTime()
         {
-            return !StartOfRound.Instance.currentLevel.planetHasTime || !StartOfRound.Instance.shipDoorsEnabled ? "You're not on a moon. There is no time here.\n" : $"The time is currently {HUDManager.Instance.clockNumber.text.Replace('\n', ' ')}.\n";
+            return !StartOfRound.Instance.currentLevel.planetHasTime || !StartOfRound.Instance.shipDoorsEnabled ?
+                "You're not on a moon. There is no time here.\n" :
+                $"The time is currently {HUDManager.Instance.clockNumber.text.Replace('\n', ' ')}.\n";
         }
     }
 
@@ -114,7 +116,7 @@ internal class MiscCommands
         if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
 
         return new TerminalCommandBuilder("vs")
-            .WithDescription("> vs\nExecute 'switch' but easier.")
+            .WithHelpDescription("Execute 'switch' but easier.")
             .WithAction(() =>
             {
                 var switchObject = GameObject.Find("CameraMonitorSwitchButton");
@@ -130,15 +132,15 @@ internal class MiscCommands
             });
     }
 
-    private static string playerSwitchName;
-    private static int playerSwitchIndex = -1;
+    private static string? _playerSwitchName;
+    private static int _playerSwitchIndex = -1;
     [TerminalCommand]
     private static TerminalCommandBuilder Command()
     {
         if (!Plugin.Instance.PluginConfig.ExperimentalFeaturesEnabled) return null;
 
         return new TerminalCommandBuilder("vw")
-            .WithDescription("> vw <player>\nExecute 'switch' to a player but easier.")
+            .WithHelpDescription("Execute 'switch' to a player but easier.")
             .WithSubCommand(new TerminalSubCommandBuilder("<player>")
                 .WithMessage("Switched to [playerSwitchName]")
                 .WithConditions("validPlayer")
@@ -147,14 +149,14 @@ internal class MiscCommands
                 {
                     // Reset some vars
                     input = input.ToLower();
-                    playerSwitchName = null;
-                    playerSwitchIndex = -1;
+                    _playerSwitchName = null;
+                    _playerSwitchIndex = -1;
 
                     var playerNames = new List<string>();
                     for (var i = 0; i < GameUtils.StartOfRound.mapScreen.radarTargets.Count; i++)
                     {
                         var playerName = GameUtils.StartOfRound.mapScreen.radarTargets[i].name;
-                        _logger.LogDebug($"view cmd: player {i}: {playerName}");
+                        Logger.LogDebug($"view cmd: player {i}: {playerName}");
                         playerNames.Add(playerName.ToLower());
                     }
 
@@ -162,20 +164,22 @@ internal class MiscCommands
                     {
                         if (playerNames[i] != input && !playerNames[i].StartsWith(input)) continue;
 
-                        playerSwitchName = playerNames[i];
-                        playerSwitchIndex = i;
+                        _playerSwitchName = playerNames[i];
+                        _playerSwitchIndex = i;
                         break;
                     }
 
-                    return playerSwitchName is not null;
+                    _playerSwitchName ??= input;
+
+                    return true;
                 })
                 .WithAction(() =>
                 {
-                    _logger.LogDebug($"view command: {playerSwitchName} @ {playerSwitchIndex}");
-                    GameUtils.StartOfRound.mapScreen.SwitchRadarTargetAndSync(playerSwitchIndex);
+                    Logger.LogDebug($"view command: {_playerSwitchName} @ {_playerSwitchIndex}");
+                    GameUtils.StartOfRound.mapScreen.SwitchRadarTargetAndSync(_playerSwitchIndex);
                 })
             )
-            .AddTextReplacement("[playerSwitchName]", () => playerSwitchName)
-            .WithCondition("validPlayer", "Invalid player: [playerSwitchName]", () => playerSwitchIndex >= 0);
+            .AddTextReplacement("[playerSwitchName]", () => _playerSwitchName ?? "unknown")
+            .WithCondition("validPlayer", "Invalid player: [playerSwitchName]", () => _playerSwitchIndex >= 0);
     }
 }

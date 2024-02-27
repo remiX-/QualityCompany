@@ -36,7 +36,7 @@ internal class ShotgunAmmoModule : InventoryBaseUI
     [ModuleOnAttach]
     private void Attach()
     {
-        _logger.LogDebug($"Attach {nameof(ShotgunAmmoModule)}");
+        Logger.LogDebug($"Attach {nameof(ShotgunAmmoModule)}");
         PlayerGrabObjectClientRpc += OnUpdate;
         PlayerThrowObjectClientRpc += OnUpdate;
         PlayerDiscardHeldObject += OnUpdate;

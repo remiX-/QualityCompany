@@ -25,7 +25,7 @@ public class AdvancedTerminalRegistry
     /// <param name="commandName">Will default to the incoming assembly.</param>
     /// <param name="commandKeyword">Will default to abbreviated letters of the incoming assembly.</param>
     /// <param name="description">The description of the mod that will display when entering it into the terminal.</param>
-    public static void Register(Assembly assembly, bool createPrimaryCommand = true, bool addToHelp = true, string commandName = null, string commandKeyword = null, string description = null)
+    public static void Register(Assembly assembly, bool createPrimaryCommand = true, bool addToHelp = true, string? commandName = null, string? commandKeyword = null, string? description = null)
     {
         var assemblyName = assembly.GetName().Name;
 
@@ -63,14 +63,14 @@ public class AdvancedTerminalRegistry
             AddToHelp = addToHelp,
             PrimaryCommandName = commandName ?? assemblyName,
             PrimaryCommandKeyword = commandKeyword ?? GetAbbreviatedAssemblyName(assemblyName),
-            Description = description,
+            Description = description ?? $"{assemblyName} mod commands",
             Commands = commands
         });
 
         Logger.LogDebug($" > Found {commands.Count} terminal commands");
     }
 
-    private static T FindMethodInfoFor<T>(ICustomAttributeProvider member) where T : Attribute
+    private static T? FindMethodInfoFor<T>(ICustomAttributeProvider member) where T : Attribute
     {
         var attributes = member.GetCustomAttributes(typeof(T), false);
         if (attributes.Length == 0) return null;
@@ -104,9 +104,9 @@ internal struct ModConfiguration
     public IReadOnlyList<InternalCommand> Commands { get; internal set; }
 }
 
-internal class InternalCommand
+internal struct InternalCommand
 {
     public string Name { get; set; }
-    // public string AssemblyName { get; set; }
-    public MethodInfo Run { get; set; }
+
+    public MethodInfo? Run { get; set; }
 }

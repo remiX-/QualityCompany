@@ -93,7 +93,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
         if (GameNetworkManager.Instance?.localPlayerController?.ItemSlots is null)
         {
-            _logger.LogWarning("UpdateTotalScrapValue: GNM.Instance?.localPlayerController?.ItemSlots is null");
+            Logger.LogWarning("UpdateTotalScrapValue: GNM.Instance?.localPlayerController?.ItemSlots is null");
             return;
         }
 
