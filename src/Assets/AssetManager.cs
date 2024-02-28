@@ -47,7 +47,7 @@ internal class AssetManager
             return null;
         }
 
-        Logger.LogDebug($"Loaded asset located in {path}");
+        Logger.TryLogDebug($"Loaded asset located in {path}");
         return result;
     }
 

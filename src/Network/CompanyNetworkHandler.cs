@@ -12,7 +12,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 {
     public static CompanyNetworkHandler Instance { get; private set; }
 
-    private readonly ModLogger _logger = new(nameof(CompanyNetworkHandler));
+    private readonly ModLogger Logger = new(nameof(CompanyNetworkHandler));
 
     private bool _retrievedPluginConfig;
     private bool _retrievedSaveFile;
@@ -23,7 +23,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         if (IsHost) return;
 
-        _logger.LogDebug("CLIENT: Requesting hosts config...");
+        Logger.TryLogDebug("CLIENT: Requesting hosts config...");
         RequestPluginConfigServerRpc();
         RequestSaveDataServerRpc();
 
@@ -33,7 +33,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void RequestPluginConfigServerRpc()
     {
-        _logger.LogDebug("HOST: A client is requesting plugin config");
+        Logger.TryLogDebug("HOST: A client is requesting plugin config");
         var json = JsonConvert.SerializeObject(Plugin.Instance.PluginConfig);
         SendPluginConfigClientRpc(json);
     }
@@ -45,7 +45,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         if (_retrievedPluginConfig)
         {
-            _logger.LogDebug("CLIENT: Config has already been received from host, disregarding.");
+            Logger.TryLogDebug("CLIENT: Config has already been received from host, disregarding.");
             return;
         }
         _retrievedPluginConfig = true;
@@ -53,18 +53,18 @@ internal class CompanyNetworkHandler : NetworkBehaviour
         var cfg = JsonConvert.DeserializeObject<PluginConfig>(json);
         if (cfg is null)
         {
-            _logger.LogError($"CLIENT: failed to deserialize plugin config from host, disregarding. raw json: {json}");
+            Logger.LogError($"CLIENT: failed to deserialize plugin config from host, disregarding. raw json: {json}");
             return;
         }
 
-        _logger.LogDebug("Config received, deserializing and constructing...");
+        Logger.TryLogDebug("Config received, deserializing and constructing...");
         Plugin.Instance.PluginConfig.ApplyHostConfig(cfg);
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestSaveDataServerRpc()
     {
-        _logger.LogDebug("HOST: A client is requesting save data");
+        Logger.TryLogDebug("HOST: A client is requesting save data");
         var json = JsonConvert.SerializeObject(SaveManager.SaveData);
         SendSaveDataClientRpc(json);
     }
@@ -84,7 +84,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     internal void SyncDepositDeskTotalValueServerRpc()
     {
-        _logger.LogDebug("UpdateSellTargetServerRpc");
+        Logger.TryLogDebug("UpdateSellTargetServerRpc");
 
         SyncDepositDeskTotalValueClientRpc();
     }
@@ -92,7 +92,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     [ClientRpc]
     private void SyncDepositDeskTotalValueClientRpc()
     {
-        _logger.LogDebug("SyncDepositDeskTotalValueClientRpc");
+        Logger.TryLogDebug("SyncDepositDeskTotalValueClientRpc");
 
         InfoMonitor.UpdateMonitor();
     }
@@ -103,12 +103,12 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         if (!_retrievedPluginConfig)
         {
-            _logger.LogError("CLIENT: Still have not received plugin config from host, something is wrong!");
+            Logger.LogError("CLIENT: Still have not received plugin config from host, something is wrong!");
         }
 
         if (!_retrievedSaveFile)
         {
-            _logger.LogError("CLIENT: Still have not received game save data from host, something is wrong!");
+            Logger.LogError("CLIENT: Still have not received game save data from host, something is wrong!");
         }
     }
 

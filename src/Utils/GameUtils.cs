@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using QualityCompany.Service;
+using UnityEngine;
 
 namespace QualityCompany.Utils;
 
@@ -7,25 +8,27 @@ namespace QualityCompany.Utils;
 /// </summary>
 public static class GameUtils
 {
+    private static ModLogger Logger = new(nameof(GameUtils));
+
     /// <summary>
     /// The games' TimeOfDay instance
     /// </summary>
-    public static TimeOfDay TimeOfDay { get; private set; }
+    public static TimeOfDay? TimeOfDay { get; private set; }
 
     /// <summary>
     /// The games' StartOfRound instance
     /// </summary>
-    public static StartOfRound StartOfRound { get; private set; }
+    public static StartOfRound? StartOfRound { get; private set; }
 
     /// <summary>
     /// The games' Terminal instance
     /// </summary>
-    public static Terminal Terminal { get; internal set; }
+    public static Terminal? Terminal { get; internal set; }
 
     /// <summary>
     /// The games' HangarShip GameObject
     /// </summary>
-    public static GameObject ShipGameObject { get; private set; }
+    public static GameObject? ShipGameObject { get; private set; }
 
     internal static void Init()
     {
@@ -44,6 +47,8 @@ public static class GameUtils
 
     public static bool IsCompanyBuyingAtFullRate()
     {
+        if (TimeOfDay is null) return false;
+
         return TimeOfDay.daysUntilDeadline == 0;
     }
 
@@ -58,7 +63,7 @@ public static class GameUtils
     {
         if (TimeOfDay is null) return "";
 
-        return TimeOfDay.currentLevel?.PlanetName;
+        return TimeOfDay.currentLevel?.PlanetName ?? "Unknown";
     }
 
     public static bool IsOnCompany()
@@ -73,13 +78,13 @@ public static class GameUtils
 
     public static bool IsOrbiting()
     {
-        return !StartOfRound.inShipPhase;
+        return StartOfRound.inShipPhase;
     }
 
     public static bool IsLandedOnCompany()
     {
         if (StartOfRound is null) return false;
 
-        return IsOnCompany() && IsOrbiting();
+        return IsOnCompany() && !IsOrbiting();
     }
 }

@@ -16,25 +16,25 @@ internal class TargetCommands
         if (!Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("target")
-            .WithDescription("> target <AMOUNT>\nSet a target sell requirement for the target monitor.")
-            .WithText("Please enter an amount.\neg: target 2000\n\n[targetExplanation]")
+            .WithHelpDescription("Set a target sell requirement for the target monitor.")
+            .WithCommandDescription("Please enter an amount.\neg: target 2000\n\n[targetExplanation]")
             .WithSubCommand(new TerminalSubCommandBuilder("<amount>")
                 .WithDescription("The desired target wanted upon leaving The Company Building.")
                 .WithMessage("[companyBuyingRateWarning]Target has been set to [targetSetTo].\nMonitor Values:\n[targetMonitorValues]\n\n[targetExplanation]")
-                .WithConditions("landedAtCompany")
+                // .WithConditions("landedAtCompany")
                 .WithInputMatch(@"^(\d+$)$")
                 .WithPreAction(input =>
                 {
                     if (!int.TryParse(input, out var amount)) return false;
 
                     // TODO: this UpdateTarget action should be part of `WithAction`! But seemingly there is a bug in the Terminal API
-                    if (!GameUtils.IsLandedOnCompany()) return false;
+                    // if (!GameUtils.IsLandedOnCompany()) return false;
 
                     TargetManager.UpdateTarget(amount, GameNetworkManager.Instance.localPlayerController.playerUsername);
 
                     return true;
                 })
-                .WithAction(() => Logger.LogDebug("EXEC target.Action???"))
+                .WithAction(() => Logger.TryLogDebug("EXEC target.Action???"))
             )
             .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
             .AddTextReplacement("[targetMonitorValues]", InfoMonitor.GetText)

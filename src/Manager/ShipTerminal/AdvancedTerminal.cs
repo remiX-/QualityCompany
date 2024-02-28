@@ -60,7 +60,7 @@ internal class AdvancedTerminal
 
             var cmdTexts = string.Concat(modCommands
                 .Where(b => !b.Description.IsNullOrWhiteSpace())
-                .Select(b => $"{b.Description}\n\n")
+                .Select(b => $"> {b.CommandText}\n{b.Description}\n\n")
             );
             CreateModPrimaryCommand(terminal, config, cmdTexts);
             AddToHelp(config);
@@ -68,13 +68,13 @@ internal class AdvancedTerminal
 
         // foreach (var kw in terminal.terminalNodes.allKeywords)
         // {
-        //     Logger.LogDebug($"{kw.name} | {kw.word}");
+        //     Logger.LogDebugMode($"{kw.name} | {kw.word}");
         // }
     }
 
     private static List<TerminalCommandBuilder> LoadModCommands(Terminal terminal, string modName, ModConfiguration config)
     {
-        Logger.LogDebug($"Loading commands for: {modName}");
+        Logger.TryLogDebug($"Loading commands for: {modName}");
 
         var commands = new List<TerminalCommandBuilder>();
         foreach (var command in config.Commands)
@@ -82,7 +82,7 @@ internal class AdvancedTerminal
             var res = command.Run.Invoke(null, null);
             if (res is not TerminalCommandBuilder builder) continue;
 
-            Logger.LogDebug($"Created {builder.Node.name}");
+            Logger.TryLogDebug($"Created {builder.CommandText}");
             commands.Add(builder);
 
             var keywords = builder.Build(_terminalConfirmKeyword, _terminalDenyKeyword);
@@ -107,13 +107,13 @@ internal class AdvancedTerminal
             builder.AppendLine(modConfig.Description);
             builder.AppendLine();
         }
-        builder.AppendLine(commandTexts);
+        builder.AppendLine(commandTexts[..^2]);
 
         terminal.terminalNodes.allKeywords = terminal.terminalNodes.allKeywords.AddToArray(new TerminalKeyword
         {
             name = modConfig.PrimaryCommandName,
             word = modConfig.PrimaryCommandKeyword,
-            specialKeywordResult = TerminalUtils.CreateNode(modConfig.PrimaryCommandName, builder.ToString())
+            specialKeywordResult = TerminalUtils.CreateNode(modConfig.PrimaryCommandName, builder.ToString(), $"{modConfig.PrimaryCommandName}_help")
         });
     }
 
@@ -121,6 +121,7 @@ internal class AdvancedTerminal
     {
         if (!modConfig.AddToHelp || !modConfig.CreatePrimaryCommand) return;
 
-        _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n\n";
+        _helpTerminalNode.displayText = _helpTerminalNode.displayText + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n";
+        // _helpTerminalNode.displayText = _helpTerminalNode.displayText[..^1] + $"> {modConfig.PrimaryCommandKeyword}\n{modConfig.Description}\n\n\n";
     }
 }

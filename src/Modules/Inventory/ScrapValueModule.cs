@@ -41,7 +41,7 @@ internal class ScrapValueModule : InventoryBaseUI
             var zRotation = rectEulerAngles.z;
             var scrapLocalPositionDelta = GetLocalPositionDelta(zRotation, rectSize.x, rectSize.y);
 
-            texts.Add(CreateInventoryGameObject($"qc_HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
+            Texts.Add(CreateInventoryGameObject($"qc_HUDScrapUI{i}", 10, iconFrame, scrapLocalPositionDelta));
 
             if (i == 0 && Plugin.Instance.PluginConfig.InventoryShowTotalScrapUI)
             {
@@ -93,7 +93,7 @@ internal class ScrapValueModule : InventoryBaseUI
 
         if (GameNetworkManager.Instance?.localPlayerController?.ItemSlots is null)
         {
-            _logger.LogWarning("UpdateTotalScrapValue: GNM.Instance?.localPlayerController?.ItemSlots is null");
+            Logger.LogWarning("UpdateTotalScrapValue: GNM.Instance?.localPlayerController?.ItemSlots is null");
             return;
         }
 

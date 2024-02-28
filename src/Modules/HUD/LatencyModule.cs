@@ -16,7 +16,7 @@ internal class LatencyModule : MonoBehaviour
 {
     public static LatencyModule Instance { get; private set; }
 
-    private static readonly ModLogger _logger = new(nameof(LatencyModule));
+    private static readonly ModLogger Logger = new(nameof(LatencyModule));
 
     private static readonly Color TEXT_COLOR_ABOVE200 = new(1f, 0f, 0f, 0.8f);
     private static readonly Color TEXT_COLOR_ABOVE130 = new(1f, 128f / 255f, 237f / 255f, 0.8f);
@@ -37,7 +37,7 @@ internal class LatencyModule : MonoBehaviour
         var hudTimeNumber = GameObject.Find("Systems/UI/Canvas/IngamePlayerHUD/ProfitQuota/Container/Box/TimeNumber");
         if (hudTimeNumber is null)
         {
-            _logger.LogWarning("Failed to get game HUD time ui for init, skipping.");
+            Logger.LogWarning("Failed to get game HUD time ui for init, skipping.");
             return null;
         }
 
@@ -76,7 +76,7 @@ internal class LatencyModule : MonoBehaviour
 
         if (!ValidAnchors.Contains(anchor))
         {
-            _logger.LogWarning($"Invalid anchor for ping hud: {anchor}, defaulting to BottomLeft");
+            Logger.LogWarning($"Invalid anchor for ping hud: {anchor}, defaulting to BottomLeft");
         }
 
         _text.alignment = anchor switch

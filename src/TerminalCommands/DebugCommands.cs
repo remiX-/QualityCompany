@@ -8,12 +8,13 @@ using System.IO;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using static QualityCompany.Service.ServiceRegistry;
 
 namespace QualityCompany.TerminalCommands;
 
 internal class DebugCommands
 {
-    private static readonly ModLogger _logger = new(nameof(DebugCommands));
+    private static readonly ModLogger Logger = new(nameof(DebugCommands));
 
     private static int scrapCountToHack;
 
@@ -23,8 +24,8 @@ internal class DebugCommands
         if (!Plugin.Instance.PluginConfig.TerminalDebugCommandsEnabled) return null;
 
         return new TerminalCommandBuilder("hack")
-            .WithDescription("> hack <count>\nSpawn some ez lewt.")
-            .WithText("Please enter a number of scrap items to spawn.\neg: hack 5")
+            .WithHelpDescription("Spawn some ez lewt.")
+            .WithCommandDescription("Please enter a number of scrap items to spawn.\neg: hack 5")
             .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
             .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
             .WithSubCommand(new TerminalSubCommandBuilder("<count>")
@@ -34,7 +35,7 @@ internal class DebugCommands
                 .WithInputMatch(@"(\d+$)$")
                 .WithPreAction(input =>
                 {
-                    _logger.LogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
+                    Logger.TryLogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
                     // TODO: bug here, this shouldn't be in "PreAction"
                     if (!NetworkManager.Singleton.IsHost) return false;
 
@@ -58,51 +59,55 @@ internal class DebugCommands
                         item.itemId
                     });
 
-                    _logger.LogDebug($"Saved item data to {Path.Combine(Plugin.Instance.PluginPath)}");
-                    File.WriteAllText(Path.Combine(Plugin.Instance.PluginPath, "game_items.json"), JsonConvert.SerializeObject(dict));
+                    Logger.TryLogDebug($"Saved item data to {Application.persistentDataPath}");
+                    File.WriteAllText(Path.Combine(Application.persistentDataPath, "game_items.json"), JsonConvert.SerializeObject(dict));
 #endif
-
+                    var itemsList = StartOfRound.Instance.allItemsList.itemsList;
                     var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
                     for (var i = 0; i < scrapCountToHack; i++)
                     {
-                        _logger.LogDebug($"Hacking in item #{i}");
+                        Logger.TryLogDebug($"Hacking in item #{i}");
 
-                        var rand = new System.Random();
-                        var nextScrap = rand.Next(16, 68);
-                        var itemToSpawn = StartOfRound.Instance.allItemsList.itemsList[nextScrap].spawnPrefab;
+                        var item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
+                        while (!item.isScrap)
+                        {
+                            item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
+                        }
+
+                        var itemToSpawn = item.spawnPrefab;
+                        Logger.TryLogDebug($" > spawning in {itemToSpawn.name}");
 
                         var scrap = UnityEngine.Object.Instantiate(itemToSpawn, currentPlayerLocation, Quaternion.identity);
                         var itemGrabObj = scrap.GetComponent<GrabbableObject>();
 
                         if (itemGrabObj is null)
                         {
-                            _logger.LogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
+                            Logger.TryLogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
                             continue;
                         }
 
-                        var scrapValue = rand.Next(itemGrabObj.itemProperties.minValue, itemGrabObj.itemProperties.maxValue) / 2;
-                        _logger.LogDebug($" > spawned in {itemToSpawn.name} for {scrapValue}");
+                        var min = itemGrabObj.itemProperties.minValue;
+                        var max = itemGrabObj.itemProperties.maxValue;
+                        if (min > max)
+                        {
+                            min = itemGrabObj.itemProperties.maxValue;
+                            max = itemGrabObj.itemProperties.minValue;
+                        }
+                        var scrapValue = Randomizer.GetInt(min, max) / 2;
+                        Logger.TryLogDebug($"  > value: {scrapValue}");
                         scrap.GetComponent<NetworkObject>().Spawn();
 
-                        // RoundManager.Instance.scrapCollectedThisRound.Add(scrap.GetComponent<GrabbableObject>());
                         NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(itemGrabObj));
 
-                        _logger.LogDebug(" > done");
+                        Logger.TryLogDebug(" > done");
                     }
 
                     return true;
                 })
                 .WithAction(() =>
                 {
-                    _logger.LogDebug("Hack: WithAction?");
+                    Logger.TryLogDebug("Hack: WithAction?");
                 })
             );
-    }
-
-    private string GetTime()
-    {
-        return !StartOfRound.Instance.currentLevel.planetHasTime || !StartOfRound.Instance.shipDoorsEnabled ?
-            "You're not on a moon. There is no time here.\n" :
-            $"The time is currently {HUDManager.Instance.clockNumber.text.Replace('\n', ' ')}.\n";
     }
 }

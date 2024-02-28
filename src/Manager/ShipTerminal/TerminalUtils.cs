@@ -3,15 +3,12 @@ using UnityEngine;
 
 namespace QualityCompany.Manager.ShipTerminal;
 
-/// <summary>
-/// Terminal utils serves some helpful terminal thingsd
-/// </summary>
-public class TerminalUtils
+internal class TerminalUtils
 {
-    private static string ConfirmMessage = "Confirmed!";
-    private static string DenyMessage = "Cancelled!";
+    private static readonly string ConfirmMessage = "Confirmed!";
+    private static readonly string DenyMessage = "Cancelled!";
 
-    public static TerminalNode CreateNodeEmpty(bool clear = true)
+    internal static TerminalNode CreateNodeEmpty(bool clear = true)
     {
         var node = ScriptableObject.CreateInstance<TerminalNode>();
 
@@ -20,30 +17,46 @@ public class TerminalUtils
         return node;
     }
 
-    public static TerminalNode CreateNode(
+    internal static TerminalNode CreateNode(
         string name,
         string? text = null,
         string? terminalEvent = null,
-        bool? clear = true,
-        bool? confirmOrDeny = false)
+        bool clear = true,
+        bool confirmOrDeny = false)
     {
         var node = ScriptableObject.CreateInstance<TerminalNode>();
 
-        node.name = name;
-        node.clearPreviousText = clear ?? true;
+        node.name = $"qc:{name}";
+        node.clearPreviousText = clear;
         node.displayText = (text ?? "Empty") + AdvancedTerminal.EndOfMessage;
-        node.terminalEvent = terminalEvent ?? $"{name}_event";
-        node.isConfirmationNode = confirmOrDeny ?? true;
+        node.terminalEvent = terminalEvent is not null ? $"qc:{terminalEvent}" : $"qc:{name}_event";
+        node.isConfirmationNode = confirmOrDeny;
 
         return node;
     }
 
-    public static TerminalNode CreateConfirmNode(string name, string? confirmText, string? terminalEvent = null)
+    public static TerminalKeyword CreateKeyword(
+        string name,
+        string? text = null,
+        string? terminalEvent = null,
+        bool clear = true,
+        bool confirmOrDeny = false)
+    {
+        var keyword = ScriptableObject.CreateInstance<TerminalKeyword>();
+
+        // keyword.name = name;
+        // keyword.word = word;
+        // keyword.specialKeywordResult = node;
+
+        return keyword;
+    }
+
+    internal static TerminalNode CreateConfirmNode(string name, string? confirmText, string? terminalEvent = null)
     {
         return CreateNode($"{name}_confirm", confirmText ?? ConfirmMessage, terminalEvent ?? $"{name}_event");
     }
 
-    public static TerminalNode CreateDenyNode(string name, string? denyText)
+    internal static TerminalNode CreateDenyNode(string name, string? denyText)
     {
         return CreateNode($"{name}_deny", denyText ?? ConfirmMessage);
     }

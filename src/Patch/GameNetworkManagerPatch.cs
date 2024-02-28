@@ -33,8 +33,10 @@ internal class GameNetworkManagerPatch
 
     [HarmonyPrefix]
     [HarmonyPatch("SaveGame")]
-    private static void SaveGamePatch()
+    private static void SaveGamePatch(GameNetworkManager __instance)
     {
         SaveManager.Save();
+
+        OnSaveGame(__instance);
     }
 }

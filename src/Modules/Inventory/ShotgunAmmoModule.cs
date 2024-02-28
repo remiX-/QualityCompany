@@ -29,14 +29,13 @@ internal class ShotgunAmmoModule : InventoryBaseUI
 
         for (var i = 0; i < GameNetworkManager.Instance.localPlayerController.ItemSlots.Length; i++)
         {
-            texts.Add(CreateInventoryGameObject($"qc_HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform));
+            Texts.Add(CreateInventoryGameObject($"qc_HUDShotgunAmmoUI{i}", 16, HUDManager.Instance.itemSlotIconFrames[i].gameObject.transform));
         }
     }
 
     [ModuleOnAttach]
     private void Attach()
     {
-        _logger.LogDebug($"Attach {nameof(ShotgunAmmoModule)}");
         PlayerGrabObjectClientRpc += OnUpdate;
         PlayerThrowObjectClientRpc += OnUpdate;
         PlayerDiscardHeldObject += OnUpdate;

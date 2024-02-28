@@ -8,12 +8,12 @@ public class TerminalCommandBuilder
 {
     internal string CommandText { get; set; }
 
-    internal string? Description;
+    internal string? Description { get; private set; }
     internal string? Text { get; set; }
     internal Func<string> Action;
     internal bool IsSimpleCommand;
     internal string ActionEvent;
-    internal readonly TerminalNode Node = new();
+    internal readonly TerminalNode Node;
     internal readonly TerminalKeyword NodeKeyword = new();
     internal readonly List<TerminalSubCommandBuilder> SubCommandsBuilders = new();
     internal List<TerminalSubCommand> SubCommands = new();
@@ -26,9 +26,7 @@ public class TerminalCommandBuilder
     public TerminalCommandBuilder(string name)
     {
         CommandText = name;
-        Node.name = name;
-        Node.clearPreviousText = true;
-        Node.displayText = $"{name} is empty";
+        Node = TerminalUtils.CreateNode(name, "Empty");
         NodeKeyword = new TerminalKeyword
         {
             name = name,
@@ -37,9 +35,16 @@ public class TerminalCommandBuilder
         };
     }
 
-    public TerminalCommandBuilder WithDescription(string desc)
+    public TerminalCommandBuilder WithHelpDescription(string desc)
     {
         Description = desc;
+
+        return this;
+    }
+
+    public TerminalCommandBuilder WithCommandDescription(string text)
+    {
+        Text = text;
 
         return this;
     }
@@ -52,7 +57,7 @@ public class TerminalCommandBuilder
             action();
             return Node.displayText;
         };
-        Node.terminalEvent = $"{Node.name}_event";
+        // Node.terminalEvent = $"qc:{Node.name}_event";
 
         return this;
     }
@@ -70,12 +75,6 @@ public class TerminalCommandBuilder
     {
         SubCommandsBuilders.Add(builder);
 
-        return this;
-    }
-
-    public TerminalCommandBuilder WithText(string text)
-    {
-        Text = text;
         return this;
     }
 
@@ -123,14 +122,13 @@ public class TerminalCommandBuilder
 
     internal TerminalKeyword[] Build(TerminalKeyword confirmKeyword, TerminalKeyword denyKeyword)
     {
-        ActionEvent = $"{Node.name}_event";
-
         Node.displayText = Text ?? Description ?? "No description";
+        ActionEvent = $"qc:{CommandText}_event";
 
         if (SubCommandsBuilders.Any())
         {
             SubCommands = SubCommandsBuilders
-                .Select(x => x.Build(Node.name, confirmKeyword, denyKeyword))
+                .Select(x => x.Build(CommandText, confirmKeyword, denyKeyword))
                 .ToList();
             NodeKeyword.isVerb = SubCommands.Any();
             NodeKeyword.compatibleNouns = SubCommands.Select(keyword => new CompatibleNoun
@@ -152,18 +150,18 @@ public class TerminalCommandBuilder
                 new CompatibleNoun
                 {
                     noun = confirmKeyword,
-                    result = TerminalUtils.CreateConfirmNode(Node.name, ConfirmMessage)
+                    result = TerminalUtils.CreateConfirmNode(CommandText, ConfirmMessage)
                 },
                 new CompatibleNoun
                 {
                     noun = denyKeyword,
-                    result = TerminalUtils.CreateDenyNode(Node.name, DenyMessage)
+                    result = TerminalUtils.CreateDenyNode(CommandText, DenyMessage)
                 }
             };
         }
         else
         {
-            Node.terminalEvent = $"{Node.name}_event";
+            // Node.terminalEvent = $"qc:{Node.name}_event";
         }
 
         return new List<TerminalKeyword> { NodeKeyword }

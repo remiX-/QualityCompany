@@ -9,11 +9,23 @@ internal class ModLogger
         _moduleName = moduleName;
     }
 
-    internal void LogDebug(object message)
+    internal void TryLogDebug(object message)
     {
         if (!Plugin.Instance.PluginConfig.ShowDebugLogs) return;
 
         Plugin.Instance.Log.LogDebug($"[{_moduleName}] {message}");
+    }
+
+    internal void LogDebug(object message)
+    {
+        Plugin.Instance.Log.LogDebug($"[{_moduleName}] {message}");
+    }
+
+    internal void LogDebugMode(object message)
+    {
+#if DEBUG
+        Plugin.Instance.Log.LogDebug($"[{_moduleName}] {message}");
+#endif
     }
 
     internal void LogMessage(object message)

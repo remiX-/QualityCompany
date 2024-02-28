@@ -102,6 +102,12 @@ public static class ScrapUtils
         return (int)(scraps.Sum(go => go.scrapValue) * GameUtils.StartOfRound.companyBuyingRate);
     }
 
+    /// <summary>
+    /// A helper method to determine if an item should be included in a collection of sorts
+    /// </summary>
+    /// <param name="item"></param>
+    /// <param name="includeList"></param>
+    /// <returns></returns>
     public static bool CanIncludeItem(this GrabbableObject? item, string includeList)
     {
         if (item is null)

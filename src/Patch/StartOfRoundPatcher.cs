@@ -1,8 +1,13 @@
 using HarmonyLib;
+using Newtonsoft.Json;
 using QualityCompany.Manager.Saves;
+using QualityCompany.Modules.Core;
 using QualityCompany.Modules.Ship;
+using QualityCompany.Service;
+using QualityCompany.Utils;
 using System.Text;
 using TMPro;
+using UnityEngine;
 using static QualityCompany.Service.GameEvents;
 
 namespace QualityCompany.Patch;
@@ -10,6 +15,8 @@ namespace QualityCompany.Patch;
 [HarmonyPatch(typeof(StartOfRound))]
 internal class StartOfRoundPatcher
 {
+    private static readonly ModLogger Logger = new(nameof(StartOfRoundPatcher));
+
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
     public static void AwakePatch(StartOfRound __instance)
@@ -21,7 +28,14 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("Start")]
     public static void StartPatch(StartOfRound __instance)
     {
+        GameUtils.Init();
+
         OnStartOfRoundStart(__instance);
+
+        SaveManager.Load();
+
+        var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
+        moduleLoaderGameObject.AddComponent<ModuleLoader>();
     }
 
     [HarmonyPostfix]
@@ -35,8 +49,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("playersFiredGameOver")]
     private static void PlayersFiredGameOverPatch(StartOfRound __instance)
     {
-        SaveManager.SaveData.ResetGameState();
-        SaveManager.Save();
         OnPlayersFired(__instance);
     }
 

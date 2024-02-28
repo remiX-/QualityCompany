@@ -17,7 +17,7 @@ internal class ModNetworkManager
         StartOfRoundAwake += _ => Load();
     }
 
-    public static void Start()
+    private static void Start()
     {
         if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
         if (_networkPrefab is not null || hasInit) return;
@@ -32,7 +32,7 @@ internal class ModNetworkManager
         NetworkManager.Singleton.AddNetworkPrefab(_networkPrefab);
     }
 
-    public static void Load()
+    private static void Load()
     {
         if (!Plugin.Instance.PluginConfig.NetworkingEnabled) return;
         if (!NetworkManager.Singleton.IsHost && !NetworkManager.Singleton.IsServer) return;
