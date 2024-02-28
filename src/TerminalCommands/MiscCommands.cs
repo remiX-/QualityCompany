@@ -156,7 +156,7 @@ internal class MiscCommands
                     for (var i = 0; i < GameUtils.StartOfRound.mapScreen.radarTargets.Count; i++)
                     {
                         var playerName = GameUtils.StartOfRound.mapScreen.radarTargets[i].name;
-                        Logger.LogDebug($"view cmd: player {i}: {playerName}");
+                        Logger.TryLogDebug($"view cmd: player {i}: {playerName}");
                         playerNames.Add(playerName.ToLower());
                     }
 
@@ -175,7 +175,7 @@ internal class MiscCommands
                 })
                 .WithAction(() =>
                 {
-                    Logger.LogDebug($"view command: {_playerSwitchName} @ {_playerSwitchIndex}");
+                    Logger.TryLogDebug($"view command: {_playerSwitchName} @ {_playerSwitchIndex}");
                     GameUtils.StartOfRound.mapScreen.SwitchRadarTargetAndSync(_playerSwitchIndex);
                 })
             )

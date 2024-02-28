@@ -54,7 +54,6 @@ public class Plugin : BaseUnityPlugin
         ModuleRegistry.Register(Assembly.GetExecutingAssembly());
 
         _harmony.PatchAll(Assembly.GetExecutingAssembly());
-        _harmony.PatchAll(typeof(MenuPatch));
     }
 
     private static void NetcodePatcher()

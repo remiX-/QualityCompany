@@ -31,7 +31,7 @@ internal class NetworkHandler : NetworkBehaviour
         prop.itemProperties.creditsWorth = value;
         prop.GetComponentInChildren<ScanNodeProperties>().subText = $"Value: ${value}";
 
-        Logger.LogDebug($"Successfully synced values of {prop.itemProperties.itemName}");
+        Logger.TryLogDebug($"Successfully synced values of {prop.itemProperties.itemName}");
     }
 
     [ServerRpc(RequireOwnership = false)]

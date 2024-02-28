@@ -41,10 +41,20 @@ internal class SellCommands
 
                 return $"${_recommendedScraps.ActualScrapValueOfCollection()} (${_recommendedScraps.ScrapValueOfCollection()})";
             })
+            .AddTextReplacement("[shipScrapActualTotal]", () =>
+            {
+                var shipSellableScrap = ScrapUtils.GetAllSellableScrapInShip();
+                if (GameUtils.IsCompanyBuyingAtFullRate())
+                {
+                    return $"${shipSellableScrap.ScrapValueOfCollection()}";
+                }
+
+                return $"${shipSellableScrap.ActualScrapValueOfCollection()} (${shipSellableScrap.ScrapValueOfCollection()})";
+            })
             .AddTextReplacement("[companyBuyItemsCombo]", GenerateBuyItemsComboText)
             .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
             .WithCondition("hasScrapItems", "Bruh, you don't even have any items.", () => ScrapUtils.GetAllScrapInShip().Count > 0)
-            .WithCondition("notEnoughScrap", "Not enough scrap to meet [sellScrapFor] credits.\nTotal value: [sellScrapActualTotal].", () => _sellScrapFor < ScrapUtils.GetShipTotalSellableScrapValue())
+            .WithCondition("notEnoughScrap", "Not enough scrap to meet [sellScrapFor] credits.\nTotal value: [shipScrapActualTotal].", () => _sellScrapFor <= ScrapUtils.GetShipTotalSellableScrapValue())
             .WithCondition("quotaAlreadyMet", "Quota has already been met.", () => TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled > 0)
             .WithCondition("hasMatchingScrapItems", "No matching items found for input.", () => _recommendedScraps.Count > 0)
             .WithCondition("targetCommandDisabled", "Target command has been disabled", () => Plugin.Instance.PluginConfig.TerminalTargetCommandsEnabled)

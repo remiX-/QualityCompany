@@ -44,15 +44,17 @@ internal class TerminalPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("ParsePlayerSentence")]
-    public static TerminalNode? ParsePlayerSentencePatch(TerminalNode? __result, Terminal __instance)
+    public static TerminalNode ParsePlayerSentencePatch(TerminalNode __result, Terminal __instance)
     {
-        Logger.LogDebugMode($"TryReturnSpecialNodes: {__result?.name} | {__result?.terminalEvent}");
-        if (__result is null) return null;
+        Logger.LogDebugMode("ParsePlayerSentencePatch.start");
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (__result == null) return null!;
+        Logger.LogDebugMode($" > {__result} | {__result.name} | {__result.terminalEvent}");
 
         // If the name does not start with 'qc:' prefix as defined by QualityCompany nodes, then skip
         // if (!__result.name.StartsWith("qc:")) return __result;
         // if name ends with '_help' as defined by QualityCompany help nodes, then skip
-        if (__result.terminalEvent.StartsWith("qc:") && __result.terminalEvent.EndsWith("_help")) return __result;
+        if (__result.terminalEvent is not null && __result.terminalEvent.StartsWith("qc:") && __result.terminalEvent.EndsWith("_help")) return __result;
         if (__result.name.EndsWith("_confirm") || __result.name.EndsWith("_deny"))
         {
             cleanAfterNext = true;
@@ -71,6 +73,7 @@ internal class TerminalPatch
         if (!filteredCommands.Any())
         {
             Logger.LogDebugMode($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{inputCommandArgs}'");
+            cleanAfterNext = true;
             return __result;
         }
 
@@ -85,17 +88,9 @@ internal class TerminalPatch
         if (_commandExecuting.IsSimpleCommand)
         {
             return ExecuteSimpleCommand(_commandExecuting);
-            // if (resNode is not null) return resNode;
-        }
-        else
-        {
-
-            return ExecuteComplexCommand(_commandExecuting, __result, inputCommand, inputCommandArgs);
-            // if (resNode is not null null) return resNode;
         }
 
-        Logger.LogDebugMode($"TryReturnSpecialNodes.end");
-        return __result;
+        return ExecuteComplexCommand(_commandExecuting, __result, inputCommand, inputCommandArgs);
     }
 
     private static TerminalNode ExecuteSimpleCommand(TerminalCommandBuilder command)
@@ -182,9 +177,8 @@ internal class TerminalPatch
     [HarmonyPatch("TextPostProcess")]
     public static string TextPostProcessPatch(string __result)
     {
-        if (_commandExecuting is null && _subCommandExecuting is null) return __result;
-
         Logger.LogDebugMode("TextPostProcessPatch.start");
+        if (_commandExecuting is null && _subCommandExecuting is null) return __result;
 
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
@@ -194,8 +188,6 @@ internal class TerminalPatch
             __result = __result.Replace(key, func());
         }
 
-        // foreach (var command in AdvancedTerminal.Commands)
-        // {
         if (_commandExecuting is not null)
         {
             foreach (var (key, func) in _commandExecuting.TextProcessPlaceholders)
@@ -206,7 +198,6 @@ internal class TerminalPatch
                 __result = __result.Replace(key, func());
             }
         }
-        // }
 
         if (cleanAfterNext)
         {

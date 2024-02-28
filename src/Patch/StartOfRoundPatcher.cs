@@ -22,25 +22,20 @@ internal class StartOfRoundPatcher
     public static void AwakePatch(StartOfRound __instance)
     {
         OnStartOfRoundAwake(__instance);
-
-        SaveManager.Load();
-        GameUtils.Init();
-
-        // TODO see if better place?
-        var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
-        moduleLoaderGameObject.AddComponent<ModuleLoader>();
-
-        // Temp for now as HUDManager starts a little bit later than StartOfRound
-        // TODO: maybe move into a DebugModule?
-        Logger.LogDebug(JsonConvert.SerializeObject(SaveManager.SaveData));
-        Plugin.Instance.PluginConfig.DebugPrintConfig(Logger);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch("Start")]
     public static void StartPatch(StartOfRound __instance)
     {
+        GameUtils.Init();
+
         OnStartOfRoundStart(__instance);
+
+        SaveManager.Load();
+
+        var moduleLoaderGameObject = new GameObject("QualityCompanyLoader");
+        moduleLoaderGameObject.AddComponent<ModuleLoader>();
     }
 
     [HarmonyPostfix]
@@ -54,8 +49,6 @@ internal class StartOfRoundPatcher
     [HarmonyPatch("playersFiredGameOver")]
     private static void PlayersFiredGameOverPatch(StartOfRound __instance)
     {
-        SaveManager.SaveData.ResetGameState();
-        SaveManager.Save();
         OnPlayersFired(__instance);
     }
 

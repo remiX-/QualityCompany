@@ -25,11 +25,11 @@ internal class ModuleLoader : MonoBehaviour
     private IEnumerator LoadModulesCoroutine()
     {
         var delay = Math.Max(3.0f, Plugin.Instance.PluginConfig.InventoryStartupDelay);
-        Logger.LogDebug($"Loading up modules with a {delay} seconds delay...");
+        Logger.TryLogDebug($"Loading up modules with a {delay} seconds delay...");
 
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => !x.DelayedStart))
         {
-            Logger.LogDebug($"Starting up {internalModule.Name}");
+            Logger.TryLogDebug($"Starting up {internalModule.Name}");
             var instance = internalModule.OnLoad?.Invoke(null, null);
             if (instance is null) continue;
 
@@ -41,7 +41,7 @@ internal class ModuleLoader : MonoBehaviour
 
         foreach (var internalModule in ModuleRegistry.Modules.Where(x => x.DelayedStart))
         {
-            Logger.LogDebug($"Starting up {internalModule.Name}");
+            Logger.TryLogDebug($"Starting up {internalModule.Name}");
             var instance = internalModule.OnLoad?.Invoke(null, null);
             if (instance is null) continue;
 
@@ -49,18 +49,18 @@ internal class ModuleLoader : MonoBehaviour
             internalModule.OnAttach?.Invoke(instance, null);
         }
 
-        Logger.LogDebug("Internal modules loaded!");
+        Logger.TryLogDebug("Internal modules loaded!");
     }
 
     private void DetachAllModules(GameNetworkManager _)
     {
-        Logger.LogDebug("DetachAllModules");
+        Logger.TryLogDebug("DetachAllModules");
 
         foreach (var internalModule in ModuleRegistry.Modules)
         {
             if (internalModule.Instance is null) continue;
 
-            Logger.LogDebug($"Detaching {internalModule.Name}");
+            Logger.TryLogDebug($"Detaching {internalModule.Name}");
             internalModule.OnDetach?.Invoke(internalModule.Instance, null);
             internalModule.Instance = null;
         }

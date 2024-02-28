@@ -34,7 +34,7 @@ internal class TargetCommands
 
                     return true;
                 })
-                .WithAction(() => Logger.LogDebug("EXEC target.Action???"))
+                .WithAction(() => Logger.TryLogDebug("EXEC target.Action???"))
             )
             .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
             .AddTextReplacement("[targetMonitorValues]", InfoMonitor.GetText)

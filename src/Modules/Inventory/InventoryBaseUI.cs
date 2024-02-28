@@ -10,9 +10,9 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 {
     protected readonly ModLogger Logger;
 
-    protected readonly List<TextMeshProUGUI> texts = new();
+    protected readonly List<TextMeshProUGUI> Texts = new();
 
-    private GameObject baseTextToCopyGameObject;
+    private GameObject _baseTextToCopyGameObject;
 
     protected InventoryBaseUI(string moduleName)
     {
@@ -22,7 +22,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
     #region Lifecycle
     protected void Awake()
     {
-        baseTextToCopyGameObject = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
+        _baseTextToCopyGameObject = GameObject.Find("Environment/HangarShip/ShipModels2b/MonitorWall/Cube/Canvas (1)/MainContainer/HeaderText");
 
         transform.SetParent(HUDManager.Instance.HUDContainer.transform);
         transform.position = Vector3.zero;
@@ -62,7 +62,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
     #region UI
     protected TextMeshProUGUI CreateInventoryGameObject(string gameObjectName, int fontSize, Transform parent, Vector3? localPositionDelta = null)
     {
-        var textObject = Instantiate(baseTextToCopyGameObject, parent);
+        var textObject = Instantiate(_baseTextToCopyGameObject, parent);
         textObject.name = gameObjectName;
         textObject.transform.position = Vector3.zero;
         textObject.transform.localPosition = localPositionDelta ?? Vector3.zero;
@@ -92,7 +92,7 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
     protected virtual void UpdateItemSlotText(int index, string text, Color color)
     {
-        var textComponent = texts[index];
+        var textComponent = Texts[index];
         textComponent.enabled = true;
         textComponent.text = text;
         textComponent.color = color;
@@ -100,8 +100,8 @@ internal abstract class InventoryBaseUI : MonoBehaviour
 
     protected virtual void Hide(int currentItemSlotIndex)
     {
-        texts[currentItemSlotIndex].text = string.Empty;
-        texts[currentItemSlotIndex].enabled = false;
+        Texts[currentItemSlotIndex].text = string.Empty;
+        Texts[currentItemSlotIndex].enabled = false;
     }
 
     protected void HideAll(PlayerControllerB instance)

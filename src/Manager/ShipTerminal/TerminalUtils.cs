@@ -5,8 +5,8 @@ namespace QualityCompany.Manager.ShipTerminal;
 
 internal class TerminalUtils
 {
-    private static string ConfirmMessage = "Confirmed!";
-    private static string DenyMessage = "Cancelled!";
+    private static readonly string ConfirmMessage = "Confirmed!";
+    private static readonly string DenyMessage = "Cancelled!";
 
     internal static TerminalNode CreateNodeEmpty(bool clear = true)
     {
@@ -21,16 +21,16 @@ internal class TerminalUtils
         string name,
         string? text = null,
         string? terminalEvent = null,
-        bool? clear = true,
-        bool? confirmOrDeny = false)
+        bool clear = true,
+        bool confirmOrDeny = false)
     {
         var node = ScriptableObject.CreateInstance<TerminalNode>();
 
         node.name = $"qc:{name}";
-        node.clearPreviousText = clear ?? true;
+        node.clearPreviousText = clear;
         node.displayText = (text ?? "Empty") + AdvancedTerminal.EndOfMessage;
         node.terminalEvent = terminalEvent is not null ? $"qc:{terminalEvent}" : $"qc:{name}_event";
-        node.isConfirmationNode = confirmOrDeny ?? true;
+        node.isConfirmationNode = confirmOrDeny;
 
         return node;
     }
@@ -39,8 +39,8 @@ internal class TerminalUtils
         string name,
         string? text = null,
         string? terminalEvent = null,
-        bool? clear = true,
-        bool? confirmOrDeny = false)
+        bool clear = true,
+        bool confirmOrDeny = false)
     {
         var keyword = ScriptableObject.CreateInstance<TerminalKeyword>();
 

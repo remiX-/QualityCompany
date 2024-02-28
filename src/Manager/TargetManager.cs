@@ -16,7 +16,7 @@ internal class TargetManager
 
     internal static void UpdateTarget(int targetAmount, string updatedBy)
     {
-        Logger.LogDebug($"UpdateTarget => {Plugin.Instance.PluginConfig.NetworkingEnabled}");
+        Logger.TryLogDebug($"UpdateTarget => {Plugin.Instance.PluginConfig.NetworkingEnabled}");
         if (Plugin.Instance.PluginConfig.NetworkingEnabled)
         {
             NetworkHandler.Instance.UpdateSellTargetServerRpc(targetAmount, GameNetworkManager.Instance.localPlayerController.playerUsername);
@@ -78,14 +78,19 @@ internal class TargetManager
 
     internal static void MoveNetworkObjectsToDepositDeskClient(ulong[] networkObjectId)
     {
-        var scrapToSell = ScrapUtils
-            .GetAllScrapInShip()
+        var shipScrap = ScrapUtils.GetAllScrapInShip();
+
+        var validNetworkObjectIds = networkObjectId
             .Where(x =>
             {
-                var contains = networkObjectId.Contains(x.NetworkObjectId);
-                if (!contains) Logger.LogError($"Failed to find network object on this client: {networkObjectId}");
+                var contains = shipScrap.Any(y => x == y.NetworkObjectId);
+                if (!contains) Logger.LogError($"Failed to find scrap with networkObjectId: {x}");
                 return contains;
             })
+            .ToList();
+
+        var scrapToSell = shipScrap
+            .Where(scrap => validNetworkObjectIds.Contains(scrap.NetworkObjectId))
             .ToList();
 
         if (scrapToSell.Count == 0) return;

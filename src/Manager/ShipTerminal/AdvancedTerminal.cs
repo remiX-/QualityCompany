@@ -66,15 +66,15 @@ internal class AdvancedTerminal
             AddToHelp(config);
         }
 
-        foreach (var kw in terminal.terminalNodes.allKeywords)
-        {
-            Logger.LogDebugMode($"{kw.name} | {kw.word}");
-        }
+        // foreach (var kw in terminal.terminalNodes.allKeywords)
+        // {
+        //     Logger.LogDebugMode($"{kw.name} | {kw.word}");
+        // }
     }
 
     private static List<TerminalCommandBuilder> LoadModCommands(Terminal terminal, string modName, ModConfiguration config)
     {
-        Logger.LogDebug($"Loading commands for: {modName}");
+        Logger.TryLogDebug($"Loading commands for: {modName}");
 
         var commands = new List<TerminalCommandBuilder>();
         foreach (var command in config.Commands)
@@ -82,7 +82,7 @@ internal class AdvancedTerminal
             var res = command.Run.Invoke(null, null);
             if (res is not TerminalCommandBuilder builder) continue;
 
-            Logger.LogDebug($"Created {builder.CommandText}");
+            Logger.TryLogDebug($"Created {builder.CommandText}");
             commands.Add(builder);
 
             var keywords = builder.Build(_terminalConfirmKeyword, _terminalDenyKeyword);

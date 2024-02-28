@@ -10,11 +10,11 @@ public partial class GameEvents
     /// <summary>
     /// 
     /// </summary>
-    public static event TerminalEvent TerminalAwakeEvent;
+    public static event TerminalEvent? TerminalAwakeEvent;
 
     internal static void OnTerminalAwakeEvent(Terminal instance)
     {
-        Logger.LogDebug("TerminalAwakeEvent");
+        Logger.LogDebugMode("TerminalAwakeEvent");
         TerminalAwakeEvent?.Invoke(instance);
     }
 }

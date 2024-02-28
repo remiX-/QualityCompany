@@ -23,7 +23,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         if (IsHost) return;
 
-        Logger.LogDebug("CLIENT: Requesting hosts config...");
+        Logger.TryLogDebug("CLIENT: Requesting hosts config...");
         RequestPluginConfigServerRpc();
         RequestSaveDataServerRpc();
 
@@ -33,7 +33,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void RequestPluginConfigServerRpc()
     {
-        Logger.LogDebug("HOST: A client is requesting plugin config");
+        Logger.TryLogDebug("HOST: A client is requesting plugin config");
         var json = JsonConvert.SerializeObject(Plugin.Instance.PluginConfig);
         SendPluginConfigClientRpc(json);
     }
@@ -45,7 +45,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
 
         if (_retrievedPluginConfig)
         {
-            Logger.LogDebug("CLIENT: Config has already been received from host, disregarding.");
+            Logger.TryLogDebug("CLIENT: Config has already been received from host, disregarding.");
             return;
         }
         _retrievedPluginConfig = true;
@@ -57,14 +57,14 @@ internal class CompanyNetworkHandler : NetworkBehaviour
             return;
         }
 
-        Logger.LogDebug("Config received, deserializing and constructing...");
+        Logger.TryLogDebug("Config received, deserializing and constructing...");
         Plugin.Instance.PluginConfig.ApplyHostConfig(cfg);
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestSaveDataServerRpc()
     {
-        Logger.LogDebug("HOST: A client is requesting save data");
+        Logger.TryLogDebug("HOST: A client is requesting save data");
         var json = JsonConvert.SerializeObject(SaveManager.SaveData);
         SendSaveDataClientRpc(json);
     }
@@ -84,7 +84,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     internal void SyncDepositDeskTotalValueServerRpc()
     {
-        Logger.LogDebug("UpdateSellTargetServerRpc");
+        Logger.TryLogDebug("UpdateSellTargetServerRpc");
 
         SyncDepositDeskTotalValueClientRpc();
     }
@@ -92,7 +92,7 @@ internal class CompanyNetworkHandler : NetworkBehaviour
     [ClientRpc]
     private void SyncDepositDeskTotalValueClientRpc()
     {
-        Logger.LogDebug("SyncDepositDeskTotalValueClientRpc");
+        Logger.TryLogDebug("SyncDepositDeskTotalValueClientRpc");
 
         InfoMonitor.UpdateMonitor();
     }

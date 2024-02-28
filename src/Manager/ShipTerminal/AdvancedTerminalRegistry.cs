@@ -35,7 +35,7 @@ public class AdvancedTerminalRegistry
             return;
         }
 
-        Logger.LogDebug($"Registering Terminal Commands in {assemblyName}");
+        Logger.TryLogDebug($"Registering Terminal Commands in {assemblyName}");
 
         var commands = new List<InternalCommand>();
 
@@ -67,7 +67,7 @@ public class AdvancedTerminalRegistry
             Commands = commands
         });
 
-        Logger.LogDebug($" > Found {commands.Count} terminal commands");
+        Logger.TryLogDebug($" > Found {commands.Count} terminal commands");
     }
 
     private static T? FindMethodInfoFor<T>(ICustomAttributeProvider member) where T : Attribute
