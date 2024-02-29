@@ -21,7 +21,7 @@ internal class TerminalPatch
 
     private static TerminalCommandBuilder? _commandExecuting;
     private static TerminalSubCommand? _subCommandExecuting;
-    private static bool cleanAfterNext;
+    private static bool _cleanAfterNext;
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
@@ -54,10 +54,15 @@ internal class TerminalPatch
         // If the name does not start with 'qc:' prefix as defined by QualityCompany nodes, then skip
         // if (!__result.name.StartsWith("qc:")) return __result;
         // if name ends with '_help' as defined by QualityCompany help nodes, then skip
-        if (__result.terminalEvent is not null && __result.terminalEvent.StartsWith("qc:") && __result.terminalEvent.EndsWith("_help")) return __result;
+        if (__result.terminalEvent is not null &&
+            __result.terminalEvent.StartsWith("qc:") &&
+            __result.terminalEvent.EndsWith("_help"))
+        {
+            return __result;
+        }
         if (__result.name.EndsWith("_confirm") || __result.name.EndsWith("_deny"))
         {
-            cleanAfterNext = true;
+            _cleanAfterNext = true;
         }
 
         var terminalInput = __instance.screenText.text[^__instance.textAdded..].ToLower().Trim();
@@ -73,7 +78,7 @@ internal class TerminalPatch
         if (!filteredCommands.Any())
         {
             Logger.LogDebugMode($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{inputCommandArgs}'");
-            cleanAfterNext = true;
+            _cleanAfterNext = true;
             return __result;
         }
 
@@ -97,7 +102,7 @@ internal class TerminalPatch
     {
         Logger.LogDebugMode(" > executing SimpleCommand");
 
-        cleanAfterNext = true;
+        _cleanAfterNext = true;
 
         Logger.LogDebugMode("  > checking conditions");
         foreach (var (node, condition) in command.SpecialNodes)
@@ -165,7 +170,7 @@ internal class TerminalPatch
             if (specialCondition.condition()) continue;
 
             Logger.LogDebugMode($"   > FAILED: {specialCondition.node.name}");
-            cleanAfterNext = true;
+            _cleanAfterNext = true;
             return specialCondition.node;
         }
 
@@ -199,11 +204,11 @@ internal class TerminalPatch
             }
         }
 
-        if (cleanAfterNext)
+        if (_cleanAfterNext)
         {
             _commandExecuting = null;
             _subCommandExecuting = null;
-            cleanAfterNext = false;
+            _cleanAfterNext = false;
         }
 
         Logger.LogDebugMode("TextPostProcessPatch.end\n");
