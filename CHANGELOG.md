@@ -1,3 +1,10 @@
+# v1.4.0
+
+- Some minor fixes to the Terminal Commands & Patching
+- Better Game Events logic & less debug logs
+- Fixed the LootMonitor from going out of sync (mod compatibility)
+- Fixed some issues with terminal command values & help descriptions
+
 # v1.3.6: Sell commands 
 
 - Fixed a bug where 'sell' commands wouldn't total scrap values correctly when selling mid-way through the quota
