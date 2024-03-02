@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Patch;
 
@@ -32,12 +32,14 @@ internal class HudManagerPatch
 
     [HarmonyPostfix]
     [HarmonyPatch("DisplayDaysLeft")]
-    private static void DisplayDaysLeft(TimeOfDay __instance)
+    private static void DisplayDaysLeft(HUDManager __instance)
     {
         SaveManager.SaveData.TotalDaysPlayedForCurrentQuota++;
         SaveManager.Save();
 
         InfoMonitor.UpdateMonitor();
+
+        OnDisplayDaysLeft(__instance);
     }
 }
 

@@ -2,7 +2,7 @@
 using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Utils;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Patch;
 

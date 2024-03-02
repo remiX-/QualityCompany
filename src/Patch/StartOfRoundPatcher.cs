@@ -1,5 +1,4 @@
 using HarmonyLib;
-using Newtonsoft.Json;
 using QualityCompany.Manager.Saves;
 using QualityCompany.Modules.Core;
 using QualityCompany.Modules.Ship;
@@ -8,7 +7,7 @@ using QualityCompany.Utils;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Patch;
 
@@ -45,14 +44,14 @@ internal class StartOfRoundPatcher
         LootMonitor.UpdateMonitor();
     }
 
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     [HarmonyPatch("playersFiredGameOver")]
     private static void PlayersFiredGameOverPatch(StartOfRound __instance)
     {
         OnPlayersFired(__instance);
     }
 
-    [HarmonyPrefix]
+    [HarmonyPostfix]
     [HarmonyPatch("EndOfGame")]
     private static void EndOfGamePatch(StartOfRound __instance)
     {

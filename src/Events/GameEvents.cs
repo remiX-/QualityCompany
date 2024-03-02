@@ -1,4 +1,6 @@
-﻿namespace QualityCompany.Service;
+﻿using QualityCompany.Service;
+
+namespace QualityCompany.Events;
 
 public partial class GameEvents
 {

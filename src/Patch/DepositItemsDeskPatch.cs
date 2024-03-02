@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Network;
-using QualityCompany.Service;
 
 namespace QualityCompany.Patch;
 

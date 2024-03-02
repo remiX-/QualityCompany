@@ -1,4 +1,4 @@
-﻿namespace QualityCompany.Service;
+﻿namespace QualityCompany.Events;
 
 /// <summary>
 /// Terminal specific game events

@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
-using QualityCompany.Service;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Patch;
 

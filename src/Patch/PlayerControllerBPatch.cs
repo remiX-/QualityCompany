@@ -2,7 +2,7 @@
 using HarmonyLib;
 using QualityCompany.Modules.Ship;
 using Unity.Netcode;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Patch;
 

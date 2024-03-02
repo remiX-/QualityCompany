@@ -1,6 +1,6 @@
 ﻿using GameNetcodeStuff;
 
-namespace QualityCompany.Service;
+namespace QualityCompany.Events;
 
 public partial class GameEvents
 {

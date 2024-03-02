@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using QualityCompany.Manager.Saves;
 using QualityCompany.Utils;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Patch;
 
@@ -33,10 +33,12 @@ internal class GameNetworkManagerPatch
 
     [HarmonyPrefix]
     [HarmonyPatch("SaveGame")]
-    private static void SaveGamePatch(GameNetworkManager __instance)
+    private static bool SaveGamePatch(GameNetworkManager __instance)
     {
         SaveManager.Save();
 
         OnSaveGame(__instance);
+
+        return true;
     }
 }

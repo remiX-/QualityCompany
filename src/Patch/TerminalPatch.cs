@@ -7,7 +7,7 @@ using QualityCompany.Utils;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 #pragma warning disable IDE0060
 #pragma warning disable Harmony003
@@ -29,7 +29,6 @@ internal class TerminalPatch
     {
         GameUtils.Terminal = __instance;
 
-        // TODO: this should be auto via attribute maybe?
         AdvancedTerminal.Init();
 
         OnTerminalAwakeEvent(__instance);
@@ -183,7 +182,6 @@ internal class TerminalPatch
     public static string TextPostProcessPatch(string __result)
     {
         Logger.LogDebugMode("TextPostProcessPatch.start");
-        if (_commandExecuting is null && _subCommandExecuting is null) return __result;
 
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
@@ -192,6 +190,8 @@ internal class TerminalPatch
             Logger.LogDebugMode($" > found global: {key}");
             __result = __result.Replace(key, func());
         }
+
+        if (_commandExecuting is null && _subCommandExecuting is null) return __result;
 
         if (_commandExecuting is not null)
         {
