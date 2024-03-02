@@ -5,7 +5,6 @@ using QualityCompany.Assets;
 using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Core;
 using QualityCompany.Network;
-using QualityCompany.Patch;
 using System.IO;
 using System.Reflection;
 using UnityEngine;

@@ -1,6 +1,6 @@
 ﻿using QualityCompany.Modules.Core;
 using UnityEngine;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Modules.Inventory;
 

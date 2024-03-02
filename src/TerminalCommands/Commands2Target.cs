@@ -6,9 +6,9 @@ using QualityCompany.Utils;
 
 namespace QualityCompany.TerminalCommands;
 
-internal class TargetCommands
+internal class Commands2Target
 {
-    private static readonly ModLogger Logger = new(nameof(TargetCommands));
+    private static readonly ModLogger Logger = new(nameof(Commands2Target));
 
     [TerminalCommand]
     private static TerminalCommandBuilder CreateTargetCommand()

@@ -1,20 +1,16 @@
-﻿using Newtonsoft.Json;
-using QualityCompany.Manager.ShipTerminal;
+﻿using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Network;
 using QualityCompany.Service;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using static QualityCompany.Service.ServiceRegistry;
 
 namespace QualityCompany.TerminalCommands;
 
-internal class DebugCommands
+internal class Commands4Debug
 {
-    private static readonly ModLogger Logger = new(nameof(DebugCommands));
+    private static readonly ModLogger Logger = new(nameof(Commands4Debug));
 
     private static int scrapCountToHack;
 
@@ -62,45 +58,8 @@ internal class DebugCommands
                     Logger.TryLogDebug($"Saved item data to {Application.persistentDataPath}");
                     File.WriteAllText(Path.Combine(Application.persistentDataPath, "game_items.json"), JsonConvert.SerializeObject(dict));
 #endif
-                    var itemsList = StartOfRound.Instance.allItemsList.itemsList;
-                    var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
-                    for (var i = 0; i < scrapCountToHack; i++)
-                    {
-                        Logger.TryLogDebug($"Hacking in item #{i}");
 
-                        var item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
-                        while (!item.isScrap)
-                        {
-                            item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
-                        }
-
-                        var itemToSpawn = item.spawnPrefab;
-                        Logger.TryLogDebug($" > spawning in {itemToSpawn.name}");
-
-                        var scrap = UnityEngine.Object.Instantiate(itemToSpawn, currentPlayerLocation, Quaternion.identity);
-                        var itemGrabObj = scrap.GetComponent<GrabbableObject>();
-
-                        if (itemGrabObj is null)
-                        {
-                            Logger.TryLogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
-                            continue;
-                        }
-
-                        var min = itemGrabObj.itemProperties.minValue;
-                        var max = itemGrabObj.itemProperties.maxValue;
-                        if (min > max)
-                        {
-                            min = itemGrabObj.itemProperties.maxValue;
-                            max = itemGrabObj.itemProperties.minValue;
-                        }
-                        var scrapValue = Randomizer.GetInt(min, max) / 2;
-                        Logger.TryLogDebug($"  > value: {scrapValue}");
-                        scrap.GetComponent<NetworkObject>().Spawn();
-
-                        NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(itemGrabObj));
-
-                        Logger.TryLogDebug(" > done");
-                    }
+                    HackInScrap();
 
                     return true;
                 })
@@ -109,5 +68,54 @@ internal class DebugCommands
                     Logger.TryLogDebug("Hack: WithAction?");
                 })
             );
+    }
+
+    private static void HackInScrap()
+    {
+        var itemsList = StartOfRound.Instance.allItemsList.itemsList;
+        var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
+        for (var i = 0; i < scrapCountToHack; i++)
+        {
+
+            var item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
+            while (!item.isScrap)
+            {
+                item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
+            }
+
+            var itemToSpawn = item.spawnPrefab;
+
+            var scrap = UnityEngine.Object.Instantiate(itemToSpawn, currentPlayerLocation, Quaternion.identity);
+            var itemGrabObj = scrap.GetComponent<GrabbableObject>();
+
+            if (itemGrabObj is null)
+            {
+                Logger.TryLogDebug($"{itemToSpawn.name}: did not have a GrabbableObject component");
+                continue;
+            }
+
+            var scrapValue = GetScrapValue(itemGrabObj.itemProperties);
+            Logger.TryLogDebug($"HACK: #{i + 1} - {itemToSpawn.name} for {scrapValue}");
+            scrap.GetComponent<NetworkObject>().Spawn();
+
+            NetworkHandler.Instance.SyncValuesClientRpc(scrapValue, new NetworkBehaviourReference(itemGrabObj));
+        }
+    }
+
+    private static int GetScrapValue(Item itemProps)
+    {
+        var min = itemProps.minValue;
+        var max = itemProps.maxValue;
+        if (min == 0 || max == 0)
+        {
+            min = 1;
+            max = 100;
+        }
+        else if (min > max)
+        {
+            min = itemProps.maxValue;
+            max = itemProps.minValue;
+        }
+        return Randomizer.GetInt(min, max) / 2;
     }
 }

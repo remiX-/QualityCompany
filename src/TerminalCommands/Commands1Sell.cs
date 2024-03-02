@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace QualityCompany.TerminalCommands;
 
-internal class SellCommands
+internal class Commands1Sell
 {
     private static List<GrabbableObject> _recommendedScraps = new();
     private static int _sellScrapFor;

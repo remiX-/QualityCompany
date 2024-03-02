@@ -6,12 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Manager.ShipTerminal;
 
-internal class AdvancedTerminal
+public class AdvancedTerminal
 {
     internal static readonly Dictionary<string, Func<string>> GlobalTextReplacements = new();
     internal static readonly List<TerminalCommandBuilder> Commands = new();
@@ -26,7 +25,7 @@ internal class AdvancedTerminal
 
     internal static string EndOfMessage => "\n\n\n";
 
-    internal static void AddGlobalTextReplacement(string text, Func<string> func)
+    public static void AddGlobalTextReplacement(string text, Func<string> func)
     {
         GlobalTextReplacements.TryAdd(text, func);
     }
@@ -66,10 +65,10 @@ internal class AdvancedTerminal
             AddToHelp(config);
         }
 
-        // foreach (var kw in terminal.terminalNodes.allKeywords)
-        // {
-        //     Logger.LogDebugMode($"{kw.name} | {kw.word}");
-        // }
+        foreach (var kw in terminal.terminalNodes.allKeywords)
+        {
+            Logger.LogDebugMode($"{kw.name} | {kw.word}");
+        }
     }
 
     private static List<TerminalCommandBuilder> LoadModCommands(Terminal terminal, string modName, ModConfiguration config)

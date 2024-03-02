@@ -14,7 +14,6 @@ internal class NetworkHandler : NetworkBehaviour
     [ClientRpc]
     internal void SyncValuesClientRpc(int value, NetworkBehaviourReference netRef)
     {
-        Logger.LogMessage("SyncValuesClientRpc");
         netRef.TryGet(out GrabbableObject prop);
 
         if (prop is null)

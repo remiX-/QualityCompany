@@ -30,7 +30,9 @@ internal class LootMonitor : BaseMonitor
             return;
         }
 
-        Instance?.UpdateMonitorText($"LOOT:\n${ScrapUtils.GetShipSettledTotalRawScrapValue()}\nCREDITS:\n${GameUtils.Terminal.groupCredits}");
+        var totalInShip = ScrapUtils.GetShipSettledTotalRawScrapValue();
+        var groupCredits = GameUtils.Terminal.groupCredits;
+        Instance?.UpdateMonitorText($"LOOT:\n${totalInShip}\nCREDITS:\n${groupCredits}");
     }
 
     // ReSharper disable once FunctionRecursiveOnAllPaths

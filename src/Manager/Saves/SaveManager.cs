@@ -3,7 +3,7 @@ using QualityCompany.Service;
 using System;
 using System.IO;
 using UnityEngine;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Manager.Saves;
 

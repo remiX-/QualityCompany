@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Modules.Core;
 

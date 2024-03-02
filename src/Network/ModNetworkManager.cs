@@ -1,7 +1,7 @@
 ﻿using QualityCompany.Assets;
 using Unity.Netcode;
 using UnityEngine;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Network;
 

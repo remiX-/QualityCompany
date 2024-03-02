@@ -1,7 +1,7 @@
 using QualityCompany.Modules.Core;
 using TMPro;
 using UnityEngine;
-using static QualityCompany.Service.GameEvents;
+using static QualityCompany.Events.GameEvents;
 
 namespace QualityCompany.Modules.Inventory;
 

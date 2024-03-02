@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace QualityCompany.TerminalCommands;
 
-internal class MiscCommands
+internal class Commands3Misc
 {
-    private static readonly ModLogger Logger = new(nameof(MiscCommands));
+    private static readonly ModLogger Logger = new(nameof(Commands3Misc));
 
     [TerminalCommand]
     private static TerminalCommandBuilder LaunchCommand()
