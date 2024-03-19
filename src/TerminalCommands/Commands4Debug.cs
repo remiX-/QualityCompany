@@ -5,6 +5,11 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using static QualityCompany.Service.ServiceRegistry;
+#if DEBUG
+using Newtonsoft.Json;
+using System.IO;
+using System.Linq;
+#endif
 
 namespace QualityCompany.TerminalCommands;
 
@@ -23,21 +28,26 @@ internal class Commands4Debug
             .WithHelpDescription("Spawn some ez lewt.")
             .WithCommandDescription("Please enter a number of scrap items to spawn.\neg: hack 5")
             .WithCondition("isHost", "You are not host.", () => NetworkManager.Singleton.IsHost)
-            .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
+            // .AddTextReplacement("[scrapCountToHack]", () => scrapCountToHack.ToString())
             .WithSubCommand(new TerminalSubCommandBuilder("<count>")
                 .WithDescription("Hack in <count> number of items.")
-                .WithMessage("Hacked in [scrapCountToHack] items")
+                .WithMessage("Hacked in XYZ items")
                 .WithConditions("isHost")
-                .WithInputMatch(@"(\d+$)$")
-                .WithPreAction(input =>
+                .WithInputMatch(@"^(\d+$)$")
+                // .WithPreAction(input =>
+                // {
+                //     Logger.TryLogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
+                //
+                //     scrapCountToHack = Convert.ToInt32(input);
+                //     if (scrapCountToHack <= 0) return "POSITIVE!";
+                //
+                //     return null;
+                // })
+                .WithAction(input =>
                 {
-                    Logger.TryLogDebug($"Hack: IsHost? {NetworkManager.Singleton.IsHost}");
-                    // TODO: bug here, this shouldn't be in "PreAction"
-                    if (!NetworkManager.Singleton.IsHost) return false;
+                    Logger.TryLogDebug("Hack: WithAction?");
 
                     scrapCountToHack = Convert.ToInt32(input);
-
-                    if (scrapCountToHack <= 0) return false;
                     scrapCountToHack = Math.Min(100, scrapCountToHack);
 
 #if DEBUG
@@ -61,11 +71,7 @@ internal class Commands4Debug
 
                     HackInScrap();
 
-                    return true;
-                })
-                .WithAction(() =>
-                {
-                    Logger.TryLogDebug("Hack: WithAction?");
+                    return $"Hack in {scrapCountToHack} items";
                 })
             );
     }
@@ -76,7 +82,6 @@ internal class Commands4Debug
         var currentPlayerLocation = GameNetworkManager.Instance.localPlayerController.transform.position;
         for (var i = 0; i < scrapCountToHack; i++)
         {
-
             var item = itemsList[Randomizer.GetInt(0, itemsList.Count)];
             while (!item.isScrap)
             {

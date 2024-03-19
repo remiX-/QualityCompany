@@ -52,14 +52,14 @@ public class TerminalSubCommandBuilder
         return this;
     }
 
-    public TerminalSubCommandBuilder WithPreAction(Action action)
+    public TerminalSubCommandBuilder WithPreAction(Func<string?> action)
     {
         _subCommand.PreConditionAction = action;
 
         return this;
     }
 
-    public TerminalSubCommandBuilder WithPreAction(Func<string, bool> action)
+    public TerminalSubCommandBuilder WithPreAction(Func<string, string?> action)
     {
         _subCommand.VariablePreAction = action;
 
@@ -69,6 +69,27 @@ public class TerminalSubCommandBuilder
     public TerminalSubCommandBuilder WithAction(Action action)
     {
         _subCommand.Action = action;
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithAction(Func<string> action)
+    {
+        _subCommand.ActionResult = action;
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithAction(Action<string> action)
+    {
+        _subCommand.ActionWithInput = action;
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithAction(Func<string, string> action)
+    {
+        _subCommand.ActionInputResult = action;
 
         return this;
     }
@@ -87,11 +108,15 @@ public class TerminalSubCommandBuilder
         _subCommand.Node.name = $"qc:{_subCommand.Id}";
         _subCommand.Node.displayText = _subCommand.Message + AdvancedTerminal.EndOfMessage;
         _subCommand.ActionEvent = $"qc:{_subCommand.Id}_event";
-        // _subCommand.Node.terminalEvent = $"{rootCommandName}_{_subCommand.Name}_event";
         _subCommand.Keyword.name = _subCommand.Id;
         _subCommand.Keyword.word = _subCommand.Id;
 
-        if (!_subCommand.Node.isConfirmationNode) return _subCommand;
+        if (!_subCommand.Node.isConfirmationNode)
+        {
+            // If it's not a confirmation node, set the terminalEvent for the .Action to occur
+            _subCommand.Node.terminalEvent = _subCommand.ActionEvent;
+            return _subCommand;
+        }
 
         _subCommand.Node.displayText += "[confirmOrDeny]";
         _subCommand.Node.terminalOptions = new[]

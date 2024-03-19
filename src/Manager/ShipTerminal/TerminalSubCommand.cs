@@ -12,10 +12,13 @@ internal class TerminalSubCommand
     internal TerminalKeyword Keyword;
     internal TerminalNode Node;
     internal List<string> Conditions = new();
-    internal Action PreConditionAction;
-    internal Func<string, bool> VariablePreAction;
+    internal Func<string?>? PreConditionAction;
+    internal Func<string, string?>? VariablePreAction;
     internal string ActionEvent;
-    internal Action Action;
+    internal Action? Action;
+    internal Func<string>? ActionResult;
+    internal Action<string>? ActionWithInput;
+    internal Func<string, string>? ActionInputResult;
 
     internal bool IsVariableCommand;
     internal string VariableRegexMatchPattern;

@@ -114,7 +114,7 @@ public class TerminalCommandBuilder
     /// <returns></returns>
     public TerminalCommandBuilder WithCondition(string name, string displayText, Func<bool> condition)
     {
-        var specialNode = TerminalUtils.CreateNode(name, displayText + AdvancedTerminal.EndOfMessage);
+        var specialNode = TerminalUtils.CreateNode(name, displayText + AdvancedTerminal.EndOfMessage, $"{name}_condition");
         SpecialNodes.Add((specialNode, condition));
 
         return this;

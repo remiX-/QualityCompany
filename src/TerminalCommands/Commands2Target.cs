@@ -25,16 +25,19 @@ internal class Commands2Target
                 .WithInputMatch(@"^(\d+$)$")
                 .WithPreAction(input =>
                 {
-                    if (!int.TryParse(input, out var amount)) return false;
+                    if (!int.TryParse(input, out var amount)) return "Pls enter a positive number";
 
                     // TODO: this UpdateTarget action should be part of `WithAction`! But seemingly there is a bug in the Terminal API
                     // if (!GameUtils.IsLandedOnCompany()) return false;
 
                     TargetManager.UpdateTarget(amount, GameNetworkManager.Instance.localPlayerController.playerUsername);
 
-                    return true;
+                    return null;
                 })
-                .WithAction(() => Logger.TryLogDebug("EXEC target.Action???"))
+                .WithAction(() =>
+                {
+
+                })
             )
             .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
             .AddTextReplacement("[targetMonitorValues]", InfoMonitor.GetText)

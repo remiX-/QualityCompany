@@ -22,6 +22,8 @@ internal class TerminalPatch
     private static TerminalCommandBuilder? _commandExecuting;
     private static TerminalSubCommand? _subCommandExecuting;
     private static bool _cleanAfterNext;
+    private static string? _currentInput;
+    private static bool _conditionFailed = false;
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
@@ -66,8 +68,8 @@ internal class TerminalPatch
 
         var terminalInput = __instance.screenText.text[^__instance.textAdded..].ToLower().Trim();
         var inputCommand = terminalInput.Contains(" ") ? terminalInput[..terminalInput.LastIndexOf(' ')] : terminalInput;
-        var inputCommandArgs = terminalInput.Contains(" ") ? terminalInput[(terminalInput.LastIndexOf(' ') + 1)..] : null;
-        Logger.LogDebugMode($" > input: {terminalInput} | {inputCommand} | {inputCommandArgs}");
+        _currentInput = terminalInput.Contains(" ") ? terminalInput[(terminalInput.LastIndexOf(' ') + 1)..] : null;
+        Logger.LogDebugMode($" > input: {terminalInput} | {inputCommand} | {_currentInput}");
 
         // Try to find the matching primary command first
         var filteredCommands = AdvancedTerminal.Commands
@@ -76,7 +78,7 @@ internal class TerminalPatch
 
         if (!filteredCommands.Any())
         {
-            Logger.LogDebugMode($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{inputCommandArgs}'");
+            Logger.LogDebugMode($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{_currentInput}'");
             _cleanAfterNext = true;
             return __result;
         }
@@ -94,7 +96,7 @@ internal class TerminalPatch
             return ExecuteSimpleCommand(_commandExecuting);
         }
 
-        return ExecuteComplexCommand(_commandExecuting, __result, inputCommand, inputCommandArgs);
+        return ExecuteComplexCommand(_commandExecuting, __result, inputCommand, _currentInput);
     }
 
     private static TerminalNode ExecuteSimpleCommand(TerminalCommandBuilder command)
@@ -127,7 +129,12 @@ internal class TerminalPatch
         if (_subCommandExecuting is not null)
         {
             // Found matching 'simple' sub command
-            _subCommandExecuting.PreConditionAction();
+            var r = _subCommandExecuting.PreConditionAction?.Invoke();
+            if (r is not null)
+            {
+                __result.displayText = r;
+                return __result;
+            }
         }
         else
         {
@@ -144,7 +151,12 @@ internal class TerminalPatch
                 var match = regex.Match(inputCommandArgs);
                 return match.Success;
             });
-            _subCommandExecuting?.VariablePreAction(inputCommandArgs);
+            var r = _subCommandExecuting?.VariablePreAction?.Invoke(inputCommandArgs);
+            if (r is not null)
+            {
+                __result.displayText = r;
+                return __result;
+            }
         }
 
         // If nothing was found, just return the main commands node
@@ -199,7 +211,7 @@ internal class TerminalPatch
             {
                 if (!__result.Contains(key)) continue;
 
-                Logger.LogDebugMode($" > found command: {_commandExecuting.CommandText}.{key}");
+                Logger.LogDebugMode($" > found replacement: {_commandExecuting.CommandText}.{key}");
                 __result = __result.Replace(key, func());
             }
         }
@@ -209,6 +221,8 @@ internal class TerminalPatch
             _commandExecuting = null;
             _subCommandExecuting = null;
             _cleanAfterNext = false;
+
+            Logger.LogDebugMode("Reset active commands...");
         }
 
         Logger.LogDebugMode("TextPostProcessPatch.end\n");
@@ -221,12 +235,16 @@ internal class TerminalPatch
     public static void RunTerminalEventsPatch(TerminalNode node)
     {
         Logger.LogDebugMode($"RunTerminalEvents: | " +
-                            $"exec: {_commandExecuting?.CommandText ?? "null"}, {_subCommandExecuting?.Id ?? "null"} | " +
+                            $"exec: {_commandExecuting?.CommandText ?? "null"}, subCmd id: {_subCommandExecuting?.Id ?? "null"} | " +
                             $"node.name: {node.name ?? "null"} | " +
                             $"node.terminalEvent: {node.terminalEvent ?? "empty"}");
 
+        if (node.terminalEvent is null) return;
+        if (node.terminalEvent.StartsWith("qc:") && _commandExecuting is null)
+        {
+            Logger.LogDebugMode("Found QC command but _commandExecuting is null :/");
+        }
         if (_commandExecuting is null) return;
-        if (node.terminalEvent.IsNullOrWhiteSpace()) return;
 
         Logger.LogDebugMode($" > Checking {_commandExecuting.Node.name} | {_commandExecuting.ActionEvent}");
 
@@ -240,16 +258,28 @@ internal class TerminalPatch
             return;
         }
 
-        Logger.LogDebugMode(" > ComplexCommand");
-        var match = _commandExecuting.SubCommands.FirstOrDefault(x =>
-        {
-            Logger.LogDebugMode($" > {x.ActionEvent} ==? {node.terminalEvent}");
-            return x.ActionEvent == node.terminalEvent;
-        });
-        if (match is null) return;
+        Logger.LogDebugMode($" > ComplexCommand | sub cmd: {_subCommandExecuting?.Id ?? "empty"}");
+        if (_subCommandExecuting is null) return;
+        // var match = _commandExecuting.SubCommands.FirstOrDefault(x =>
+        // {
+        //     Logger.LogDebugMode($" > {x.ActionEvent} ==? {node.terminalEvent}");
+        //     return x.ActionEvent == node.terminalEvent;
+        // });
+        // if (match is null) return;
 
-        Logger.LogDebugMode($"  > Found {match.Node.name}");
-        match.Action();
+        Logger.LogDebugMode($"  > Found {_subCommandExecuting.Node.name} | variable? {_subCommandExecuting.IsVariableCommand} | input? {_currentInput}");
+        if (_subCommandExecuting.IsVariableCommand)
+        {
+            _subCommandExecuting.ActionWithInput?.Invoke(_currentInput!);
+            var res = _subCommandExecuting.ActionInputResult?.Invoke(_currentInput!);
+            if (res is not null) node.displayText = res + AdvancedTerminal.EndOfMessage;
+        }
+        else
+        {
+            _subCommandExecuting.Action?.Invoke();
+            var res = _subCommandExecuting.ActionResult?.Invoke();
+            if (res is not null) node.displayText = res + AdvancedTerminal.EndOfMessage;
+        }
 
         // foreach (var command in AdvancedTerminal.Commands)
         // {
