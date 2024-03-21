@@ -88,8 +88,6 @@ internal class Commands1Sell
             {
                 _recommendedScraps = ScrapUtils.GetAllSellableScrapInShip();
                 _sellScrapFor = _recommendedScraps.ActualScrapValueOfCollection();
-
-                return null;
             })
             .WithAction(() =>
             {
@@ -108,8 +106,6 @@ internal class Commands1Sell
             {
                 _sellScrapFor = TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled;
                 _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor);
-
-                return null;
             })
             .WithAction(() =>
             {
@@ -132,8 +128,6 @@ internal class Commands1Sell
                     .OrderBy(x => x.itemProperties.name)
                     .ThenByDescending(x => x.scrapValue)
                     .ToList();
-
-                return null;
             })
             .WithAction(() =>
             {
@@ -153,16 +147,14 @@ internal class Commands1Sell
             {
                 _sellScrapFor = Convert.ToInt32(input);
 
-                if (_sellScrapFor <= 0) return "Pls enter a positive number ffs";
-
                 _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor)
                     .OrderBy(x => x.itemProperties.name)
                     .ThenByDescending(x => x.scrapValue)
                     .ToList();
 
-                if (_recommendedScraps.Count == 0) return "Bro, there's no match sorry.";
-
-                return null;
+                // if (_recommendedScraps.Count == 0) return "Bro, there's no match sorry.";
+                //
+                // return null;
             })
             .WithAction(() =>
             {
@@ -184,8 +176,6 @@ internal class Commands1Sell
                     .OrderBy(x => x.itemProperties.name)
                     .ThenByDescending(x => x.scrapValue)
                     .ToList();
-
-                return null;
             })
             .WithAction(() =>
             {
@@ -252,8 +242,6 @@ Examples:
                         .OrderByDescending(x => x.ActualSellValue())
                         .ToList();
                 }
-
-                return null;
             })
             .WithAction(() =>
             {

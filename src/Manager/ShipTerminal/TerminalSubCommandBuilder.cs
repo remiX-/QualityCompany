@@ -52,9 +52,31 @@ public class TerminalSubCommandBuilder
         return this;
     }
 
+    public TerminalSubCommandBuilder WithPreAction(Action action)
+    {
+        _subCommand.PreConditionAction = () =>
+        {
+            action();
+            return null;
+        };
+
+        return this;
+    }
+
     public TerminalSubCommandBuilder WithPreAction(Func<string?> action)
     {
         _subCommand.PreConditionAction = action;
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithPreAction(Action<string?> action)
+    {
+        _subCommand.VariablePreAction = (arg) =>
+        {
+            action(arg);
+            return null;
+        };
 
         return this;
     }
@@ -68,7 +90,11 @@ public class TerminalSubCommandBuilder
 
     public TerminalSubCommandBuilder WithAction(Action action)
     {
-        _subCommand.Action = action;
+        _subCommand.ActionResult = () =>
+        {
+            action();
+            return _subCommand.Node.displayText;
+        };
 
         return this;
     }
@@ -82,7 +108,11 @@ public class TerminalSubCommandBuilder
 
     public TerminalSubCommandBuilder WithAction(Action<string> action)
     {
-        _subCommand.ActionWithInput = action;
+        _subCommand.ActionInputResult = (str) =>
+        {
+            action(str);
+            return _subCommand.Node.displayText;
+        };
 
         return this;
     }
@@ -110,11 +140,11 @@ public class TerminalSubCommandBuilder
         _subCommand.ActionEvent = $"qc:{_subCommand.Id}_event";
         _subCommand.Keyword.name = _subCommand.Id;
         _subCommand.Keyword.word = _subCommand.Id;
+            // _subCommand.Node.terminalEvent = _subCommand.ActionEvent;// TODO confirm
 
         if (!_subCommand.Node.isConfirmationNode)
         {
             // If it's not a confirmation node, set the terminalEvent for the .Action to occur
-            _subCommand.Node.terminalEvent = _subCommand.ActionEvent;
             return _subCommand;
         }
 
