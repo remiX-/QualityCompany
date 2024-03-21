@@ -25,6 +25,9 @@ internal class PluginConfig
     public bool InventoryShowTotalScrapUI { get; set; }
 
     [JsonIgnore]
+    public bool InventoryScrapForceRefresh { get; set; }
+
+    [JsonIgnore]
     public bool InventoryShowShotgunAmmoCounterUI { get; set; }
 
     [JsonIgnore]
@@ -78,6 +81,8 @@ internal class PluginConfig
     public bool TerminalDebugCommandsEnabled { get; set; }
 
     public bool TerminalPatchFixScanEnabled { get; set; }
+
+    public bool TerminalPatchFixScanItemsListEnabled { get; set; }
     #endregion
 
     public PluginConfig()
@@ -114,6 +119,13 @@ internal class PluginConfig
             "ShowTotalScrapUI",
             true,
             "[CLIENT] Turn on/off total held items scrap value UI."
+        ).Value;
+
+        InventoryScrapForceRefresh = configFile.Bind(
+            "HUD",
+            "ScrapForceRefresh",
+            false,
+            "[CLIENT] Turn on/off force refreshing the Scrap UI every second."
         ).Value;
 
         InventoryShowShotgunAmmoCounterUI = configFile.Bind(
@@ -247,6 +259,13 @@ internal class PluginConfig
             true,
             "[HOST] Turn on/off patch fixing the games' 'scan' command where it occasionally does not work."
         ).Value;
+
+        TerminalPatchFixScanItemsListEnabled = configFile.Bind(
+            "Terminal",
+            "PatchFixScanItemsListEnabled",
+            false,
+            "[HOST] Turn on/off scan command showing list of scrap on the moon."
+        ).Value;
         #endregion
     }
 
@@ -258,6 +277,7 @@ internal class PluginConfig
         TerminalTargetCommandsEnabled = hostConfig.TerminalTargetCommandsEnabled;
         TerminalDebugCommandsEnabled = hostConfig.TerminalDebugCommandsEnabled;
         TerminalPatchFixScanEnabled = hostConfig.TerminalPatchFixScanEnabled;
+        TerminalPatchFixScanItemsListEnabled = hostConfig.TerminalPatchFixScanItemsListEnabled;
     }
 
     public void DebugPrintConfig(ModLogger logger)

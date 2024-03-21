@@ -171,7 +171,7 @@ internal class Commands3Misc
 
                     _playerSwitchName ??= input;
 
-                    return true;
+                    return null;
                 })
                 .WithAction(() =>
                 {

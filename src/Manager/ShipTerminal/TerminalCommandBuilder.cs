@@ -18,7 +18,8 @@ public class TerminalCommandBuilder
     internal readonly List<TerminalSubCommandBuilder> SubCommandsBuilders = new();
     internal List<TerminalSubCommand> SubCommands = new();
     internal readonly Dictionary<string, Func<string>> TextProcessPlaceholders = new();
-    internal readonly List<(TerminalNode node, Func<bool> condition)> SpecialNodes = new();
+    internal readonly List<ConditionNode> ConditionNodes = new();
+    // internal readonly List<(TerminalNode node, Func<bool> condition)> SpecialNodes = new();
 
     internal string ConfirmMessage = "Confirmed!";
     internal string DenyMessage = "Cancelled!";
@@ -114,8 +115,8 @@ public class TerminalCommandBuilder
     /// <returns></returns>
     public TerminalCommandBuilder WithCondition(string name, string displayText, Func<bool> condition)
     {
-        var specialNode = TerminalUtils.CreateNode(name, displayText + AdvancedTerminal.EndOfMessage);
-        SpecialNodes.Add((specialNode, condition));
+        var specialNode = TerminalUtils.CreateNode(name, displayText + AdvancedTerminal.EndOfMessage, $"{name}_condition");
+        ConditionNodes.Add(new ConditionNode(specialNode, condition));
 
         return this;
     }

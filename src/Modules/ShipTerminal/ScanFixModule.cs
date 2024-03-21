@@ -21,18 +21,27 @@ internal class ScanFixModule
             return;
         }
 
-        scanKeyword.specialKeywordResult = TerminalUtils.CreateNode("scan", "[scanForItemsFix]");
+        scanKeyword.specialKeywordResult = TerminalUtils.CreateNode("scan", "[qc__scanForItemsFix]");
 
-        AdvancedTerminal.AddGlobalTextReplacement("[scanForItemsFix]", () =>
+        AdvancedTerminal.AddGlobalTextReplacement("[qc__scanForItemsFix]", () =>
         {
             var allObjectsInDungeon = Object.FindObjectsByType<GrabbableObject>(FindObjectsSortMode.None)
                 .Where(go => go.itemProperties.isScrap && !go.isInShipRoom && !go.isInElevator)
+                .OrderBy(go => go.scrapValue)
                 .ToList();
             var allObjectInDungeonTotalScrapValue = allObjectsInDungeon.Sum(go => go.scrapValue);
 
             if (allObjectInDungeonTotalScrapValue > 0)
             {
-                return $"There are {allObjectsInDungeon.Count} objects outside the ship, totalling at an exact value of {allObjectInDungeonTotalScrapValue}.";
+                var scrapText = allObjectsInDungeon
+                    .Select(x => $"{x.itemProperties.name}: ${x.scrapValue}")
+                    .Aggregate((first, next) => $"{first}\n{next}");
+                var text = $"There are {allObjectsInDungeon.Count} objects outside the ship, totalling at an exact value of {allObjectInDungeonTotalScrapValue}.";
+                if (Plugin.Instance.PluginConfig.TerminalPatchFixScanItemsListEnabled)
+                {
+                    text += $"\nItems:\n{scrapText}";
+                }
+                return text;
             }
 
             var allInShip = ScrapUtils.GetAllScrapInShip();

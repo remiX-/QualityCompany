@@ -54,12 +54,34 @@ public class TerminalSubCommandBuilder
 
     public TerminalSubCommandBuilder WithPreAction(Action action)
     {
+        _subCommand.PreConditionAction = () =>
+        {
+            action();
+            return null;
+        };
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithPreAction(Func<string?> action)
+    {
         _subCommand.PreConditionAction = action;
 
         return this;
     }
 
-    public TerminalSubCommandBuilder WithPreAction(Func<string, bool> action)
+    public TerminalSubCommandBuilder WithPreAction(Action<string?> action)
+    {
+        _subCommand.VariablePreAction = (arg) =>
+        {
+            action(arg);
+            return null;
+        };
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithPreAction(Func<string, string?> action)
     {
         _subCommand.VariablePreAction = action;
 
@@ -68,7 +90,36 @@ public class TerminalSubCommandBuilder
 
     public TerminalSubCommandBuilder WithAction(Action action)
     {
-        _subCommand.Action = action;
+        _subCommand.ActionResult = () =>
+        {
+            action();
+            return _subCommand.ConfirmMessage;
+        };
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithAction(Func<string> action)
+    {
+        _subCommand.ActionResult = action;
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithAction(Action<string> action)
+    {
+        _subCommand.ActionInputResult = (str) =>
+        {
+            action(str);
+            return _subCommand.Node.displayText;
+        };
+
+        return this;
+    }
+
+    public TerminalSubCommandBuilder WithAction(Func<string, string> action)
+    {
+        _subCommand.ActionInputResult = action;
 
         return this;
     }
@@ -87,11 +138,14 @@ public class TerminalSubCommandBuilder
         _subCommand.Node.name = $"qc:{_subCommand.Id}";
         _subCommand.Node.displayText = _subCommand.Message + AdvancedTerminal.EndOfMessage;
         _subCommand.ActionEvent = $"qc:{_subCommand.Id}_event";
-        // _subCommand.Node.terminalEvent = $"{rootCommandName}_{_subCommand.Name}_event";
         _subCommand.Keyword.name = _subCommand.Id;
         _subCommand.Keyword.word = _subCommand.Id;
+        _subCommand.Node.terminalEvent = _subCommand.ActionEvent;// TODO confirm
 
-        if (!_subCommand.Node.isConfirmationNode) return _subCommand;
+        if (!_subCommand.Node.isConfirmationNode)
+        {
+            return _subCommand;
+        }
 
         _subCommand.Node.displayText += "[confirmOrDeny]";
         _subCommand.Node.terminalOptions = new[]

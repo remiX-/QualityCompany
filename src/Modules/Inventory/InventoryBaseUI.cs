@@ -30,10 +30,10 @@ internal abstract class InventoryBaseUI : MonoBehaviour
         transform.localScale = Vector3.one;
     }
 
-    protected void Start()
-    {
-        Destroy(gameObject);
-    }
+    // protected void Start()
+    // {
+    //     Destroy(gameObject);
+    // }
     #endregion
 
     #region UI Updates

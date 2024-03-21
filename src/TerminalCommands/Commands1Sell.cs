@@ -53,7 +53,7 @@ internal class Commands1Sell
             })
             .AddTextReplacement("[companyBuyItemsCombo]", GenerateBuyItemsComboText)
             .WithCondition("landedAtCompany", "ERROR: Usage of this feature is only permitted within Company bounds\n\nPlease land at 71-Gordion and repeat command.", GameUtils.IsLandedOnCompany)
-            .WithCondition("hasScrapItems", "Bruh, you don't even have any items.", () => ScrapUtils.GetAllScrapInShip().Count > 0)
+            .WithCondition("hasScrapItems", "Bruh, you don't even have any items.", () => ScrapUtils.GetAllSellableScrapInShip().Count > 0)
             .WithCondition("notEnoughScrap", "Not enough scrap to meet [sellScrapFor] credits.\nTotal value: [shipScrapActualTotal].", () => _sellScrapFor <= ScrapUtils.GetShipTotalSellableScrapValue())
             .WithCondition("quotaAlreadyMet", "Quota has already been met.", () => TimeOfDay.Instance.profitQuota - TimeOfDay.Instance.quotaFulfilled > 0)
             .WithCondition("hasMatchingScrapItems", "No matching items found for input.", () => _recommendedScraps.Count > 0)
@@ -147,16 +147,14 @@ internal class Commands1Sell
             {
                 _sellScrapFor = Convert.ToInt32(input);
 
-                if (_sellScrapFor <= 0) return false;
-
                 _recommendedScraps = ScrapUtils.GetScrapForAmount(_sellScrapFor)
                     .OrderBy(x => x.itemProperties.name)
                     .ThenByDescending(x => x.scrapValue)
                     .ToList();
 
-                if (_recommendedScraps.Count == 0) return false;
-
-                return true;
+                // if (_recommendedScraps.Count == 0) return "Bro, there's no match sorry.";
+                //
+                // return null;
             })
             .WithAction(() =>
             {
@@ -244,8 +242,6 @@ Examples:
                         .OrderByDescending(x => x.ActualSellValue())
                         .ToList();
                 }
-
-                return true;
             })
             .WithAction(() =>
             {

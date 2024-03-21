@@ -4,13 +4,12 @@ using QualityCompany.Manager.ShipTerminal;
 using QualityCompany.Modules.Ship;
 using QualityCompany.Service;
 using QualityCompany.Utils;
-using System.Data;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using static QualityCompany.Events.GameEvents;
-
-#pragma warning disable IDE0060
-#pragma warning disable Harmony003
+using static Unity.Audio.Handle;
 
 namespace QualityCompany.Patch;
 
@@ -19,9 +18,7 @@ internal class TerminalPatch
 {
     private static readonly ModLogger Logger = new(nameof(TerminalPatch));
 
-    private static TerminalCommandBuilder? _commandExecuting;
-    private static TerminalSubCommand? _subCommandExecuting;
-    private static bool _cleanAfterNext;
+    private static string? _currentInput;
 
     [HarmonyPostfix]
     [HarmonyPatch("Awake")]
@@ -51,23 +48,17 @@ internal class TerminalPatch
         Logger.LogDebugMode($" > {__result} | {__result.name} | {__result.terminalEvent}");
 
         // If the name does not start with 'qc:' prefix as defined by QualityCompany nodes, then skip
-        // if (!__result.name.StartsWith("qc:")) return __result;
-        // if name ends with '_help' as defined by QualityCompany help nodes, then skip
         if (__result.terminalEvent is not null &&
             __result.terminalEvent.StartsWith("qc:") &&
             __result.terminalEvent.EndsWith("_help"))
         {
             return __result;
         }
-        if (__result.name.EndsWith("_confirm") || __result.name.EndsWith("_deny"))
-        {
-            _cleanAfterNext = true;
-        }
 
         var terminalInput = __instance.screenText.text[^__instance.textAdded..].ToLower().Trim();
         var inputCommand = terminalInput.Contains(" ") ? terminalInput[..terminalInput.LastIndexOf(' ')] : terminalInput;
-        var inputCommandArgs = terminalInput.Contains(" ") ? terminalInput[(terminalInput.LastIndexOf(' ') + 1)..] : null;
-        Logger.LogDebugMode($" > input: {terminalInput} | {inputCommand} | {inputCommandArgs}");
+        _currentInput = terminalInput.Contains(" ") ? terminalInput[(terminalInput.LastIndexOf(' ') + 1)..] : null;
+        Logger.LogDebugMode($" > input: {terminalInput} | {inputCommand} | {_currentInput}");
 
         // Try to find the matching primary command first
         var filteredCommands = AdvancedTerminal.Commands
@@ -76,8 +67,7 @@ internal class TerminalPatch
 
         if (!filteredCommands.Any())
         {
-            Logger.LogDebugMode($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{inputCommandArgs}'");
-            _cleanAfterNext = true;
+            Logger.LogDebugMode($" > No commands found matching input '{terminalInput}' | '{inputCommand}' with args '{_currentInput}'");
             return __result;
         }
 
@@ -86,32 +76,29 @@ internal class TerminalPatch
             Logger.LogError($" > Found multiple commands! HOW? Only using first one. Found: {filteredCommands.Select(x => x.CommandText).Aggregate((first, second) => $"{first}, {second}")}");
         }
 
-        _commandExecuting = filteredCommands.First();
-        Logger.LogDebugMode($" > command: {_commandExecuting.CommandText} | event: /{__result.terminalEvent ?? "empty"}/");
+        var cmd = filteredCommands.First();
+        Logger.LogDebugMode($" > command: {cmd.CommandText} | event: /{__result.terminalEvent ?? "empty"}/");
 
-        if (_commandExecuting.IsSimpleCommand)
-        {
-            return ExecuteSimpleCommand(_commandExecuting);
-        }
-
-        return ExecuteComplexCommand(_commandExecuting, __result, inputCommand, inputCommandArgs);
+        return cmd.IsSimpleCommand
+            ? ExecuteSimpleCommand(cmd)
+            : ExecuteComplexCommand(cmd, __result, inputCommand, _currentInput!);
     }
 
     private static TerminalNode ExecuteSimpleCommand(TerminalCommandBuilder command)
     {
         Logger.LogDebugMode(" > executing SimpleCommand");
 
-        _cleanAfterNext = true;
+        // _cleanAfterNext = true;
 
         Logger.LogDebugMode("  > checking conditions");
-        foreach (var (node, condition) in command.SpecialNodes)
+        foreach (var conditionNode in command.ConditionNodes)
         {
-            Logger.LogDebugMode($"   > condition: {node.name}");
+            Logger.LogDebugMode($"   > condition: {conditionNode.Node.name}");
 
-            if (!condition()) continue;
+            if (!conditionNode.Condition()) continue;
 
-            Logger.LogDebugMode($"    > FAILED");
-            return node;
+            Logger.LogDebugMode("    > FAILED");
+            return conditionNode.Node;
         }
 
         Logger.LogDebugMode($"  > returning {command.Node.name}");
@@ -123,11 +110,16 @@ internal class TerminalPatch
         Logger.LogDebugMode(" > executing ComplexCommand");
 
         // Try to find a matching non-variable (input) command
-        _subCommandExecuting = command.SubCommands.FirstOrDefault(subCmd => !subCmd.IsVariableCommand && subCmd.Name == inputCommandArgs);
-        if (_subCommandExecuting is not null)
+        var subCmd = command.SubCommands.FirstOrDefault(subCmd => !subCmd.IsVariableCommand && subCmd.Name == inputCommandArgs);
+        if (subCmd is not null)
         {
             // Found matching 'simple' sub command
-            _subCommandExecuting.PreConditionAction();
+            var r = subCmd.PreConditionAction?.Invoke();
+            if (r is not null)
+            {
+                __result.displayText = r;
+                return __result;
+            }
         }
         else
         {
@@ -135,7 +127,7 @@ internal class TerminalPatch
             if (inputCommandArgs.IsNullOrWhiteSpace()) return command.Node;
 
             // Now try to find a matching variable input command
-            _subCommandExecuting = command.SubCommands.FirstOrDefault(subCmd =>
+            subCmd = command.SubCommands.FirstOrDefault(subCmd =>
             {
                 if (!subCmd.IsVariableCommand) return false;
 
@@ -144,44 +136,76 @@ internal class TerminalPatch
                 var match = regex.Match(inputCommandArgs);
                 return match.Success;
             });
-            _subCommandExecuting?.VariablePreAction(inputCommandArgs);
+            var r = subCmd?.VariablePreAction?.Invoke(inputCommandArgs);
+            if (r is not null)
+            {
+                __result.displayText = r;
+                return __result;
+            }
         }
 
         // If nothing was found, just return the main commands node
-        if (_subCommandExecuting is null)
+        if (subCmd is null)
         {
             Logger.LogDebugMode($"  > No matching sub command found for input: '{inputCommand}' | '{inputCommandArgs}'");
             return command.Node;
         }
 
         Logger.LogDebugMode("  > checking special conditions");
-        foreach (var conditionString in _subCommandExecuting.Conditions)
+        foreach (var conditionString in subCmd.Conditions)
         {
-            var specialCondition = command.SpecialNodes.FirstOrDefault(x => x.node.name.EndsWith(conditionString));
-            if (specialCondition == default)
+            var conditionNode = command.ConditionNodes.FirstOrDefault(x => x.Node.name.EndsWith(conditionString));
+            if (conditionNode is null)
             {
-                Logger.LogError($"> SubCommand {_subCommandExecuting.Name} has special criteria for '{conditionString}' but it is not found as part of the commands' special conditions list.");
+                Logger.LogError($"> SubCommand {subCmd.Name} has special criteria for '{conditionString}' but it is not found as part of the commands' special conditions list.");
                 break;
             }
 
-            Logger.LogDebugMode($"   > {conditionString} = {specialCondition.condition()}");
+            Logger.LogDebugMode($"   > {conditionString} = {conditionNode.Condition()}");
 
-            if (specialCondition.condition()) continue;
+            if (conditionNode.Condition()) continue;
 
-            Logger.LogDebugMode($"   > FAILED: {specialCondition.node.name}");
-            _cleanAfterNext = true;
-            return specialCondition.node;
+            Logger.LogDebugMode($"   > FAILED: {conditionNode.Node.name}");
+            // _cleanAfterNext = true;
+            return conditionNode.Node;
         }
 
         // Finally, if all is well & conditions are happy, return the subCommands node.
-        return _subCommandExecuting.Node;
+        return subCmd.Node;
     }
+
+    // private static TerminalNode UpdateDisplayText(TerminalNode node, Dictionary<string, Func<string>> replacements)
+    // {
+    //     return node;
+    //     var returnNode = node;
+    //     var text = node.displayText;
+    //     foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
+    //     {
+    //         if (!text.Contains(key)) continue;
+    //
+    //         Logger.LogDebugMode($" > found global: {key}");
+    //         text = text.Replace(key, func());
+    //     }
+    //
+    //     foreach (var (key, func) in replacements)
+    //     {
+    //         if (!text.Contains(key)) continue;
+    //
+    //         Logger.LogDebugMode($" > found replacement: {key}");
+    //         text = text.Replace(key, func());
+    //     }
+    //
+    //     returnNode.displayText = text;
+    //     return returnNode;
+    // }
 
     [HarmonyPostfix]
     [HarmonyPatch("TextPostProcess")]
-    public static string TextPostProcessPatch(string __result)
+    public static string TextPostProcessPatch(string mod, TerminalNode node, string __result)
     {
-        Logger.LogDebugMode("TextPostProcessPatch.start");
+        Logger.LogDebugMode($"TextPostProcessPatch.start: {node.name} | {node.terminalEvent}");
+        if (node.terminalEvent is null) return __result;
+        if (!node.terminalEvent.StartsWith("qc:")) return __result;
 
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
@@ -191,24 +215,15 @@ internal class TerminalPatch
             __result = __result.Replace(key, func());
         }
 
-        if (_commandExecuting is null && _subCommandExecuting is null) return __result;
+        var foundCommand = TryGetCommandByEvent(node.terminalEvent, out var command, out var subCommand);
+        if (!foundCommand) return __result;
 
-        if (_commandExecuting is not null)
+        foreach (var (key, func) in command.TextProcessPlaceholders)
         {
-            foreach (var (key, func) in _commandExecuting.TextProcessPlaceholders)
-            {
-                if (!__result.Contains(key)) continue;
+            if (!__result.Contains(key)) continue;
 
-                Logger.LogDebugMode($" > found command: {_commandExecuting.CommandText}.{key}");
-                __result = __result.Replace(key, func());
-            }
-        }
-
-        if (_cleanAfterNext)
-        {
-            _commandExecuting = null;
-            _subCommandExecuting = null;
-            _cleanAfterNext = false;
+            Logger.LogDebugMode($" > found replacement: {command.CommandText}.{key}");
+            __result = __result.Replace(key, func());
         }
 
         Logger.LogDebugMode("TextPostProcessPatch.end\n");
@@ -221,57 +236,111 @@ internal class TerminalPatch
     public static void RunTerminalEventsPatch(TerminalNode node)
     {
         Logger.LogDebugMode($"RunTerminalEvents: | " +
-                            $"exec: {_commandExecuting?.CommandText ?? "null"}, {_subCommandExecuting?.Id ?? "null"} | " +
                             $"node.name: {node.name ?? "null"} | " +
-                            $"node.terminalEvent: {node.terminalEvent ?? "empty"}");
+                            $"node.terminalEvent: {node.terminalEvent ?? "empty"} | " +
+                            $"node.isConfirm: {node.isConfirmationNode}");
 
-        if (_commandExecuting is null) return;
-        if (node.terminalEvent.IsNullOrWhiteSpace()) return;
+        if (ShouldSkipNode(node)) return;
 
-        Logger.LogDebugMode($" > Checking {_commandExecuting.Node.name} | {_commandExecuting.ActionEvent}");
+        Logger.LogDebugMode($" > Checking {node.name}");
 
-        if (_commandExecuting.IsSimpleCommand && _commandExecuting.ActionEvent == node.terminalEvent)
+        var foundCommand = TryGetCommandByEvent(node.terminalEvent!, out var command, out var subCommand);
+        if (!foundCommand)
+        {
+            // Logger.LogError($"Passed terminal conditions but failed to find an internal command for {node.name} | {node.terminalEvent}");
+            return;
+        }
+
+        Logger.LogDebugMode($"  > Checking {command.Node.name}");
+
+        if (command.IsSimpleCommand)
         {
             Logger.LogDebugMode("  > IsSimpleCommand, SKIP??");
-            Logger.LogDebugMode($" > EXEC simple command: {_commandExecuting.Node.name}");
-            var res = _commandExecuting.Action();
+            Logger.LogDebugMode($" > EXEC simple command: {command.Node.name}");
+            var res = command.Action();
             node.displayText = res + AdvancedTerminal.EndOfMessage;
 
             return;
         }
 
-        Logger.LogDebugMode(" > ComplexCommand");
-        var match = _commandExecuting.SubCommands.FirstOrDefault(x =>
+        if (subCommand is null)
         {
-            Logger.LogDebugMode($" > {x.ActionEvent} ==? {node.terminalEvent}");
-            return x.ActionEvent == node.terminalEvent;
-        });
-        if (match is null) return;
+            Logger.LogError($"Have a complex command but failed to find sub command for {command.Node.name}");
+            return;
+        }
 
-        Logger.LogDebugMode($"  > Found {match.Node.name}");
-        match.Action();
+        Logger.LogDebugMode($"  > Found {subCommand.Node.name}");
+        Logger.LogDebugMode($"   > ActionInputResult {subCommand.ActionInputResult is null}");
+        Logger.LogDebugMode($"   > ActionResult {subCommand.ActionResult is null}");
 
-        // foreach (var command in AdvancedTerminal.Commands)
+        // if (subCommand.ActionWithInput is not null)
         // {
-        //     Logger.LogDebugMode($"  > Checking {command.Node.name}");
-        //
-        //     if (command.IsSimpleCommand && command.ActionEvent == node.terminalEvent)
-        //     {
-        //         Logger.LogDebugMode("  > IsSimpleCommand, SKIP??");
-        //         Logger.LogDebugMode($" > EXEC simple command: {command.Node.name}");
-        //         var res = command.Action();
-        //         node.displayText = res + AdvancedTerminal.EndOfMessage;
-        //
-        //         break;
-        //     }
-        //
-        //     var match = command.SubCommands.FirstOrDefault(x => x.ActionEvent == node.terminalEvent);
-        //     if (match == default) continue;
-        //
-        //     Logger.LogDebugMode($"  > Found {match.Node.name}");
-        //     match.Action();
-        //
-        //     break;
+        //     subCommand.ActionWithInput(_currentInput!);
         // }
+         if (subCommand.ActionInputResult is not null)
+        {
+            var res = subCommand.ActionInputResult(_currentInput!);
+            if (res is not null) node.displayText = res + AdvancedTerminal.EndOfMessage;
+        }
+        // else if (subCommand.Action is not null)
+        // {
+        //     subCommand.Action();
+        // }
+        else if (subCommand.ActionResult is not null)
+        {
+            var res = subCommand.ActionResult();
+            if (res is not null) node.displayText = res + AdvancedTerminal.EndOfMessage;
+        }
+    }
+
+    private static bool ShouldSkipNode(TerminalNode node)
+    {
+        if (node.terminalEvent is null) return true;
+        if (!node.terminalEvent.StartsWith("qc:")) return true;
+        if (node.isConfirmationNode) return true;
+
+        // Skip condition nodes
+        if (node.terminalEvent.EndsWith("_condition")) return true;
+
+        // Skip help nodes
+        if (node.terminalEvent.EndsWith("_help")) return true;
+
+        // Skip deny_event nodes
+        if (node.terminalEvent.EndsWith("_deny_event")) return true;
+
+        return false;
+    }
+
+    private static bool TryGetCommandByEvent(string terminalEvent, out TerminalCommandBuilder command, out TerminalSubCommand? subCommand)
+    {
+        command = null;
+        subCommand = null;
+
+        foreach (var cmd in AdvancedTerminal.Commands)
+        {
+            if (cmd.IsSimpleCommand && cmd.ActionEvent == terminalEvent)
+            {
+                command = cmd;
+                return true;
+            }
+
+            var match = cmd.SubCommands.FirstOrDefault(x => x.ActionEvent == terminalEvent);
+            if (match is not null)
+            {
+                command = cmd;
+                subCommand = match;
+                return true;
+            }
+
+            // search via condition nodes
+            var m = cmd.ConditionNodes.FirstOrDefault(x => x.Node.terminalEvent == terminalEvent);
+            if (m is not null)
+            {
+                command = cmd;
+                return true;
+            }
+        }
+
+        return false;
     }
 }
