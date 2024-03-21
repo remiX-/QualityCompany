@@ -93,7 +93,7 @@ public class TerminalSubCommandBuilder
         _subCommand.ActionResult = () =>
         {
             action();
-            return _subCommand.Node.displayText;
+            return _subCommand.ConfirmMessage;
         };
 
         return this;
@@ -140,11 +140,10 @@ public class TerminalSubCommandBuilder
         _subCommand.ActionEvent = $"qc:{_subCommand.Id}_event";
         _subCommand.Keyword.name = _subCommand.Id;
         _subCommand.Keyword.word = _subCommand.Id;
-            // _subCommand.Node.terminalEvent = _subCommand.ActionEvent;// TODO confirm
+        _subCommand.Node.terminalEvent = _subCommand.ActionEvent;// TODO confirm
 
         if (!_subCommand.Node.isConfirmationNode)
         {
-            // If it's not a confirmation node, set the terminalEvent for the .Action to occur
             return _subCommand;
         }
 

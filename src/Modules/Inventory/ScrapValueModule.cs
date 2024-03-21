@@ -1,4 +1,6 @@
 using QualityCompany.Modules.Core;
+using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using static QualityCompany.Events.GameEvents;
@@ -14,7 +16,9 @@ internal class ScrapValueModule : InventoryBaseUI
     private static readonly Color TextColorAbove50 = new(30f / 255f, 1f, 0f, 0.75f); // green
     private static readonly Color TextColorNoobs = new(1f, 1f, 1f, 0.75f);
 
-    private TextMeshProUGUI _totalScrapValueText;
+    private TextMeshProUGUI? _totalScrapValueText;
+    // private DateTime _currentUpdateTime = DateTime.Now;
+    // private readonly float _deltaForceRefreshDurationMs = 2000;
 
     public ScrapValueModule() : base(nameof(ScrapValueModule))
     { }
@@ -49,6 +53,24 @@ internal class ScrapValueModule : InventoryBaseUI
                 _totalScrapValueText = CreateInventoryGameObject("qc_HUDScrapUITotal", 8, iconFrame, new Vector2(scrapLocalPositionDelta.y * 3, scrapLocalPositionDelta.x * 3));
             }
         }
+    }
+
+    private void Start()
+    {
+        if (!Plugin.Instance.PluginConfig.InventoryScrapForceRefresh) return;
+
+        StartCoroutine(ForceRefreshScrapCoroutine());
+    }
+
+    // ReSharper disable once FunctionRecursiveOnAllPaths
+    private IEnumerator ForceRefreshScrapCoroutine()
+    {
+        Logger.LogDebug("ForceRefreshScrapCoroutine");
+        yield return new WaitForSeconds(1);
+
+        ForceUpdateAllSlots(GameNetworkManager.Instance.localPlayerController);
+
+        StartCoroutine(ForceRefreshScrapCoroutine());
     }
 
     [ModuleOnAttach]

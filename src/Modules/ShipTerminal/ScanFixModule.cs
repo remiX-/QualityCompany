@@ -36,7 +36,12 @@ internal class ScanFixModule
                 var scrapText = allObjectsInDungeon
                     .Select(x => $"{x.itemProperties.name}: ${x.scrapValue}")
                     .Aggregate((first, next) => $"{first}\n{next}");
-                return $"There are {allObjectsInDungeon.Count} objects outside the ship, totalling at an exact value of {allObjectInDungeonTotalScrapValue}.\nItems:\n{scrapText}";
+                var text = $"There are {allObjectsInDungeon.Count} objects outside the ship, totalling at an exact value of {allObjectInDungeonTotalScrapValue}.";
+                if (Plugin.Instance.PluginConfig.TerminalPatchFixScanItemsListEnabled)
+                {
+                    text += $"\nItems:\n{scrapText}";
+                }
+                return text;
             }
 
             var allInShip = ScrapUtils.GetAllScrapInShip();

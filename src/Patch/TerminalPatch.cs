@@ -247,7 +247,7 @@ internal class TerminalPatch
         var foundCommand = TryGetCommandByEvent(node.terminalEvent!, out var command, out var subCommand);
         if (!foundCommand)
         {
-            Logger.LogError($"Passed terminal conditions but failed to find an internal command for {node.name} | {node.terminalEvent}");
+            // Logger.LogError($"Passed terminal conditions but failed to find an internal command for {node.name} | {node.terminalEvent}");
             return;
         }
 
