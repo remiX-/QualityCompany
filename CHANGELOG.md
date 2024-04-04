@@ -1,3 +1,9 @@
+# v1.5.0
+
+- Some MORE fixes to the Terminal Commands & Patching
+- Improved scan command to show items list, configurable (default: disabled)
+- Implemented force refresh of scrap ui every second, configurable (default: disabled)
+
 # v1.4.0
 
 - Some minor fixes to the Terminal Commands & Patching
