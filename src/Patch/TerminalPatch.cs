@@ -204,8 +204,10 @@ internal class TerminalPatch
     public static string TextPostProcessPatch(string mod, TerminalNode node, string __result)
     {
         Logger.LogDebugMode($"TextPostProcessPatch.start: {node.name} | {node.terminalEvent}");
+        Logger.LogDebugMode("1");
         if (node.terminalEvent is null) return __result;
         if (!node.terminalEvent.StartsWith("qc:")) return __result;
+        Logger.LogDebugMode("2");
 
         foreach (var (key, func) in AdvancedTerminal.GlobalTextReplacements)
         {
@@ -215,8 +217,11 @@ internal class TerminalPatch
             __result = __result.Replace(key, func());
         }
 
+        Logger.LogDebugMode("3");
         var foundCommand = TryGetCommandByEvent(node.terminalEvent, out var command, out var subCommand);
+        Logger.LogDebugMode("4");
         if (!foundCommand) return __result;
+        Logger.LogDebugMode("5");
 
         foreach (var (key, func) in command.TextProcessPlaceholders)
         {
@@ -247,7 +252,7 @@ internal class TerminalPatch
         var foundCommand = TryGetCommandByEvent(node.terminalEvent!, out var command, out var subCommand);
         if (!foundCommand)
         {
-            // Logger.LogError($"Passed terminal conditions but failed to find an internal command for {node.name} | {node.terminalEvent}");
+            Logger.LogError($"Passed terminal conditions but failed to find an internal command for {node.name} | {node.terminalEvent}");
             return;
         }
 
@@ -313,15 +318,28 @@ internal class TerminalPatch
 
     private static bool TryGetCommandByEvent(string terminalEvent, out TerminalCommandBuilder command, out TerminalSubCommand? subCommand)
     {
+        Logger.LogDebugMode("TryGetCommandByEvent.start");
+        Logger.LogDebugMode($"  > {terminalEvent}");
         command = null;
         subCommand = null;
 
         foreach (var cmd in AdvancedTerminal.Commands)
         {
-            if (cmd.IsSimpleCommand && cmd.ActionEvent == terminalEvent)
+            Logger.LogDebugMode($"    > {cmd.IsSimpleCommand} | {cmd.ActionEvent}");
+            // if (cmd.IsSimpleCommand && cmd.ActionEvent == terminalEvent)
+            // {
+            //     command = cmd;
+            //     return true;
+            // }
+            if (cmd.ActionEvent == terminalEvent)
             {
                 command = cmd;
                 return true;
+            }
+
+            foreach (var terminalSubCommand in cmd.SubCommands)
+            {
+                Logger.LogDebugMode($"    > {terminalSubCommand.ActionEvent} | {terminalSubCommand.Keyword.word}");
             }
 
             var match = cmd.SubCommands.FirstOrDefault(x => x.ActionEvent == terminalEvent);
@@ -341,6 +359,7 @@ internal class TerminalPatch
             }
         }
 
+        Logger.LogDebugMode("TryGetCommandByEvent.end");
         return false;
     }
 }
