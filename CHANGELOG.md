@@ -1,3 +1,8 @@
+# v1.5.1
+
+- Fix issues with latest game and Terminal changes
+- Fix an issue where root-level command isn't being picked up for text replacements and probably more
+
 # v1.5.0
 
 - Some MORE fixes to the Terminal Commands & Patching

@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.1</TargetFramework>
 		<AssemblyName>QualityCompany</AssemblyName>
-		<Version>1.5.0</Version>
+		<Version>1.5.1</Version>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -56,14 +56,14 @@
 	<Target Name="NetcodePatch" AfterTargets="Build">
 		<Message Text="NetcodePatch task" Importance="High" />
 
-		<Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
+		<Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.0 -tv 1.0.0 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
 	</Target>
 
-	<Target Name="Release" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'">
-		<Message Text="Configured for release, running release script." Importance="High" />
-
-		<Exec Command="powershell $(SolutionDir)release.ps1" />
-
-		<Message Text="Release complete!" Importance="High" />
-	</Target>
+	<!-- <Target Name="Release" AfterTargets="NetcodePatch" Condition="'$(Configuration)' == 'Release'"> -->
+	<!-- 	<Message Text="Configured for release, running release script." Importance="High" /> -->
+	<!-- -->
+	<!-- 	<Exec Command="powershell $(SolutionDir)release.ps1" /> -->
+	<!-- -->
+	<!-- 	<Message Text="Release complete!" Importance="High" /> -->
+	<!-- </Target> -->
 </Project>

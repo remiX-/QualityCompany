@@ -29,9 +29,9 @@ If (-not (Test-Path $ReleaseDir)) {
 # update manifest.json version
 $ModManifestFile = "$PSScriptRoot\manifest.json"
 $ModManifestTmpFile = "$PSScriptRoot\manifest_tmp.json"
-Get-Content $ModManifestFile | jq --arg version "$Version" '.version_number = "$version"' > $ModManifestTmpFile
-Copy-Item $ModManifestTmpFile $ModManifestFile
-Remove-Item $ModManifestTmpFile
+# Get-Content $ModManifestFile | jq --arg version "$Version" '.version_number = "$version"' > $ModManifestTmpFile
+# Copy-Item $ModManifestTmpFile $ModManifestFile
+# Remove-Item $ModManifestTmpFile
 
 function CopyItemToBuild {
     $src = $args[0]

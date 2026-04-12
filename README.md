@@ -174,6 +174,7 @@ NOTE: This will MOST LIKELY cause de-sync issues with a couple of things, primar
 ## Terminal
 
 ### **SellIgnoreList**
+
 **[HOST]** A comma separated list of items to ignore in the ship. Does not have to be the exact name but at least a matching portion. e.g. 'trag' for 'tragedy' or 'mask' for both 'TragedyMask' and 'ComedyMask'\
 **DEFAULT**: "shotgun,gunammo,gift"
 

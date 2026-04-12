@@ -296,6 +296,8 @@ $WindowHeight = [Math]::Floor($ScreenHeight * $config.windowSize)
 # Prepare arguments for game launch
 $arguments = PrepareGameLaunchArguments -Width $WindowWidth -Height $WindowHeight -Config $config
 
+Write-Host $arguments
+
 # Launch the Game
 # ----------------
 foreach ($i in 1..$config.windowCount){
