@@ -132,11 +132,7 @@ public class TerminalCommandBuilder
                 .Select(x => x.Build(CommandText, confirmKeyword, denyKeyword))
                 .ToList();
             NodeKeyword.isVerb = SubCommands.Any();
-            NodeKeyword.compatibleNouns = SubCommands.Select(keyword => new CompatibleNoun
-            {
-                noun = keyword.Keyword,
-                result = keyword.Node
-            }).ToArray();
+            NodeKeyword.compatibleNouns = SubCommands.Select(keyword => new CompatibleNoun(keyword.Keyword, keyword.Node)).ToArray();
 
             Node.displayText += string.Concat(SubCommands.Select(sc => $"\n\n> {sc.Name}\n{sc.Description}"));
         }
@@ -148,16 +144,8 @@ public class TerminalCommandBuilder
             Node.displayText += "[confirmOrDeny]";
             Node.terminalOptions = new[]
             {
-                new CompatibleNoun
-                {
-                    noun = confirmKeyword,
-                    result = TerminalUtils.CreateConfirmNode(CommandText, ConfirmMessage)
-                },
-                new CompatibleNoun
-                {
-                    noun = denyKeyword,
-                    result = TerminalUtils.CreateDenyNode(CommandText, DenyMessage)
-                }
+                new CompatibleNoun(confirmKeyword, TerminalUtils.CreateConfirmNode(CommandText, ConfirmMessage)),
+                new CompatibleNoun(denyKeyword, TerminalUtils.CreateDenyNode(CommandText, DenyMessage))
             };
         }
         else

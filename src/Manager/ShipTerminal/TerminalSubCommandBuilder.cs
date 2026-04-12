@@ -150,16 +150,8 @@ public class TerminalSubCommandBuilder
         _subCommand.Node.displayText += "[confirmOrDeny]";
         _subCommand.Node.terminalOptions = new[]
         {
-            new CompatibleNoun
-            {
-                noun = confirmKeyword,
-                result = TerminalUtils.CreateConfirmNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.ConfirmMessage, $"{_subCommand.Id}_event")
-            },
-            new CompatibleNoun
-            {
-                noun = denyKeyword,
-                result = TerminalUtils.CreateDenyNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.DenyMessage)
-            }
+            new CompatibleNoun(confirmKeyword, TerminalUtils.CreateConfirmNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.ConfirmMessage, $"{_subCommand.Id}_event")),
+            new CompatibleNoun(denyKeyword, TerminalUtils.CreateDenyNode($"{rootCommandName}_{_subCommand.Name}", _subCommand.DenyMessage))
         };
 
         return _subCommand;
